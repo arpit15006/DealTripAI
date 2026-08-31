@@ -26,15 +26,15 @@ import ScrollToTop from '@/components/layout/ScrollToTop'
 import themeConfig from '@/configs/themeConfig'
 
 export const metadata: Metadata = {
-  title: 'Tourix - Shadcn UI Travel Management App Template',
+  title: 'DealTrip — the agentic deal desk for travel',
   description:
-    'Build modern travel platforms faster with Tourix Shadcn Travel Management App Template, featuring bookings, tour packages, customers, payments, invoices, and travel management tools.',
+    'Describe the trip you want. DealTrip turns it into hard constraints, negotiates with merchant agents inside their own commercial policy, and settles through Razorpay — with every money decision explainable and auditable.',
   openGraph: {
-    title: 'Tourix - Shadcn UI Travel Management App Template',
+    title: 'DealTrip — the agentic deal desk for travel',
     description:
-      'Build modern travel platforms faster with Tourix Shadcn Travel Management App Template, featuring bookings, tour packages, customers, payments, invoices, and travel management tools.',
+      'Describe the trip you want. DealTrip turns it into hard constraints, negotiates with merchant agents inside their own commercial policy, and settles through Razorpay — with every money decision explainable and auditable.',
     type: 'website',
-    siteName: 'Tourix',
+    siteName: 'DealTrip',
     url: process.env.NEXT_PUBLIC_APP_URL,
     images: [
       {
@@ -42,15 +42,15 @@ export const metadata: Metadata = {
         type: 'image/png',
         width: 1200,
         height: 630,
-        alt: 'Tourix - Shadcn UI Travel Management App Template'
+        alt: 'DealTrip — the agentic deal desk for travel'
       }
     ]
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Tourix - Shadcn UI Travel Management App Template',
+    title: 'DealTrip — the agentic deal desk for travel',
     description:
-      'Build modern travel platforms faster with Tourix Shadcn Travel Management App Template, featuring bookings, tour packages, customers, payments, invoices, and travel management tools.'
+      'Describe the trip you want. DealTrip turns it into hard constraints, negotiates with merchant agents inside their own commercial policy, and settles through Razorpay — with every money decision explainable and auditable.'
   }
 }
 

@@ -19,40 +19,36 @@ const Footer = () => {
         )}
       >
         <p className='text-sm text-balance max-sm:text-center'>
-          {`©${new Date().getFullYear()}`}{' '}
-          <Link href='https://shadcnstudio.com' target='_blank' className='text-primary hover:underline'>
-            shadcn/studio
-          </Link>
-          , Made for better web design
+          {`©${new Date().getFullYear()}`} DealTrip — the agentic deal desk for travel. Synthetic demonstration
+          inventory built for the Razorpay Buildathon.
         </p>
         <div className='flex items-center gap-5 max-sm:hidden'>
           <Link
-            href='https://shadcnstudio.com/license'
-            target='_blank'
+            href='/dashboard/agent-api'
             className='text-muted-foreground hover:text-foreground text-sm transition duration-300'
           >
-            License
+            Agent API
           </Link>
           <Link
-            href='https://shadcnstudio.com/templates/admin-dashboard'
+            href='/.well-known/agent-commerce.json'
             target='_blank'
             className='text-muted-foreground hover:text-foreground text-sm transition duration-300'
           >
-            More Dashboards
+            Discovery document
           </Link>
           <Link
-            href='https://shadcnstudio.com/docs/documentation-admin/getting-started'
+            href='/.well-known/agent-commerce.json'
             target='_blank'
             className='text-muted-foreground hover:text-foreground text-sm transition duration-300'
           >
-            Documentation
+            Discovery document
           </Link>
           <Link
-            href='https://shadcnstudio.com/support'
+            href='/.well-known/agent-commerce.json'
             target='_blank'
             className='text-muted-foreground hover:text-foreground text-sm transition duration-300'
           >
-            Support
+            Discovery document
           </Link>
         </div>
       </div>

@@ -253,7 +253,7 @@ const SidebarLayout = () => {
               <LogoSvg className='[&_rect]:fill-sidebar [&_rect:first-child]:fill-primary' />
               <div className='flex flex-col items-start'>
                 <span className='text-lg font-semibold text-nowrap'>{themeConfig.templateName}</span>
-                <span className='text-xs font-light text-nowrap'>Dashboard Template</span>
+                <span className='text-xs font-light text-nowrap'>Agentic deal desk</span>
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -294,8 +294,8 @@ const SidebarLayout = () => {
           <div className='from-foreground/40 absolute inset-0 -z-10 bg-linear-to-b from-75% to-transparent' />
 
           <div>
-            <p className='text-secondary text-base font-semibold'>Visit Website</p>
-            <p className='text-secondary text-xs'>Explore the landing experience</p>
+            <p className='text-secondary text-base font-semibold'>Start a negotiation</p>
+            <p className='text-secondary text-xs'>Describe a trip and watch the desk work</p>
           </div>
 
           <span className='bg-primary text-primary-foreground ml-auto flex size-8 shrink-0 items-center justify-center rounded-full shadow transition-transform duration-300 group-hover/home-card:translate-x-1'>

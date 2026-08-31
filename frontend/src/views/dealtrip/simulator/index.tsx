@@ -1,11 +1,11 @@
 'use client'
 
 // React Imports
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 // Third-party Imports
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts'
-import { FlaskConicalIcon, InfoIcon, Loader2Icon, PlayIcon } from 'lucide-react'
+import { CheckIcon, FlaskConicalIcon, InfoIcon, Loader2Icon, PlayIcon, XIcon } from 'lucide-react'
 import { toast } from 'sonner'
 
 // Component Imports
@@ -16,13 +16,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { type ChartConfig, ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Progress } from '@/components/ui/progress'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 // Lib Imports
-import { ApiError, runSimulation } from '@/lib/dealtrip/client'
 import { formatINR } from '@/lib/dealtrip/pricing'
 
-import type { SimulationResult } from '@/lib/dealtrip/simulator'
+import { cn } from '@/lib/utils'
+
+import type { SimulationResult, SimulationTick } from '@/lib/dealtrip/simulator'
 
 const chartConfig = {
   static_selling: { label: 'Static selling', color: 'var(--chart-3)' },
@@ -44,18 +47,71 @@ const RevenueSimulator = ({ destinations }: { destinations: string[] }) => {
   const [destination, setDestination] = useState(destinations[0] ?? 'Goa')
   const [running, setRunning] = useState(false)
   const [result, setResult] = useState<(SimulationResult & { runtime_ms: number }) | null>(null)
+  const [ticks, setTicks] = useState<SimulationTick[]>([])
+  const [contacted, setContacted] = useState<string[]>([])
+  const source = useRef<EventSource | null>(null)
+  const logEnd = useRef<HTMLDivElement | null>(null)
 
-  const run = async () => {
+  // Close the stream if the operator navigates away mid-run.
+  useEffect(() => () => source.current?.close(), [])
+
+  useEffect(() => {
+    logEnd.current?.scrollIntoView({ block: 'nearest' })
+  }, [ticks.length])
+
+  const run = () => {
+    source.current?.close()
     setRunning(true)
+    setResult(null)
+    setTicks([])
+    setContacted([])
 
-    try {
-      setResult(await runSimulation({ intents, destination, seed }))
-    } catch (error) {
-      toast.error(error instanceof ApiError ? error.message : 'The simulation failed.')
-    } finally {
+    const params = new URLSearchParams({
+      intents: String(intents),
+      destination,
+      seed: String(seed)
+    })
+
+    const es = new EventSource(`/api/simulate/stream?${params}`)
+
+    source.current = es
+
+    es.onmessage = event => {
+      const payload = JSON.parse(event.data) as
+        | { type: 'start'; merchants: string[] }
+        | { type: 'tick'; tick: SimulationTick }
+        | { type: 'done'; result: SimulationResult & { runtime_ms: number } }
+        | { type: 'error'; message: string }
+
+      if (payload.type === 'start') setContacted(payload.merchants)
+      if (payload.type === 'tick') setTicks(current => [...current, payload.tick])
+
+      if (payload.type === 'done') {
+        setResult(payload.result)
+        setRunning(false)
+        es.close()
+      }
+
+      if (payload.type === 'error') {
+        toast.error(payload.message)
+        setRunning(false)
+        es.close()
+      }
+    }
+
+    es.onerror = () => {
+      es.close()
       setRunning(false)
+      setTicks(current => {
+        if (current.length === 0) toast.error('Could not reach the simulator.')
+
+        return current
+      })
     }
   }
+
+  const latest = ticks[ticks.length - 1]
+  const progress = latest ? (latest.index / latest.total) * 100 : 0
 
   const chartData = result
     ? [
@@ -134,6 +190,96 @@ const RevenueSimulator = ({ destinations }: { destinations: string[] }) => {
           )}
         </CardContent>
       </Card>
+
+      {/* ── Live run ─────────────────────────────────────────────────── */}
+      {(running || ticks.length > 0) && (
+        <Card className='gap-0 py-0'>
+          <CardHeader className='flex flex-row flex-wrap items-center justify-between gap-2 px-4 py-3'>
+            <CardTitle className='flex items-center gap-2 text-sm'>
+              {running ? <Loader2Icon className='size-4 animate-spin' /> : <CheckIcon className='size-4 text-green-600 dark:text-green-400' />}
+              {running ? 'Negotiating' : 'Run complete'}
+              {latest && (
+                <span className='text-muted-foreground font-mono text-xs font-normal tabular-nums'>
+                  {latest.index} / {latest.total}
+                </span>
+              )}
+            </CardTitle>
+            {contacted.length > 0 && (
+              <span className='text-muted-foreground text-xs'>
+                against {contacted.length} merchants in {destination}
+              </span>
+            )}
+          </CardHeader>
+
+          <div className='border-t px-4 py-3'>
+            <Progress value={progress} className='h-1.5' />
+
+            {latest && (
+              <div className='mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4'>
+                <Live label='Static booked' value={String(latest.running.static_bookings)} />
+                <Live label='DealTrip booked' value={String(latest.running.agentic_bookings)} accent />
+                <Live label='Static revenue' value={formatINR(latest.running.static_revenue)} />
+                <Live label='DealTrip revenue' value={formatINR(latest.running.agentic_revenue)} accent />
+              </div>
+            )}
+          </div>
+
+          {/* One line per traveller, as their outcome is decided. */}
+          <ScrollArea className='h-56 border-t'>
+            <ul className='divide-border/50 divide-y font-mono text-[11px]'>
+              {ticks.map(tick => (
+                <li key={tick.index} className='flex flex-wrap items-center gap-x-2 gap-y-0.5 px-4 py-1.5'>
+                  <span className='text-muted-foreground w-10 shrink-0 tabular-nums'>#{tick.index}</span>
+                  <span className='text-muted-foreground w-28 shrink-0'>
+                    {tick.travelers}p · {tick.nights}n · {formatINR(tick.budget)}
+                  </span>
+
+                  <span className='w-44 shrink-0 truncate'>
+                    {tick.static_sale ? (
+                      <span className='text-muted-foreground'>
+                        static → {tick.static_sale.merchant} {formatINR(tick.static_sale.price)}
+                      </span>
+                    ) : (
+                      <span className='text-muted-foreground/60'>static → no sale</span>
+                    )}
+                  </span>
+
+                  <span className='min-w-0 flex-1 truncate'>
+                    {tick.agentic_sale ? (
+                      <span className='text-foreground'>
+                        DealTrip → {tick.agentic_sale.merchant} {formatINR(tick.agentic_sale.price)}
+                        <span className='text-muted-foreground'> r{tick.agentic_sale.rounds}</span>
+                      </span>
+                    ) : (
+                      <span className='text-destructive/80'>DealTrip → no deal</span>
+                    )}
+                  </span>
+
+                  {!tick.static_sale && tick.agentic_sale && (
+                    <span className='shrink-0 rounded bg-green-600/10 px-1.5 py-0.5 text-green-700 dark:text-green-400'>
+                      recovered
+                    </span>
+                  )}
+                  {tick.blocked > 0 && (
+                    <span className='text-muted-foreground shrink-0 inline-flex items-center gap-0.5'>
+                      <XIcon className='size-3' />
+                      {tick.blocked}
+                    </span>
+                  )}
+                </li>
+              ))}
+              <div ref={logEnd} />
+            </ul>
+          </ScrollArea>
+
+          <p className='text-muted-foreground border-t px-4 py-2 text-[11px]'>
+            <span className='inline-flex items-center gap-0.5'>
+              <XIcon className='size-3' />n
+            </span>{' '}
+            = offers the Commerce Guard refused for that traveller, before the desk countered.
+          </p>
+        </Card>
+      )}
 
       {result && (
         <>
@@ -272,6 +418,13 @@ const RevenueSimulator = ({ destinations }: { destinations: string[] }) => {
     </div>
   )
 }
+
+const Live = ({ label, value, accent }: { label: string; value: string; accent?: boolean }) => (
+  <div>
+    <p className='text-muted-foreground text-[11px]'>{label}</p>
+    <p className={cn('text-sm font-semibold tabular-nums', accent && 'text-primary')}>{value}</p>
+  </div>
+)
 
 const Delta = ({
   label,

@@ -17,7 +17,7 @@
  */
 
 const themeConfig = {
-  templateName: 'Tourix',
+  templateName: 'DealTrip',
   homePageUrl: '/dashboard',
   settingsCookieName: 'shadcn-next-admin-settings',
   mode: 'system', // 'system' | 'light' | 'dark'

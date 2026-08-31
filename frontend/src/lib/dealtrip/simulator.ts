@@ -240,6 +240,25 @@ export interface SimulationConfig {
   seed: number
 }
 
+/** One traveller's outcome under both arms, emitted as the run proceeds. */
+export interface SimulationTick {
+  index: number
+  total: number
+  travelers: number
+  nights: number
+  budget: number
+  /** What the static shelf sold them, if anything. */
+  static_sale: { merchant: string; price: number } | null
+  /** What the deal desk sold them, if anything. */
+  agentic_sale: { merchant: string; price: number; rounds: number } | null
+  counters: number
+  blocked: number
+  /** Running totals, so a viewer never has to add up the stream themselves. */
+  running: { static_revenue: number; agentic_revenue: number; static_bookings: number; agentic_bookings: number }
+}
+
+export type ProgressSink = (tick: SimulationTick) => void | Promise<void>
+
 export interface ArmMetrics {
   bookings: number
   conversion_rate: number
@@ -301,7 +320,8 @@ const round = (n: number, dp: number) => Math.round(n * 10 ** dp) / 10 ** dp
 
 export const runSimulation = async (
   merchants: Merchant[],
-  config: SimulationConfig
+  config: SimulationConfig,
+  onProgress?: ProgressSink
 ): Promise<SimulationResult> => {
   const intents = generateIntents(config.intents, config.destination, config.seed)
   const store = await createMemoryStore()
@@ -379,6 +399,26 @@ export const runSimulation = async (
 
       if (!baseline) recovered += 1
     }
+
+    await onProgress?.({
+      index: index + 1,
+      total: intents.length,
+      travelers: intent.travelers,
+      nights: intent.duration_nights,
+      budget: intent.budget.max,
+      static_sale: baseline ? { merchant: baseline.merchant_name, price: baseline.price } : null,
+      agentic_sale: winner
+        ? { merchant: winner.merchant.name, price: winner.offer.quote.total_price, rounds: winner.offer.round }
+        : null,
+      counters: events.filter(e => e.action === 'counter_request').length,
+      blocked: events.filter(e => e.action === 'offer_rejected').length,
+      running: {
+        static_revenue: staticArm.revenue,
+        agentic_revenue: agenticArm.revenue,
+        static_bookings: staticArm.bookings,
+        agentic_bookings: agenticArm.bookings
+      }
+    })
   }
 
   const staticFinal = finalize(staticArm, intents.length, staticScoreSum)
