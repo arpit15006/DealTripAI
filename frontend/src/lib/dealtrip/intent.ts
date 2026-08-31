@@ -257,5 +257,5 @@ export const extractIntent = async (
       `Traveller's request:\n"""\n${raw}\n"""`,
     fallback: () => heuristicIntent(raw, knownDestinations),
     temperature: 0.1,
-    max_tokens: 1200
+    max_tokens: 700
   })

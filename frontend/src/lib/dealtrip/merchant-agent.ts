@@ -124,7 +124,7 @@ const candidateBrief = (candidates: PlanCandidate[], merchant: Merchant) =>
   candidates.length === 0
     ? 'None of your packages can legally reach this target.'
     : candidates
-        .slice(0, 5)
+        .slice(0, 3)
         .map((c, i) => {
           const room = merchant.rooms.find(r => r.id === c.bundle.room_id)
           const addons = c.bundle.addon_ids
@@ -249,7 +249,7 @@ is a capability you lack, not a price you disagree on.`,
         explainNoCandidate({ merchant, intent, nights, travelers, target_price: null })
       ),
     temperature: 0.5,
-    max_tokens: 1800,
+    max_tokens: 700,
     enabled: use_llm
   })
 
@@ -338,7 +338,7 @@ can_meet_request to false and explain why in one sentence.`,
         plannerChoice ? diffBundles(merchant, previous.bundle, plannerChoice.bundle) : []
       ),
     temperature: 0.45,
-    max_tokens: 1800,
+    max_tokens: 700,
     enabled: use_llm
   })
 

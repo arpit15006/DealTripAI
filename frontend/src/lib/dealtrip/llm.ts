@@ -37,9 +37,16 @@ const MAX_CONCURRENCY = Number(process.env.LLM_MAX_CONCURRENCY ?? 3)
 const MAX_TRANSPORT_ATTEMPTS = Number(process.env.LLM_MAX_RETRIES ?? 3)
 
 /**
- * Reasoning models spend tokens thinking before they emit anything. Budget the
- * completion for the reasoning as well as the JSON, or the response is truncated
- * mid-document and the API rejects its own output.
+ * Reasoning models spend tokens thinking before they emit anything, so the
+ * completion budget has to cover the reasoning as well as the JSON or the
+ * response is truncated mid-document and the API rejects its own output.
+ *
+ * But the ceiling must not be generous "just in case": Groq reserves
+ * max_completion_tokens against the per-minute token budget rather than
+ * metering what is actually produced. Measured usage on a merchant turn is
+ * ~175 completion tokens at low effort, so the ceilings below sit at roughly
+ * 4x headroom rather than 10x — which is the difference between four and six
+ * agents negotiating per minute.
  */
 const REASONING_EFFORT = process.env.LLM_REASONING_EFFORT ?? 'low'
 
@@ -71,6 +78,9 @@ declare global {
 const gate = (globalThis.__dealtripLlmGate ??= new Semaphore(MAX_CONCURRENCY))
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
+/** Usage from the most recent successful call, for tuning the token ceiling. */
+let lastUsage: { prompt: number; completion: number } = { prompt: 0, completion: 0 }
 
 export type LlmSource = 'model' | 'fallback'
 
@@ -161,11 +171,23 @@ const callOnce = async (system: string, user: string, temperature: number, maxTo
 
     const json = (await res.json()) as {
       choices?: { message?: { content?: string } }[]
+      usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number }
     }
 
     const content = json.choices?.[0]?.message?.content
 
     if (!content) throw new Error('Model returned no content')
+
+    /*
+     * Token accounting matters here beyond curiosity: Groq reserves
+     * max_completion_tokens against the per-minute budget rather than metering
+     * what is actually produced, so an over-generous ceiling throttles the whole
+     * marketplace. Logging real usage is how that ceiling gets sized honestly.
+     */
+    lastUsage = {
+      prompt: json.usage?.prompt_tokens ?? 0,
+      completion: json.usage?.completion_tokens ?? 0
+    }
 
     return content
   } finally {
@@ -211,7 +233,7 @@ export const structured = async <T>({
   user,
   fallback,
   temperature = 0.2,
-  max_tokens = 4000,
+  max_tokens = 1200,
   enabled = true
 }: StructuredArgs<T>): Promise<LlmResult<T>> => {
   const started = Date.now()
@@ -247,6 +269,9 @@ export const structured = async <T>({
       const parsed = schema.safeParse(JSON.parse(extractJson(content)))
 
       if (parsed.success) {
+        if (process.env.LLM_LOG_USAGE === '1')
+          console.info(`[dealtrip:llm] ${label} prompt=${lastUsage.prompt} completion=${lastUsage.completion}`)
+
         return {
           data: parsed.data,
           source: 'model',
