@@ -187,7 +187,7 @@ const IntentComposer = () => {
               <div className='flex flex-col gap-1.5'>
                 <Label htmlFor='destination'>Destination</Label>
                 <Select value={intent.destination} onValueChange={value => value && patch({ destination: value })}>
-                  <SelectTrigger id='destination'>
+                  <SelectTrigger id='destination' className='w-full'>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -254,7 +254,7 @@ const IntentComposer = () => {
                     value && patch({ budget: { ...intent.budget, type: value as TravelIntent['budget']['type'] } })
                   }
                 >
-                  <SelectTrigger id='budget-type'>
+                  <SelectTrigger id='budget-type' className='w-full'>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -288,7 +288,7 @@ const IntentComposer = () => {
                   value={intent.priority}
                   onValueChange={value => value && patch({ priority: value as TravelIntent['priority'] })}
                 >
-                  <SelectTrigger id='priority'>
+                  <SelectTrigger id='priority' className='w-full'>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>

@@ -80,7 +80,7 @@ const RequirementEditor = ({ value, onChange }: Props) => {
             <span className='flex-1 text-sm font-medium'>{ATTRIBUTE_LABELS[attribute]}</span>
 
             <Select value={strength} onValueChange={next => next && setStrength(attribute, next as RequirementStrength)}>
-              <SelectTrigger size='sm' className='bg-background h-7 w-36 text-xs'>
+              <SelectTrigger size='sm' className='bg-background h-7 w-32 shrink-0 text-xs'>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
