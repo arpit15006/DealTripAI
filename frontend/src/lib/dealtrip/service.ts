@@ -100,5 +100,26 @@ export const CORS = {
   'access-control-allow-headers': 'content-type'
 }
 
-export const agentJson = (data: unknown, init?: ResponseInit) =>
-  json(data, { ...init, headers: { ...CORS, ...(init?.headers ?? {}) } })
+/**
+ * Agent-facing JSON response.
+ *
+ * Minified for machines, indented for people. The distinction is drawn from the
+ * caller's own Accept header: a browser asks for text/html first, an agent does
+ * not. Same bytes of meaning either way — but these endpoints are the evidence
+ * that the catalog really is machine-readable, so the one time a human opens
+ * one it should be legible without them having to find a checkbox.
+ */
+export const agentJson = (data: unknown, init?: ResponseInit, request?: Request) => {
+  const wantsHtml = request?.headers.get('accept')?.includes('text/html') ?? false
+  const body = wantsHtml ? JSON.stringify(data, null, 2) : JSON.stringify(data)
+
+  return new Response(body, {
+    ...init,
+    headers: {
+      'content-type': 'application/json; charset=utf-8',
+      'cache-control': 'no-store',
+      ...CORS,
+      ...(init?.headers ?? {})
+    }
+  })
+}

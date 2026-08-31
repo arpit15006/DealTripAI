@@ -33,7 +33,7 @@ export const POST = async (request: Request, { params }: { params: Promise<{ slu
   const { slug } = await params
   const merchant = (await allMerchants()).find(m => m.slug === slug || m.id === slug)
 
-  if (!merchant) return agentJson({ error: 'Unknown merchant.' }, { status: 404 })
+  if (!merchant) return agentJson({ error: 'Unknown merchant.' }, { status: 404 }, request)
 
   const parsed = RequestSchema.safeParse(await request.json().catch(() => null))
 
@@ -45,7 +45,7 @@ export const POST = async (request: Request, { params }: { params: Promise<{ slu
         hint: 'POST { intent, previous_bundle, counter: { type: "COUNTER_REQUEST", max_price, preserve[], preferred[], substitution_allowed[], message }, round }'
       },
       { status: 400 }
-    )
+    , request)
 
   const { intent, previous_bundle, counter, round } = parsed.data
   const nights = intent.duration_nights
@@ -62,8 +62,7 @@ export const POST = async (request: Request, { params }: { params: Promise<{ slu
         reason: `${merchant.name} permits ${merchant.policy.max_counter_rounds} revision(s); this would be round ${round}.`,
         max_counter_rounds: merchant.policy.max_counter_rounds
       },
-      { status: 409 }
-    )
+      { status: 409 }, request)
 
   let previous: Offer
 
@@ -82,10 +81,7 @@ export const POST = async (request: Request, { params }: { params: Promise<{ slu
       expires_at: new Date(Date.now() + 600_000).toISOString()
     }
   } catch (error) {
-    return agentJson(
-      { revised: false, error: error instanceof CatalogError ? error.message : 'previous_bundle could not be priced.' },
-      { status: 422 }
-    )
+    return agentJson({ revised: false, error: error instanceof CatalogError ? error.message : 'previous_bundle could not be priced.' }, { status: 422 }, request)
   }
 
   const turn = await reviseOffer({
@@ -106,7 +102,7 @@ export const POST = async (request: Request, { params }: { params: Promise<{ slu
       reason: turn.proposal.withdrawal_reason ?? 'The target is not reachable within this merchant’s boundaries.',
       merchant: { id: merchant.id, name: merchant.name },
       note: 'A merchant declining is a valid outcome. Its margin floor and discount ceiling are enforced server-side and are not published.'
-    })
+    }, undefined, request)
 
   let offer: Offer
 
@@ -121,10 +117,7 @@ export const POST = async (request: Request, { params }: { params: Promise<{ slu
       default_check_in: defaultCheckIn
     })
   } catch (error) {
-    return agentJson(
-      { revised: false, error: error instanceof CatalogError ? error.message : 'Could not price the revision.' },
-      { status: 422 }
-    )
+    return agentJson({ revised: false, error: error instanceof CatalogError ? error.message : 'Could not price the revision.' }, { status: 422 }, request)
   }
 
   const verdict = guardOffer({ merchant, offer, intent, rounds_used: round, allowed_check_ins: allowedCheckIns })
@@ -165,7 +158,7 @@ export const POST = async (request: Request, { params }: { params: Promise<{ slu
       rounds_remaining: Math.max(0, merchant.policy.max_counter_rounds - round)
     },
     { status: verdict.authorized ? 200 : 409 }
-  )
+  , request)
 }
 
 export const OPTIONS = () => new Response(null, { status: 204, headers: CORS })

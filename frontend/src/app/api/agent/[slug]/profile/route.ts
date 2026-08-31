@@ -9,9 +9,9 @@ export const GET = async (request: Request, { params }: { params: Promise<{ slug
   const { slug } = await params
   const merchant = (await allMerchants()).find(m => m.slug === slug || m.id === slug)
 
-  if (!merchant) return agentJson({ error: 'Unknown merchant.' }, { status: 404 })
+  if (!merchant) return agentJson({ error: 'Unknown merchant.' }, { status: 404 }, request)
 
-  return agentJson(toAgentCommerceProfile(merchant, baseUrlFrom(request)))
+  return agentJson(toAgentCommerceProfile(merchant, baseUrlFrom(request)), undefined, request)
 }
 
 export const OPTIONS = () => new Response(null, { status: 204, headers: CORS })

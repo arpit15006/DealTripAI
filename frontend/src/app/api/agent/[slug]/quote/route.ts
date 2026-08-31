@@ -39,7 +39,7 @@ export const POST = async (request: Request, { params }: { params: Promise<{ slu
   const { slug } = await params
   const merchant = (await allMerchants()).find(m => m.slug === slug || m.id === slug)
 
-  if (!merchant) return agentJson({ error: 'Unknown merchant.' }, { status: 404 })
+  if (!merchant) return agentJson({ error: 'Unknown merchant.' }, { status: 404 }, request)
 
   const parsed = RequestSchema.safeParse(await request.json().catch(() => null))
 
@@ -51,7 +51,7 @@ export const POST = async (request: Request, { params }: { params: Promise<{ slu
         hint: 'POST { "intent": <TravelIntent>, "bundle"?: { room_id, addon_ids, discount_pct } }. Fetch /api/agent/vocabulary for valid requirement attributes.'
       },
       { status: 400 }
-    )
+    , request)
 
   const { intent, bundle } = parsed.data
   const nights = intent.duration_nights
@@ -97,7 +97,7 @@ export const POST = async (request: Request, { params }: { params: Promise<{ slu
           quoted: false,
           reason: turn.proposal.withdrawal_reason ?? 'No package meets this request within policy.',
           merchant: { id: merchant.id, name: merchant.name }
-        })
+        }, undefined, request)
 
       offer = materializeOffer({
         merchant,
@@ -118,8 +118,7 @@ export const POST = async (request: Request, { params }: { params: Promise<{ slu
         error: error instanceof CatalogError ? error.message : 'Could not price that package.',
         guard: { authorized: false, failed_check: 'catalog_integrity' }
       },
-      { status: 422 }
-    )
+      { status: 422 }, request)
   }
 
   const verdict = guardOffer({ merchant, offer, intent, rounds_used: 0, allowed_check_ins: allowedCheckIns })
@@ -166,7 +165,7 @@ export const POST = async (request: Request, { params }: { params: Promise<{ slu
       note: 'Margin floor and discount ceiling are enforced server-side and are not published. A rejected quote is refused, not repriced.'
     },
     { status: verdict.authorized ? 200 : 409 }
-  )
+  , request)
 }
 
 const safeFloor = (merchant: Parameters<typeof minimumAllowedPrice>[0], offer: Offer) => {
