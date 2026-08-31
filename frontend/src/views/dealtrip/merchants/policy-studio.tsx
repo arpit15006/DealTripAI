@@ -29,6 +29,7 @@ import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
+import PropertyImage from '@/views/dealtrip/shared/property-image'
 
 // Lib Imports
 import { ApiError, updateMerchantPolicy } from '@/lib/dealtrip/client'
@@ -123,11 +124,20 @@ const PolicyStudio = ({ merchant: initial }: { merchant: Merchant }) => {
   return (
     <div className='flex flex-col gap-6'>
       <div className='flex flex-wrap items-start justify-between gap-3'>
-        <div>
+        <div className='flex items-center gap-3'>
+          <PropertyImage
+            src={initial.image}
+            alt={initial.name}
+            fallbackLabel={initial.name}
+            className='size-12 shrink-0 rounded-lg'
+            sizes='48px'
+          />
+          <div>
           <h1 className='text-xl font-semibold tracking-tight'>{initial.name}</h1>
           <p className='text-muted-foreground text-sm'>
             {initial.tagline} · Policy Studio
           </p>
+          </div>
         </div>
         <div className='flex gap-2'>
           <Button variant='outline' size='sm' nativeButton={false} render={<Link href='/dashboard/merchants' />}>

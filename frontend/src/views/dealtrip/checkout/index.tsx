@@ -18,6 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Confetti, type ConfettiRef } from '@/components/ui/confetti'
 import { Separator } from '@/components/ui/separator'
 import GuardChecklist from '@/views/dealtrip/shared/guard-checklist'
+import PropertyImage from '@/views/dealtrip/shared/property-image'
 import Stepper from '@/views/dealtrip/shared/checkout-stepper'
 
 // Lib Imports
@@ -229,8 +230,19 @@ const Checkout = ({ state, negotiationId, offerId }: Props) => {
       )}
 
       {/* ── Offer summary ────────────────────────────────────────────── */}
-      <Card className='mt-5'>
-        <CardHeader className='flex flex-wrap items-start justify-between gap-2'>
+      <Card className='mt-5 gap-0 overflow-hidden py-0'>
+        <PropertyImage
+          src={
+            state.merchants.find(m => m.id === offer.merchant_id)?.rooms.find(r => r.id === offer.bundle.room_id)
+              ?.image ?? state.merchants.find(m => m.id === offer.merchant_id)?.image
+          }
+          alt={merchant.name}
+          fallbackLabel={merchant.name}
+          className='h-44 w-full'
+          sizes='(max-width: 768px) 100vw, 672px'
+          priority
+        />
+        <CardHeader className='flex flex-wrap items-start justify-between gap-2 px-6 pt-5'>
           <div>
             <CardTitle className='text-base'>{merchant.name}</CardTitle>
             <p className='text-muted-foreground text-xs'>{merchant.tagline}</p>
@@ -246,7 +258,7 @@ const Checkout = ({ state, negotiationId, offerId }: Props) => {
           </div>
         </CardHeader>
 
-        <CardContent className='flex flex-col gap-4'>
+        <CardContent className='flex flex-col gap-4 pb-6'>
           <ul className='flex flex-col gap-1 text-sm'>
             {offer.quote.lines.map(line => (
               <li key={line.ref_id} className='text-muted-foreground flex justify-between gap-3'>

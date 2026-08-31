@@ -17,7 +17,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import GuardChecklist from '@/views/dealtrip/shared/guard-checklist'
+import PropertyImage from '@/views/dealtrip/shared/property-image'
 import ScoreBreakdown from '@/views/dealtrip/shared/score-breakdown'
+
+// Util Imports
+import { cn } from '@/lib/utils'
 
 // Lib Imports
 import { ApiError, getNegotiation } from '@/lib/dealtrip/client'
@@ -83,6 +87,12 @@ const DealComparison = ({ negotiationId, initialState }: Props) => {
   const preferred = (Object.entries(negotiation.intent.requirements) as [Attribute, string][])
     .filter(([, s]) => s === 'preferred')
     .map(([a]) => a)
+
+  const imageFor = (merchantId: string, roomId: string) => {
+    const merchant = state.merchants.find(m => m.id === merchantId)
+
+    return merchant?.rooms?.find(r => r.id === roomId)?.image || merchant?.image || ''
+  }
 
   const openingOf = (merchantId: string) =>
     state.offers.filter(o => o.merchant_id === merchantId).sort((a, b) => a.round - b.round)[0] ?? null
@@ -161,6 +171,13 @@ const DealComparison = ({ negotiationId, initialState }: Props) => {
                 <TableRow key={row.offer.id} className={cnRow(row.rank === 1 && row.score.eligible)}>
                   <TableCell>
                     <div className='flex items-center gap-2'>
+                      <PropertyImage
+                        src={imageFor(row.merchant.id, row.offer.bundle.room_id)}
+                        alt={row.merchant.name}
+                        fallbackLabel={row.merchant.name}
+                        className='size-9 shrink-0 rounded-md text-xs'
+                        sizes='36px'
+                      />
                       {row.rank === 1 && row.score.eligible && <TrophyIcon className='text-primary size-3.5' />}
                       <div className='min-w-0'>
                         <p className='truncate text-sm font-medium'>{row.merchant.name}</p>
@@ -215,8 +232,19 @@ const DealComparison = ({ negotiationId, initialState }: Props) => {
           const negotiated = opening && opening.id !== row.offer.id
 
           return (
-            <Card key={row.offer.id} className={row.rank === 1 ? 'border-primary/50' : undefined}>
-              <CardHeader className='flex flex-wrap items-start justify-between gap-3'>
+            <Card
+              key={row.offer.id}
+              className={cn('gap-0 overflow-hidden py-0', row.rank === 1 && 'border-primary/50')}
+            >
+              <PropertyImage
+                src={imageFor(row.merchant.id, row.offer.bundle.room_id)}
+                alt={`${row.merchant.name} — ${row.offer.quote.lines[0]?.label ?? 'room'}`}
+                fallbackLabel={row.merchant.name}
+                className='h-40 w-full sm:h-48'
+                sizes='(max-width: 1024px) 100vw, 900px'
+                priority={row.rank === 1}
+              />
+              <CardHeader className='flex flex-wrap items-start justify-between gap-3 px-6 pt-5'>
                 <div>
                   <CardTitle className='flex items-center gap-2 text-base'>
                     {row.merchant.name}
@@ -238,7 +266,7 @@ const DealComparison = ({ negotiationId, initialState }: Props) => {
                 </div>
               </CardHeader>
 
-              <CardContent className='flex flex-col gap-4'>
+              <CardContent className='flex flex-col gap-4 pb-6'>
                 {negotiated && (
                   <div className='bg-muted/50 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-md border px-3 py-2 text-xs'>
                     <span className='font-medium'>Negotiation won you</span>

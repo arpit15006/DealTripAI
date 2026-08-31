@@ -19,8 +19,19 @@ export const ensureSeeded = async (): Promise<DealTripStore> => {
   const store = await getStore()
   const existing = await store.listMerchants()
 
-  const stale = existing.filter(m => !Number.isFinite(m.weekend_uplift_pct)).map(m => m.slug)
+  /*
+   * A stored merchant is stale when it lacks a top-level field the current
+   * catalog defines. Merchants live in JSONB, so an older row does not fail to
+   * load — it loads with holes, and a missing number reaches pricing. Keying on
+   * the shape rather than on one named field means the next field added is
+   * caught without anyone remembering to update this line.
+   */
   const seeded = new Set(SEED_MERCHANTS.map(m => m.slug))
+  const expectedKeys = Object.keys(SEED_MERCHANTS[0] ?? {})
+
+  const stale = existing
+    .filter(m => expectedKeys.some(key => (m as Record<string, unknown>)[key] === undefined))
+    .map(m => m.slug)
 
   if (existing.length === 0) {
     for (const merchant of SEED_MERCHANTS) await store.upsertMerchant(merchant)
@@ -33,10 +44,16 @@ export const ensureSeeded = async (): Promise<DealTripStore> => {
     for (const slug of stale.filter(s => !seeded.has(s))) {
       const merchant = existing.find(m => m.slug === slug)
 
-      if (merchant) await store.upsertMerchant({ ...merchant, weekend_uplift_pct: 20 })
+      if (merchant)
+        await store.upsertMerchant({
+          ...merchant,
+          weekend_uplift_pct: merchant.weekend_uplift_pct ?? 20,
+          image: merchant.image ?? '',
+          rooms: merchant.rooms.map(room => ({ ...room, image: room.image ?? '' }))
+        })
     }
 
-    console.info(`[dealtrip] refreshed ${stale.length} merchant(s) missing weekend_uplift_pct`)
+    console.info(`[dealtrip] refreshed ${stale.length} merchant(s) with an outdated catalog shape`)
   }
 
   return store

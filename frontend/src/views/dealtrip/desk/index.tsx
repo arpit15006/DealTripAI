@@ -23,7 +23,7 @@ import OfferCard from '@/views/dealtrip/shared/offer-card'
 import { useNegotiationStream } from '@/hooks/use-negotiation-stream'
 
 // Lib Imports
-import { getNegotiation } from '@/lib/dealtrip/client'
+import { getNegotiation, listMerchants } from '@/lib/dealtrip/client'
 import { formatINR } from '@/lib/dealtrip/pricing'
 import { ATTRIBUTE_LABELS } from '@/lib/dealtrip/vocabulary'
 
@@ -48,6 +48,8 @@ const phaseFor = (status: string) => {
 const DealDesk = ({ negotiationId }: { negotiationId: string }) => {
   const desk = useNegotiationStream(negotiationId)
   const [intent, setIntent] = useState<TravelIntent | null>(null)
+  /** roomId -> photograph, so a card can show the room actually being offered. */
+  const [roomImages, setRoomImages] = useState<Record<string, string>>({})
 
   // The stream carries the negotiation's events but not the intent itself, and
   // the header needs to state the constraints the whole run is being held to.
@@ -57,6 +59,18 @@ const DealDesk = ({ negotiationId }: { negotiationId: string }) => {
     getNegotiation(negotiationId)
       .then(state => {
         if (!cancelled) setIntent(state.negotiation.intent)
+      })
+      .catch(() => undefined)
+
+    listMerchants()
+      .then(({ merchants }) => {
+        if (cancelled) return
+
+        const map: Record<string, string> = {}
+
+        for (const m of merchants) for (const room of m.rooms) map[room.id] = room.image || m.image
+
+        setRoomImages(map)
       })
       .catch(() => undefined)
 
@@ -162,7 +176,12 @@ const DealDesk = ({ negotiationId }: { negotiationId: string }) => {
           ) : (
             <div className='grid gap-3 sm:grid-cols-2'>
               {desk.merchants.map(merchant => (
-                <OfferCard key={merchant.id} merchant={merchant} required={required} />
+                <OfferCard
+                  key={merchant.id}
+                  merchant={merchant}
+                  required={required}
+                  roomImage={merchant.offer ? roomImages[merchant.offer.bundle.room_id] : undefined}
+                />
               ))}
             </div>
           )}

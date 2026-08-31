@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import GuardChecklist from './guard-checklist'
+import PropertyImage from './property-image'
 
 // Util Imports
 import { cn } from '@/lib/utils'
@@ -20,6 +21,8 @@ import type { DeskMerchant } from '@/hooks/use-negotiation-stream'
 
 type Props = {
   merchant: DeskMerchant
+  /** Room photograph for the package currently on the table. */
+  roomImage?: string
   /** Attributes the traveller marked as must-have, for highlighting. */
   required: Attribute[]
   className?: string
@@ -33,11 +36,18 @@ type Props = {
  * traveller nothing, whereas "its only beachfront room cannot legally reach
  * your budget" tells them something real about the market.
  */
-const OfferCard = ({ merchant, required, className }: Props) => {
+const OfferCard = ({ merchant, required, roomImage, className }: Props) => {
   const { offer, verdict } = merchant
 
   return (
     <Card className={cn('gap-0 overflow-hidden py-0', className)}>
+      <PropertyImage
+        src={roomImage}
+        alt={merchant.name}
+        fallbackLabel={merchant.name}
+        className={cn('h-28 w-full', merchant.withdrawn && 'opacity-40 grayscale')}
+        sizes='(max-width: 640px) 100vw, 50vw'
+      />
       <CardHeader className='flex items-start justify-between gap-3 px-4 py-3'>
         <div className='min-w-0'>
           <p className='truncate text-sm font-semibold'>{merchant.name}</p>

@@ -87,7 +87,13 @@ export const RoomSchema = z.object({
   cost_per_night: z.number().int().nonnegative(),
   max_occupancy: z.number().int().min(1),
   attributes: z.array(AttributeSchema),
-  inventory_available: z.number().int().nonnegative()
+  inventory_available: z.number().int().nonnegative(),
+  /**
+   * Room photograph, as a public path. Defaulted rather than required so a
+   * merchant record written before images existed still parses — the UI falls
+   * back to the property shot, and then to a plain panel.
+   */
+  image: z.string().default('')
 })
 export type Room = z.infer<typeof RoomSchema>
 
@@ -142,6 +148,8 @@ export const MerchantSchema = z.object({
   tagline: z.string(),
   description: z.string(),
   rating: z.number().min(0).max(5),
+  /** Hero photograph of the property, as a public path. */
+  image: z.string().default(''),
   /** Property-level attributes, inherited by every room. */
   attributes: z.array(AttributeSchema),
   rooms: z.array(RoomSchema),

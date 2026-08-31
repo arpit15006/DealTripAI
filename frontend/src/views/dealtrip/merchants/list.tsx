@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
+import PropertyImage from '@/views/dealtrip/shared/property-image'
 
 // Lib Imports
 import { formatINR } from '@/lib/dealtrip/pricing'
@@ -84,7 +85,14 @@ const MerchantList = ({ merchants, baseUrl }: { merchants: MerchantListItem[]; b
               const cheapest = Math.min(...merchant.rooms.map(r => r.base_price_per_night))
 
               return (
-                <Card key={merchant.id} className='gap-0 py-0'>
+                <Card key={merchant.id} className='gap-0 overflow-hidden py-0'>
+                  <PropertyImage
+                    src={merchant.image}
+                    alt={merchant.name}
+                    fallbackLabel={merchant.name}
+                    className='h-32 w-full'
+                    sizes='(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw'
+                  />
                   <CardHeader className='flex items-start justify-between gap-2 px-4 py-3'>
                     <div className='min-w-0'>
                       <CardTitle className='truncate text-sm'>{merchant.name}</CardTitle>

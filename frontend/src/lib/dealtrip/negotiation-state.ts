@@ -22,7 +22,8 @@ export interface NegotiationView {
   offers: Offer[]
   audit: AuditEvent[]
   payments: PaymentRecord[]
-  merchants: Pick<Merchant, 'id' | 'name' | 'slug' | 'tagline' | 'rating' | 'destination'>[]
+  /** Includes rooms so screens can show the room a package actually contains. */
+  merchants: Pick<Merchant, 'id' | 'name' | 'slug' | 'tagline' | 'rating' | 'destination' | 'image' | 'rooms'>[]
 }
 
 export const loadNegotiationState = async (id: string): Promise<NegotiationView | null> => {
@@ -125,7 +126,9 @@ export const loadNegotiationState = async (id: string): Promise<NegotiationView 
       slug: m.slug,
       tagline: m.tagline,
       rating: m.rating,
-      destination: m.destination
+      destination: m.destination,
+      image: m.image,
+      rooms: m.rooms
     }))
   }
 }

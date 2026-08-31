@@ -70,7 +70,7 @@ export interface NegotiationState {
   offers: Offer[]
   audit: AuditEvent[]
   payments: PaymentRecord[]
-  merchants: Pick<Merchant, 'id' | 'name' | 'slug' | 'tagline' | 'rating' | 'destination'>[]
+  merchants: Pick<Merchant, 'id' | 'name' | 'slug' | 'tagline' | 'rating' | 'destination' | 'image' | 'rooms'>[]
 }
 
 export const getNegotiation = (id: string) => request<NegotiationState>(`/api/negotiations/${id}`)

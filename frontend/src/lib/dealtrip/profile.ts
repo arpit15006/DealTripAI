@@ -272,8 +272,11 @@ export const draftToMerchant = (
 ): Merchant => {
   const slug = slugify(draft.name) || `merchant-${Date.now().toString(36)}`
 
+  // Onboarded properties have no photography of their own yet, so rooms fall
+  // back to the property shot and the UI degrades to a plain panel.
   const rooms = draft.rooms.map((r, i) => ({
     id: `${slug}-room-${i + 1}`,
+    image: '',
     name: r.name,
     tier: r.tier,
     base_price_per_night: r.base_price_per_night,
@@ -304,6 +307,7 @@ export const draftToMerchant = (
     tagline: draft.tagline,
     description: draft.description,
     rating: draft.rating,
+    image: '',
     attributes: draft.attributes,
     rooms,
     addons,
