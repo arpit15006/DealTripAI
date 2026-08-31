@@ -53,6 +53,7 @@ export type EventSink = (event: DeskEvent) => void | Promise<void>
 /** How far below the price to beat the desk asks a merchant to come. */
 const UNDERCUT_RATIO = 0.03
 const MIN_UNDERCUT = 750
+
 /** Below this much headroom above its own floor, a merchant has nothing left to give. */
 const NEGOTIATION_HEADROOM = 500
 
@@ -61,6 +62,7 @@ interface RunArgs {
   merchants: Merchant[]
   store: DealTripStore
   onEvent?: EventSink
+
   /** false runs the deterministic planner only — used by the simulator. */
   use_llm?: boolean
 }

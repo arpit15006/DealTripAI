@@ -21,8 +21,10 @@ import type { DeskMerchant } from '@/hooks/use-negotiation-stream'
 
 type Props = {
   merchant: DeskMerchant
+
   /** Property photograph. */
   image?: string
+
   /** Attributes the traveller marked as must-have, for highlighting. */
   required: Attribute[]
   className?: string

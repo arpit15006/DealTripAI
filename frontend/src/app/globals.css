@@ -246,3 +246,150 @@ input[type='number']::-webkit-outer-spin-button {
   --spacing: 0.262222rem;
 }
 
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DealTrip — interaction and accessibility foundations
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Response: feedback on press, not on release ──────────────────────
+   The moment lag appears, directness falls off a cliff. Every pressable
+   surface acknowledges the pointer going down, before anything commits. */
+@media (hover: hover) and (pointer: fine) {
+  [data-slot='button']:not(:disabled):active,
+  [role='button']:not([aria-disabled='true']):active {
+    transform: scale(0.975);
+  }
+}
+
+[data-slot='button'],
+[role='button'] {
+  transition:
+    transform 100ms cubic-bezier(0.2, 0, 0, 1),
+    background-color 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease;
+}
+
+/* ── Focus: always visible for keyboard users, never for mouse ──────── */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ── Skip link: the first stop for a keyboard or screen-reader user ─── */
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  padding: 0.5rem 0.875rem;
+  border-radius: var(--radius-md);
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transform: translateY(calc(-100% - 1rem));
+  transition: transform 160ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+/* ── Typography: tracking is size-specific, never one value ──────────
+   Large text reads too loose as it grows, so it tightens; small text
+   needs a touch more room to stay legible. */
+.type-display {
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  font-optical-sizing: auto;
+  text-wrap: balance;
+}
+
+.type-title {
+  line-height: 1.15;
+  letter-spacing: -0.018em;
+  text-wrap: balance;
+}
+
+.type-body {
+  line-height: 1.6;
+  letter-spacing: 0;
+  text-wrap: pretty;
+}
+
+/* Small print and numerics: slightly open, and never ambiguous digits. */
+.type-caption {
+  line-height: 1.45;
+  letter-spacing: 0.01em;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+
+/* ── Translucent chrome: content passes beneath, not behind a wall ──── */
+.material-chrome {
+  background: color-mix(in oklch, var(--background) 72%, transparent);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+/* A soft edge where content meets floating chrome, rather than a 1px rule. */
+.scroll-edge::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  bottom: -1.5rem;
+  height: 1.5rem;
+  pointer-events: none;
+  background: linear-gradient(to bottom, color-mix(in oklch, var(--background) 60%, transparent), transparent);
+}
+
+/* ── Reduced motion: a gentler equivalent, not the absence of feedback ─ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Opacity still communicates; it just doesn't move anything. */
+  [data-slot='button']:active,
+  [role='button']:active {
+    transform: none;
+    opacity: 0.85;
+  }
+}
+
+/* ── Reduced transparency: frost over, don't dissolve ────────────────── */
+@media (prefers-reduced-transparency: reduce) {
+  .material-chrome {
+    background: var(--background);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+/* ── More contrast: solid grounds and defined edges ──────────────────── */
+@media (prefers-contrast: more) {
+  .material-chrome {
+    background: var(--background);
+    backdrop-filter: none;
+    border-color: var(--foreground);
+  }
+
+  [data-slot='badge'],
+  [data-slot='card'] {
+    border-color: color-mix(in oklch, var(--foreground) 45%, transparent);
+  }
+
+  .text-muted-foreground {
+    color: color-mix(in oklch, var(--muted-foreground) 65%, var(--foreground));
+  }
+}

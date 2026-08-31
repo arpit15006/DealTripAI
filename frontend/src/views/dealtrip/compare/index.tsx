@@ -34,6 +34,7 @@ import type { Attribute } from '@/lib/dealtrip/vocabulary'
 
 type Props = {
   negotiationId: string
+
   /**
    * Rendered on the server so the page arrives with the deals already in it.
    * The client refetch below only matters if the user lands here while a

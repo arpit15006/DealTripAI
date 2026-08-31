@@ -170,6 +170,7 @@ const DraftSchema = z.object({
         name: z.string().min(2).max(60),
         tier: z.number().int().min(1).max(5),
         base_price_per_night: z.number().int().min(0),
+
         /** Model estimates a cost ratio; it never sets margin policy directly. */
         cost_ratio: z.number().min(0.2).max(0.9),
         max_occupancy: z.number().int().min(1).max(12),
@@ -311,6 +312,7 @@ export const draftToMerchant = (
     attributes: draft.attributes,
     rooms,
     addons,
+
     // A sensible default: most properties charge more at weekends.
     weekend_uplift_pct: 20,
     policy: {

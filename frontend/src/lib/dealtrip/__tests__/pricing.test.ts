@@ -19,6 +19,7 @@ const PAX = 2
 
 /** A Monday, so no night of a short stay carries the weekend uplift. */
 const WEEKDAY = '2026-01-05'
+
 /** A Friday, so the first two nights do. */
 const WEEKEND = '2026-01-09'
 
@@ -44,6 +45,7 @@ describe('pricing — money is derived, never asserted', () => {
       NIGHTS,
       PAX
     )
+
     const weekend = computeQuote(
       oceanvista,
       { room_id: room.id, addon_ids: [], discount_pct: 0, check_in: WEEKEND },
@@ -59,6 +61,7 @@ describe('pricing — money is derived, never asserted', () => {
 
   it('leaves cost flat across the week, so a weekend night is pure margin', () => {
     const room = oceanvista.rooms.find(r => r.id === 'ov-premium-beach')!
+
     const of = (checkIn: string) =>
       computeQuote(oceanvista, { room_id: room.id, addon_ids: [], discount_pct: 0, check_in: checkIn }, NIGHTS, PAX)
 
@@ -80,6 +83,7 @@ describe('pricing — money is derived, never asserted', () => {
       NIGHTS,
       PAX
     )
+
     const line = quote.lines.find(l => l.ref_id === breakfast.id)!
 
     assert.equal(line.amount, breakfast.price * NIGHTS * PAX)
@@ -92,6 +96,7 @@ describe('pricing — money is derived, never asserted', () => {
       NIGHTS,
       PAX
     )
+
     const twice = computeQuote(
       oceanvista,
       { room_id: 'ov-premium-beach', addon_ids: ['ov-breakfast', 'ov-breakfast'], discount_pct: 0, check_in: WEEKDAY },
@@ -157,6 +162,7 @@ describe('policy floors — two independent limits, the higher one binds', () =>
   it("PalmStay's beachfront villa genuinely cannot reach a ₹60,000 budget", () => {
     // The demo's policy-rejection beat is arithmetic, not a staged outcome.
     const palmstay = SEED_MERCHANTS.find(m => m.slug === 'palmstay') as Merchant
+
     const full = {
       room_id: 'ps-villa',
       addon_ids: palmstay.addons.map(a => a.id),

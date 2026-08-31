@@ -46,6 +46,7 @@ export const countWeekendNights = (checkIn: string, nights: number): number =>
 
 export const formatStay = (checkIn: string, nights: number): string => {
   const checkOut = addDays(checkIn, nights)
+
   const fmt = (iso: string) =>
     new Date(parseDay(iso)).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', timeZone: 'UTC' })
 

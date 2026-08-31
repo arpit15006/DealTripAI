@@ -11,6 +11,7 @@ export type StepperStep = {
 
 type StepperProps = {
   steps: StepperStep[]
+
   /** id of the step currently in progress */
   currentStep: string
   className?: string

@@ -14,6 +14,7 @@ import type { GuardVerdict } from '@/lib/dealtrip/types'
 
 type Props = {
   verdict: GuardVerdict
+
   /** Collapsed by default on the desk; open on the explanation screen. */
   defaultOpen?: boolean
   className?: string
@@ -65,9 +66,12 @@ const GuardChecklist = ({ verdict, defaultOpen = false, className }: Props) => {
           {verdict.checks.map(check => (
             <li key={check.id + check.label} className='flex items-start gap-2.5 px-3 py-2'>
               {check.passed ? (
-                <CheckIcon className='mt-0.5 size-3.5 shrink-0 text-green-600 dark:text-green-400' />
+                <CheckIcon className='mt-0.5 size-3.5 shrink-0 text-green-600 dark:text-green-400' aria-hidden />
               ) : (
-                <XIcon className={cn('mt-0.5 size-3.5 shrink-0', check.advisory ? 'text-amber-600' : 'text-destructive')} />
+                <XIcon
+                  aria-hidden
+                  className={cn('mt-0.5 size-3.5 shrink-0', check.advisory ? 'text-amber-600' : 'text-destructive')}
+                />
               )}
               <div className='min-w-0 flex-1'>
                 <p
@@ -78,6 +82,8 @@ const GuardChecklist = ({ verdict, defaultOpen = false, className }: Props) => {
                   )}
                 >
                   {check.label}
+                  {/* Colour alone must not carry the verdict. */}
+                  <span className='sr-only'>{check.passed ? ' — passed' : ' — failed'}</span>
                   {check.advisory && !check.passed && (
                     <span className='text-muted-foreground ml-1.5 font-normal'>(advisory)</span>
                   )}

@@ -19,8 +19,10 @@ interface GuardInput {
   merchant: Merchant
   offer: Offer
   intent: TravelIntent
+
   /** Check-in dates the traveller accepted. Empty disables the window check. */
   allowed_check_ins?: string[]
+
   /** How many revisions this merchant has already made (opening offer = 0). */
   rounds_used: number
   now?: Date

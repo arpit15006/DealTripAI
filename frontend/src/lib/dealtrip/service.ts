@@ -39,11 +39,9 @@ export const ensureSeeded = async (): Promise<DealTripStore> => {
     return store
   }
 
-  const catalogOf = (merchant: Merchant) => {
-    const { policy: _policy, ...catalog } = merchant
-
-    return JSON.stringify(catalog)
-  }
+  // Compare everything except the policy, which belongs to the operator.
+  const catalogOf = (merchant: Merchant) =>
+    JSON.stringify(Object.fromEntries(Object.entries(merchant).filter(([key]) => key !== 'policy')))
 
   const drifted: string[] = []
 

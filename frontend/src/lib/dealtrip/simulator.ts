@@ -247,12 +247,15 @@ export interface SimulationTick {
   travelers: number
   nights: number
   budget: number
+
   /** What the static shelf sold them, if anything. */
   static_sale: { merchant: string; price: number } | null
+
   /** What the deal desk sold them, if anything. */
   agentic_sale: { merchant: string; price: number; rounds: number } | null
   counters: number
   blocked: number
+
   /** Running totals, so a viewer never has to add up the stream themselves. */
   running: { static_revenue: number; agentic_revenue: number; static_bookings: number; agentic_bookings: number }
 }

@@ -31,6 +31,7 @@ const time = (iso: string) =>
 
 type Props = {
   events: AuditEvent[]
+
   /** Show the raw detail payload behind a disclosure on each row. */
   expandable?: boolean
   className?: string

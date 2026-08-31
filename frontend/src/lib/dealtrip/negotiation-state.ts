@@ -22,6 +22,7 @@ export interface NegotiationView {
   offers: Offer[]
   audit: AuditEvent[]
   payments: PaymentRecord[]
+
   /** Includes rooms so screens can show the room a package actually contains. */
   merchants: Pick<Merchant, 'id' | 'name' | 'slug' | 'tagline' | 'rating' | 'destination' | 'image' | 'rooms'>[]
 }

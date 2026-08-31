@@ -194,9 +194,9 @@ class PostgresStore implements DealTripStore {
    * full result object, so every call site would otherwise need a cast. One
    * narrowing wrapper keeps the queries themselves readable.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   private q = async (strings: TemplateStringsArray, ...values: unknown[]): Promise<Record<string, any>[]> =>
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     (await (this.sql as any)(strings, ...values)) as Record<string, any>[]
 
   async init() {
@@ -381,7 +381,7 @@ class PostgresStore implements DealTripStore {
   }
 }
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 const rowToNegotiation = (r: any): Negotiation => ({
   id: r.id,
   raw_request: r.raw_request,
@@ -442,7 +442,7 @@ const rowToPayment = (r: any): PaymentRecord => ({
   created_at: iso(r.created_at),
   settled_at: r.settled_at ? iso(r.settled_at) : null
 })
-/* eslint-enable @typescript-eslint/no-explicit-any */
+ 
 
 /* ==================================================================== *
  * Memory
@@ -463,6 +463,7 @@ class MemoryStore implements DealTripStore {
 
   async listMerchants(destination?: string) {
     const all = [...this.merchants.values()]
+
     const filtered = destination
       ? all.filter(m => m.destination.toLowerCase() === destination.toLowerCase())
       : all
@@ -576,7 +577,7 @@ class MemoryStore implements DealTripStore {
  * ==================================================================== */
 
 declare global {
-  // eslint-disable-next-line no-var
+   
   var __dealtripStore: Promise<DealTripStore> | undefined
 }
 

@@ -7,6 +7,7 @@
  * "something went wrong".
  */
 import type { DeskEvent } from './orchestrator'
+import type { SimulationResult } from './simulator'
 import type { PaymentRecord } from './store'
 import type { AuditEvent, Merchant, MerchantPolicy, Negotiation, Offer, RankedOffer, TravelIntent } from './types'
 
@@ -153,7 +154,7 @@ export const onboardMerchant = (text: string, save: boolean) =>
  * Simulator and health
  * ------------------------------------------------------------------ */
 export const runSimulation = (config: { intents: number; destination: string; seed: number }) =>
-  request<import('./simulator').SimulationResult & { runtime_ms: number }>('/api/simulate', {
+  request<SimulationResult & { runtime_ms: number }>('/api/simulate', {
     method: 'POST',
     body: JSON.stringify(config)
   })

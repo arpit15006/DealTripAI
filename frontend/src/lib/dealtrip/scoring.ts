@@ -23,8 +23,10 @@ const WEIGHTS: Record<TravelIntent['priority'], Record<ScoreComponent['id'], num
 
 /** Shaving this much off the opening offer earns full marks on negotiation. */
 const FULL_CREDIT_NEGOTIATION_RATIO = 0.1
+
 /** An offer that needed no fixing still banks this share of the negotiation term. */
 const CLEAN_OPENING_CREDIT = 0.5
+
 /** Inclusions beyond the ask needed to max out the package term. */
 const FULL_CREDIT_EXTRAS = 10
 
@@ -57,9 +59,11 @@ interface ScoreInput {
   merchant: Merchant
   offer: Offer
   intent: TravelIntent
+
   /** This merchant's round-0 offer, for measuring what negotiation actually won. */
   opening_offer: Offer | null
   verdict: GuardVerdict
+
   /** Spread of the eligible shortlist. Null when this offer stands alone. */
   price_band: PriceBand | null
 }
@@ -159,6 +163,7 @@ export const scoreOffer = ({ merchant, offer, intent, opening_offer, verdict, pr
 
   if (opening_offer && opening_offer.id !== offer.id) {
     const improvement = opening_offer.quote.total_price - quote.total_price
+
     const improvementRatio =
       opening_offer.quote.total_price > 0 ? improvement / opening_offer.quote.total_price : 0
 

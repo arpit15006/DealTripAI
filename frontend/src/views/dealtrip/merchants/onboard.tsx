@@ -65,7 +65,8 @@ const MerchantOnboarding = () => {
       return
     }
 
-    save ? setPublishing(true) : setGenerating(true)
+    if (save) setPublishing(true)
+    else setGenerating(true)
 
     try {
       const response = await onboardMerchant(text, save)

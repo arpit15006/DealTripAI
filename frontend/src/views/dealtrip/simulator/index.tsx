@@ -212,7 +212,20 @@ const RevenueSimulator = ({ destinations }: { destinations: string[] }) => {
           </CardHeader>
 
           <div className='border-t px-4 py-3'>
-            <Progress value={progress} className='h-1.5' />
+            <Progress
+              value={progress}
+              className='h-1.5'
+              aria-label={`Simulation progress: ${latest?.index ?? 0} of ${latest?.total ?? intents} travellers`}
+            />
+
+            {/* Coarse, so a screen reader is not read a line per traveller. */}
+            <p aria-live='polite' aria-atomic='true' className='sr-only'>
+              {running
+                ? `Simulating. ${latest?.index ?? 0} of ${latest?.total ?? intents} travellers processed.`
+                : result
+                  ? `Simulation complete. Conversion moved from ${(result.static_selling.conversion_rate * 100).toFixed(0)} to ${(result.agentic.conversion_rate * 100).toFixed(0)} percent.`
+                  : ''}
+            </p>
 
             {latest && (
               <div className='mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4'>
@@ -226,7 +239,7 @@ const RevenueSimulator = ({ destinations }: { destinations: string[] }) => {
 
           {/* One line per traveller, as their outcome is decided. */}
           <ScrollArea className='h-56 border-t'>
-            <ul className='divide-border/50 divide-y font-mono text-[11px]'>
+            <ul aria-hidden className='divide-border/50 divide-y font-mono text-[11px]'>
               {ticks.map(tick => (
                 <li key={tick.index} className='flex flex-wrap items-center gap-x-2 gap-y-0.5 px-4 py-1.5'>
                   <span className='text-muted-foreground w-10 shrink-0 tabular-nums'>#{tick.index}</span>

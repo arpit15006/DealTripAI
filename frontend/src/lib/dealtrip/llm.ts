@@ -17,7 +17,7 @@
  * OpenAI-compatible chat-completions endpoint. Swapping Groq for anything else
  * is a base-URL change.
  */
-import { z } from 'zod'
+import type { z } from 'zod'
 
 const GROQ_BASE_URL = process.env.LLM_BASE_URL ?? 'https://api.groq.com/openai/v1'
 const DEFAULT_MODEL = process.env.GROQ_MODEL ?? 'openai/gpt-oss-120b'
@@ -33,6 +33,7 @@ const TIMEOUT_MS = Number(process.env.LLM_TIMEOUT_MS ?? 30_000)
  * Capping in-flight calls keeps the model actually in the loop.
  */
 const MAX_CONCURRENCY = Number(process.env.LLM_MAX_CONCURRENCY ?? 3)
+
 /** Transport-level retries (429 / 5xx). Separate from schema-correction retries. */
 const MAX_TRANSPORT_ATTEMPTS = Number(process.env.LLM_MAX_RETRIES ?? 3)
 
@@ -71,7 +72,7 @@ class Semaphore {
 }
 
 declare global {
-  // eslint-disable-next-line no-var
+   
   var __dealtripLlmGate: Semaphore | undefined
 }
 
@@ -90,6 +91,7 @@ export interface LlmResult<T> {
   model: string
   latency_ms: number
   attempts: number
+
   /** Populated when the model was tried and did not work out. */
   error: string | null
 }
@@ -97,15 +99,18 @@ export interface LlmResult<T> {
 export const llmConfigured = () => Boolean(process.env.GROQ_API_KEY)
 
 interface StructuredArgs<T> {
+
   /** Short identifier used in logs and audit detail, e.g. "intent.extract". */
   label: string
   schema: z.ZodType<T>
   system: string
   user: string
+
   /** Produced when the model cannot be used or cannot be trusted. */
   fallback: () => T
   temperature?: number
   max_tokens?: number
+
   /** Set false to force the deterministic path — used by the revenue simulator. */
   enabled?: boolean
 }

@@ -16,7 +16,6 @@
  *      should not — that judgement is not in the attribute vocabulary, and it is
  *      the part the model is actually for.
  */
-import { allowedCheckIns } from './dates'
 import { computeQuote, discountToReach, maxAllowedDiscountPct, minimumAllowedPrice } from './pricing'
 
 import type { AddOn, Attribute, Bundle, Merchant, Quote, RequirementStrength, Room, TravelIntent } from './types'
@@ -38,12 +37,16 @@ export interface PlanInput {
   intent: TravelIntent
   nights: number
   travelers: number
+
   /** Check-in dates the traveller will accept. Must contain at least one. */
   allowed_check_ins: string[]
+
   /** Price the package must land at or under. Null for an opening offer. */
   target_price: number | null
+
   /** Attributes that must be present (over and above the intent's own). */
   preserve?: Attribute[]
+
   /** Restrict which add-on groups may differ from `previous`. */
   previous?: Bundle | null
   substitution_allowed?: string[] | null
@@ -145,6 +148,7 @@ const scoreObjectives = (
       case 'protect_margin':
         value = Math.min(1, quote.margin_pct / 60)
         break
+
       case 'maximize_occupancy': {
         // Price to close, not to give away: peak at OCCUPANCY_TARGET_RATIO of
         // what the buyer will pay, falling off in both directions.
@@ -153,6 +157,7 @@ const scoreObjectives = (
         value = Math.max(0, 1 - Math.abs(ratio - OCCUPANCY_TARGET_RATIO) / OCCUPANCY_TARGET_RATIO)
         break
       }
+
       case 'move_unsold_inventory':
         value = room.inventory_available / maxInventory
         break
@@ -287,6 +292,7 @@ const sameOutsideAllowedGroups = (
   allowed: string[]
 ): boolean => {
   const groupOf = (id: string) => merchant.addons.find(a => a.id === id)?.group ?? `__solo_${id}`
+
   const frozen = (ids: string[]) =>
     new Set(ids.filter(id => !allowed.includes(groupOf(id)) && groupOf(id) !== null))
 

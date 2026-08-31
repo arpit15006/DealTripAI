@@ -1,13 +1,23 @@
 // Component Imports
 import Process from '@/components/shadcn-studio/blocks/timeline-component-06/timeline-component-06'
 import IntentComposer from '@/views/dealtrip/intent'
+import ForMerchants from '@/views/dealtrip/landing/for-merchants'
+import Guarantees from '@/views/dealtrip/landing/guarantees'
+import Hero from '@/views/dealtrip/landing/hero'
+import Proof from '@/views/dealtrip/landing/proof'
+
+export const metadata = {
+  title: 'DealTrip — the agentic deal desk for travel',
+  description:
+    'Describe the trip you want. DealTrip turns it into hard constraints, negotiates with merchant agents inside their own commercial policy, and settles through Razorpay.'
+}
 
 /**
  * How the desk works, as narrative.
  *
  * The scroll-driven reveal is honest here in a way it would not be on the Trust
- * Timeline: these five steps are a description of the product, not a record of
- * what happened, so tying progress to scroll position misrepresents nothing.
+ * Timeline: these five steps describe the product, not a record of what
+ * happened, so tying progress to scroll position misrepresents nothing.
  */
 const HOW_IT_WORKS = [
   {
@@ -32,7 +42,7 @@ const HOW_IT_WORKS = [
     id: '04',
     title: 'The Commerce Guard rules',
     content:
-      'Twelve deterministic checks on every offer, including recomputing the price from the merchant catalog. An agent cannot invent a price, breach a discount ceiling or cross a margin floor — those are refused, not repriced.'
+      'Thirteen deterministic checks on every offer, including recomputing the price from the merchant catalog. An agent cannot invent a price, breach a discount ceiling or cross a margin floor — those are refused, not repriced.'
   },
   {
     id: '05',
@@ -42,15 +52,22 @@ const HOW_IT_WORKS = [
   }
 ]
 
-export const metadata = {
-  title: 'DealTrip — the agentic deal desk for travel',
-  description:
-    'Describe the trip you want. DealTrip turns it into hard constraints and negotiates with merchant agents on your behalf.'
-}
-
-const IntentPage = () => (
+const LandingPage = () => (
   <>
-    <IntentComposer />
+    <Hero />
+
+    {/* The composer sits directly under the headline: the first thing you can
+        do on this page is the thing the page is about. */}
+    <section aria-labelledby='composer-heading' className='scroll-mt-20' id='plan'>
+      <h2 id='composer-heading' className='sr-only'>
+        Plan your trip
+      </h2>
+      <IntentComposer />
+    </section>
+
+    <Guarantees />
+    <Proof />
+
     <div className='border-t'>
       <Process
         data={HOW_IT_WORKS}
@@ -59,7 +76,11 @@ const IntentPage = () => (
         description='Five steps between what you asked for and what you paid for — each one recorded, and each one checkable afterwards.'
       />
     </div>
+
+    <div className='border-t'>
+      <ForMerchants />
+    </div>
   </>
 )
 
-export default IntentPage
+export default LandingPage

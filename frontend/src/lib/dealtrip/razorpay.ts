@@ -22,6 +22,7 @@ export interface RazorpayOrder {
   currency: string
   receipt: string
   status: string
+
   /** true when no API keys are configured and the order is a local stand-in. */
   simulated: boolean
 }

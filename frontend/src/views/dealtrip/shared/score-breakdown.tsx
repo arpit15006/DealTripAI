@@ -27,6 +27,7 @@ const ScoreBreakdown = ({ score, className }: { score: DealScore; className?: st
         <Progress
           value={component.max_points > 0 ? (component.points / component.max_points) * 100 : 0}
           className='h-1.5'
+          aria-label={`${component.label}: ${component.points} of ${component.max_points} points`}
         />
         <p className='text-muted-foreground text-xs'>{component.detail}</p>
       </div>

@@ -48,6 +48,7 @@ const phaseFor = (status: string) => {
 const DealDesk = ({ negotiationId }: { negotiationId: string }) => {
   const desk = useNegotiationStream(negotiationId)
   const [intent, setIntent] = useState<TravelIntent | null>(null)
+
   /** merchantId -> property photograph. */
   const [images, setImages] = useState<Record<string, string>>({})
 
@@ -157,11 +158,23 @@ const DealDesk = ({ negotiationId }: { negotiationId: string }) => {
         </div>
       )}
 
+      {/*
+        A negotiation is a stream of things happening off-screen for a screen
+        reader. One polite live region narrates the state rather than letting
+        every arriving card interrupt — announcements are summarised, not
+        fired per DOM insertion.
+      */}
+      <p aria-live='polite' aria-atomic='true' className='sr-only'>
+        {settled
+          ? `Negotiation complete. ${eligible.length} of ${desk.merchants.length} merchants made an offer that cleared every hard constraint. ${desk.explanation}`
+          : `${desk.merchants.filter(m => m.offer).length} of ${desk.merchants.length} merchants have responded.`}
+      </p>
+
       {/* ── Desk ─────────────────────────────────────────────────────── */}
       <div className='mt-6 grid gap-6 lg:grid-cols-[1fr_22rem]'>
         <div className='flex flex-col gap-3'>
           <div className='flex items-center gap-2'>
-            <h2 className='text-sm font-semibold'>
+            <h2 id='merchants-heading' className='text-sm font-semibold'>
               Merchants contacted
               {desk.merchants.length > 0 && (
                 <span className='text-muted-foreground ml-1.5 font-normal'>({desk.merchants.length})</span>
@@ -178,16 +191,13 @@ const DealDesk = ({ negotiationId }: { negotiationId: string }) => {
               </CardContent>
             </Card>
           ) : (
-            <div className='grid gap-3 sm:grid-cols-2'>
+            <ul aria-labelledby='merchants-heading' className='grid list-none gap-3 sm:grid-cols-2'>
               {desk.merchants.map(merchant => (
-                <OfferCard
-                  key={merchant.id}
-                  merchant={merchant}
-                  required={required}
-                  image={images[merchant.id]}
-                />
+                <li key={merchant.id}>
+                  <OfferCard merchant={merchant} required={required} image={images[merchant.id]} />
+                </li>
               ))}
-            </div>
+            </ul>
           )}
         </div>
 

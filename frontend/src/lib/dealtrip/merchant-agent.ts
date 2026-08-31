@@ -34,6 +34,7 @@ export const MerchantProposalSchema = z.object({
    * it can make without touching the headline rate.
    */
   check_in: z.string().nullable().default(null),
+
   /**
    * Nullable because an agent that is withdrawing has no room to name. Demanding
    * a room id from a merchant that just said "I cannot serve this request"
@@ -44,6 +45,7 @@ export const MerchantProposalSchema = z.object({
   discount_pct: z.number().min(0).max(100).default(0),
   rationale: z.string().min(1).max(400),
   changes_from_previous: z.array(z.string().max(160)).max(5).default([]),
+
   /** An honest "no" is a valid move. */
   can_meet_request: z.boolean(),
   withdrawal_reason: z.string().max(220).nullable().default(null)
@@ -53,6 +55,7 @@ export type MerchantProposal = z.infer<typeof MerchantProposalSchema>
 
 export interface AgentTurn {
   proposal: MerchantProposal
+
   /** What the deterministic planner would have chosen — kept for comparison. */
   planner_choice: PlanCandidate | null
   llm: Omit<LlmResult<MerchantProposal>, 'data'>
@@ -160,6 +163,7 @@ const candidateBrief = (candidates: PlanCandidate[], merchant: Merchant) =>
         .slice(0, 3)
         .map((c, i) => {
           const room = merchant.rooms.find(r => r.id === c.bundle.room_id)
+
           const addons = c.bundle.addon_ids
             .map(id => merchant.addons.find(a => a.id === id)?.name ?? id)
             .join(' + ')
@@ -227,6 +231,7 @@ const fallbackFrom = (
 
 const describeCandidate = (candidate: PlanCandidate, merchant: Merchant) => {
   const room = merchant.rooms.find(r => r.id === candidate.bundle.room_id)
+
   const addons = candidate.bundle.addon_ids
     .map(id => merchant.addons.find(a => a.id === id)?.name ?? id)
     .filter(Boolean)
@@ -304,6 +309,7 @@ export const reviseOffer = async (args: {
   travelers: number
   counter: CounterRequest
   previous: Offer
+
   /** Present when the previous attempt was blocked — the agent must react to it. */
   rejection: GuardVerdict | null
   round: number
@@ -402,6 +408,7 @@ const safeFloor = (merchant: Merchant, bundle: Bundle, nights: number, travelers
 /** Human-readable diff between two packages, for the timeline and the UI. */
 export const diffBundles = (merchant: Merchant, before: Bundle, after: Bundle): string[] => {
   const changes: string[] = []
+
   const nameOf = (id: string) =>
     merchant.rooms.find(r => r.id === id)?.name ?? merchant.addons.find(a => a.id === id)?.name ?? id
 
@@ -458,6 +465,7 @@ export const materializeOffer = (args: {
   round: number
   nights: number
   travelers: number
+
   /** Used when the agent does not name a date of its own. */
   default_check_in: string
   now?: Date

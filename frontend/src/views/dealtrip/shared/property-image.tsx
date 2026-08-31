@@ -8,6 +8,7 @@ type Props = {
   src?: string
   alt: string
   className?: string
+
   /** Rendered when a property has no photography of its own. */
   fallbackLabel?: string
   sizes?: string

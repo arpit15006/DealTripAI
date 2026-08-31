@@ -12,7 +12,6 @@ import { toast } from 'sonner'
 
 // Component Imports
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -87,24 +86,9 @@ const IntentComposer = () => {
   const patch = (next: Partial<TravelIntent>) => setIntent(current => (current ? { ...current, ...next } : current))
 
   return (
-    <div className='mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 sm:py-16'>
-      {/* ── Hero ─────────────────────────────────────────────────────── */}
-      <div className='flex flex-col items-center gap-4 text-center'>
-        <Badge variant='outline' className='border-primary/40 text-primary h-auto gap-1.5 py-1 font-normal'>
-          <SparklesIcon className='size-3.5' />
-          Agentic commerce for travel
-        </Badge>
-        <h1 className='text-3xl font-semibold tracking-tight text-balance sm:text-4xl'>
-          Don&apos;t search for a trip. Let your AI make the deal.
-        </h1>
-        <p className='text-muted-foreground max-w-xl text-base text-pretty'>
-          Describe the trip you want. DealTrip turns it into hard constraints, negotiates with merchant agents on your
-          behalf, and only ever brings you a deal it can prove is within policy.
-        </p>
-      </div>
-
+    <div className='mx-auto w-full max-w-3xl px-4 pb-14 sm:px-6'>
       {/* ── Request ──────────────────────────────────────────────────── */}
-      <Card className='mt-10'>
+      <Card>
         <CardHeader>
           <CardTitle className='text-base'>What kind of trip are you after?</CardTitle>
         </CardHeader>

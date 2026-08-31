@@ -135,6 +135,7 @@ describe('Commerce Guard — refuses what is not', () => {
     // The Garden Room is not beachfront-facing… but the property is, so use a
     // requirement the catalog genuinely cannot deliver instead.
     const strict: TravelIntent = { ...intent, requirements: { ...intent.requirements, kitchenette: 'required' } }
+
     const verdict = guardOffer({
       merchant: oceanvista,
       offer: offerFor(legal),
@@ -185,6 +186,7 @@ describe('Commerce Guard — hard versus soft budget', () => {
 
   it('only advises when the budget is a soft target', () => {
     const soft: TravelIntent = { ...intent, budget: { ...intent.budget, type: 'soft_target' } }
+
     const verdict = guardOffer({
       merchant: oceanvista,
       offer: offerFor(dear),
@@ -217,6 +219,7 @@ describe('guardPayment — the last gate before money moves', () => {
 
   it('authorizes the exact approved offer', () => {
     const offer = offerFor(legal)
+
     const verdict = guardPayment({
       merchant: oceanvista,
       offer,

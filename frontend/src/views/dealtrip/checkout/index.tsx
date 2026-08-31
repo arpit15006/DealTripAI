@@ -50,6 +50,7 @@ const Checkout = ({ state, negotiationId, offerId }: Props) => {
   const [stage, setStage] = useState<Stage>(
     state.negotiation.status === 'booked' ? 'confirmed' : 'review'
   )
+
   const [message, setMessage] = useState<string | null>(null)
   const [blockedVerdict, setBlockedVerdict] = useState<GuardVerdict | null>(null)
   const [scriptReady, setScriptReady] = useState(false)
