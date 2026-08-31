@@ -4,7 +4,7 @@
 import { useState } from 'react'
 
 // Third-party Imports
-import { CheckIcon, PlusIcon, XIcon } from 'lucide-react'
+import { PlusIcon, XIcon } from 'lucide-react'
 
 // Component Imports
 import { Badge } from '@/components/ui/badge'
@@ -75,9 +75,12 @@ const RequirementEditor = ({ value, onChange }: Props) => {
         {entries.map(([attribute, strength]) => (
           <div
             key={attribute}
-            className={cn('flex items-center gap-2 rounded-lg border px-2.5 py-1.5', STRENGTH_STYLE[strength])}
+            className={cn(
+              'flex flex-wrap items-center gap-x-2 gap-y-1.5 rounded-lg border px-2.5 py-1.5',
+              STRENGTH_STYLE[strength]
+            )}
           >
-            <span className='flex-1 text-sm font-medium'>{ATTRIBUTE_LABELS[attribute]}</span>
+            <span className='min-w-0 flex-1 truncate text-sm font-medium'>{ATTRIBUTE_LABELS[attribute]}</span>
 
             <Select value={strength} onValueChange={next => next && setStrength(attribute, next as RequirementStrength)}>
               <SelectTrigger size='sm' className='bg-background h-7 w-32 shrink-0 text-xs'>
@@ -113,11 +116,18 @@ const RequirementEditor = ({ value, onChange }: Props) => {
           <PlusIcon />
           Add a requirement
         </PopoverTrigger>
-        <PopoverContent className='w-64 p-0' align='start'>
+        <PopoverContent className='w-72 p-0' align='start' sideOffset={6}>
           <Command>
-            <CommandInput placeholder='Search requirements…' className='h-9' />
-            <CommandList>
-              <CommandEmpty>Nothing matches.</CommandEmpty>
+            <CommandInput placeholder='Search requirements…' />
+
+            {/*
+              The scrollbar is deliberately restored here. The list holds two
+              dozen options behind a 288px window, and the template hides
+              scrollbars by default — leaving no hint that anything follows the
+              last visible row.
+            */}
+            <CommandList className='[&::-webkit-scrollbar-thumb]:bg-border max-h-64 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar]:w-1.5'>
+              <CommandEmpty className='py-8 text-sm'>Nothing matches that.</CommandEmpty>
               <CommandGroup>
                 {unused.map(attribute => (
                   <CommandItem
@@ -128,12 +138,16 @@ const RequirementEditor = ({ value, onChange }: Props) => {
                       setOpen(false)
                     }}
                   >
-                    <CheckIcon className='opacity-0' />
+                    <PlusIcon className='text-muted-foreground size-3.5' aria-hidden />
                     {ATTRIBUTE_LABELS[attribute]}
                   </CommandItem>
                 ))}
               </CommandGroup>
             </CommandList>
+
+            <p className='type-caption text-muted-foreground border-t px-3 py-2 text-xs'>
+              {unused.length} more to choose from · added as a nice-to-have
+            </p>
           </Command>
         </PopoverContent>
       </Popover>
