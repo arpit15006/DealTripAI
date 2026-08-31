@@ -6,8 +6,10 @@ the architecture, and how it meets the Buildathon brief.
 ```bash
 pnpm install
 cp .env.example .env.local
-pnpm dev     # http://localhost:3000
-pnpm test    # 33 tests
+pnpm dev           # http://localhost:3000
+pnpm test          # 43 tests
+pnpm mcp           # MCP server (stdio) — for Claude Desktop or any MCP client
+pnpm mcp:example   # scripted external agent: refused, then negotiates
 ```
 
 ## Layout
@@ -20,9 +22,11 @@ src/lib/dealtrip/     the engine — pricing, guard, agents, orchestrator, scori
   merchant-planner.ts exhaustive legal-package search — the fallback, and the floor
   orchestrator.ts     buyer-side desk: discovery, counters, ranking
   scoring.ts          deterministic deal scoring
-  __tests__/          33 tests over pricing, the guard and scoring
+  store.ts            Postgres + in-memory, incl. atomic inventory holds
+  __tests__/          43 tests
 
-src/app/api/          REST + SSE, including the public agent endpoints
+src/mcp/server.ts     MCP server — lets any external agent transact
+src/app/api/          REST + SSE, the public agent endpoints, the Razorpay webhook
 src/views/dealtrip/   the screens
 src/components/ui/    shadcn/ui + Base UI primitives (from the Tourix template)
 ```

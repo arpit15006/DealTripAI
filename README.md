@@ -58,6 +58,13 @@ hand the guard a tampered quote and it refuses.
    marked booked.
 4. **A payment that doesn't complete.** Nothing is charged, nothing is booked, and the
    negotiated price is *held* — the traveller retries without negotiating again.
+   Verified in a real browser against a real gateway rejection, not just in tests.
+5. **Two travellers want the last room.** Approving takes an atomic hold, so the
+   capacity check and the write happen together. The second approval is refused
+   rather than overselling; a failed payment returns the unit.
+6. **The traveller closes the tab after paying.** A signed Razorpay webhook confirms
+   the booking independently of the browser, so money moving and nothing being
+   booked is not a reachable state.
 
 ---
 
@@ -93,6 +100,12 @@ fallback, Groq for the agents with a deterministic planner behind every model ca
 |---|---|---|
 | Reading a traveller's request | **Model** | Natural language is what models are for. Bound to a closed vocabulary and confirmed by the user. |
 | Which room, add-ons and dates make a package | **Model** | A combinatorial choice over semantically-labelled options. It read *"anniversary trip"* and kept the couples spa — the planner has no way to know that; "anniversary" isn't in the attribute vocabulary. |
+
+Both are recorded on every merchant turn, and the UI shows them side by side —
+what the deterministic planner *would* have chosen against what the agent actually
+proposed. It says "the agent and the planner agreed" when they did; a comparison
+that only appeared when it flattered the model would not be evidence of anything.
+
 | Every rupee | **Code** | Arithmetic. A model has no business here. |
 | Whether an offer is permissible | **Code** | Determinism is the entire point of a guard. |
 | Ranking the shortlist | **Code** | Same shortlist, same ranking, every time. |
@@ -104,9 +117,49 @@ The revenue simulator runs entirely on that path — thousands of negotiations, 
 
 ---
 
+## Be the buyer yourself
+
+A marketplace where only its author's agent can transact proves nothing about
+agent-to-agent commerce. So DealTrip ships an **MCP server**: point any MCP client
+at it and negotiate against these merchants with an agent nobody here wrote.
+
+```jsonc
+// ~/Library/Application Support/Claude/claude_desktop_config.json
+{
+  "mcpServers": {
+    "dealtrip": {
+      "command": "npx",
+      "args": ["tsx", "<repo>/frontend/src/mcp/server.ts"],
+      "env": { "DEALTRIP_BASE_URL": "http://localhost:3000" }
+    }
+  }
+}
+```
+
+Five tools — `discover_merchants`, `get_vocabulary`, `get_merchant_profile`,
+`request_quote`, `negotiate` — over the same public endpoints DealTrip's own Deal
+Orchestrator calls. The server holds no credentials and has no privileged access.
+Ask it for a trip, or ask it for a 40% discount and watch the Commerce Guard refuse
+*your* agent exactly as it refuses ours.
+
+A scripted run of the same thing, no client needed:
+
+```bash
+pnpm dev              # terminal 1
+pnpm mcp:example      # terminal 2
+```
+
+```
+1. quote      HTTP 409  ₹62,392   ✗ exceeds the traveller's hard limit by ₹2,392
+2. negotiate  HTTP 200  ₹62,392 → ₹57,999  (saved ₹4,393)
+              · room changed from ov-premium-beach to ov-garden
+              · discount reduced from 5% to 1.08%
+              guard 13/13 passed · rounds left 1
+```
+
 ## Agent-readable, and you can check
 
-The catalog isn't "agent-readable" because the README says so. `curl` it:
+Underneath MCP it is plain HTTP, so `curl` works too:
 
 ```bash
 # Discover the marketplace
@@ -156,6 +209,7 @@ leads with it, so a demo can't quietly fall back and let you believe otherwise.
 |---|---|
 | `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET` | Test-mode orders and signature verification |
 | `NEXT_PUBLIC_RAZORPAY_KEY_ID` | Checkout, in the browser |
+| `RAZORPAY_WEBHOOK_SECRET` | Confirms bookings even if the browser never calls back |
 | `GROQ_API_KEY` / `GROQ_MODEL` | The agents. Provider-agnostic — one OpenAI-compatible `fetch` |
 | `DATABASE_URL` | Postgres (Neon). Omit for in-memory |
 
@@ -175,6 +229,9 @@ leads with it, so a demo can't quietly fall back and let you believe otherwise.
 | `/dashboard/merchants/onboard` | **Onboarding** — paste a rate card, get an Agent Commerce Profile |
 | `/dashboard/simulator` | **Revenue simulator** — streamed live, one line per traveller |
 | `/dashboard/agent-api` | Copy-paste `curl` for every agent endpoint |
+
+Plus, outside the browser: an **MCP server** (`pnpm mcp`) and a signed
+**Razorpay webhook** at `/api/payments/webhook`.
 
 ---
 
@@ -205,11 +262,11 @@ Margin holds within ~1.4 points — merchants sold *more*, not cheaper.
 ## Tests
 
 ```
-33 tests · 9 suites · 0 failures · ~105ms
+43 tests · 14 suites · 0 failures · ~110ms
 ```
 
-Concentrated where correctness is load-bearing — pricing, the guard, and scoring. Node's
-built-in runner; no test framework added.
+Concentrated where correctness is load-bearing — pricing, the guard, scoring, inventory
+reservations and webhook signatures. Node's built-in runner; no test framework added.
 
 Two bugs these caught, both real:
 
@@ -217,6 +274,9 @@ Two bugs these caught, both real:
   order, so the same shortlist could rank two ways. Fixed with a stable final tie-break.
 - **A test of mine encoded a wrong assumption** about negotiation credit. The code was right;
   the test was corrected.
+
+And one the tests were written *because* of: inventory was checked but never decremented,
+so the last room could be sold twice. Closed with an atomic hold.
 
 ---
 
