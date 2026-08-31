@@ -12,7 +12,7 @@
  */
 import { guardOffer } from './commerce-guard'
 import { diffBundles, materializeOffer, openingOffer, reviseOffer } from './merchant-agent'
-import { CatalogError, formatINR } from './pricing'
+import { CatalogError, formatINR, minimumAllowedPrice } from './pricing'
 import { explainWinner, priceBandOf, rankOffers, scoreOffer } from './scoring'
 import { ATTRIBUTE_LABELS } from './types'
 
@@ -52,8 +52,8 @@ export type EventSink = (event: DeskEvent) => void | Promise<void>
 /** How far below the price to beat the desk asks a merchant to come. */
 const UNDERCUT_RATIO = 0.03
 const MIN_UNDERCUT = 750
-/** Don't bother countering an offer already within this of its own floor. */
-const NEGOTIATION_HEADROOM = 1200
+/** Below this much headroom above its own floor, a merchant has nothing left to give. */
+const NEGOTIATION_HEADROOM = 500
 
 interface RunArgs {
   negotiation: Negotiation
@@ -461,8 +461,21 @@ export const runNegotiation = async ({
       // Never push the merchant that is already winning.
       if (!leader || leader.offer.merchant_id === merchant.id) return false
 
-      // Otherwise only push if there is realistic room to improve on the leader.
-      return priceToBeat !== null && current.quote.total_price > priceToBeat + NEGOTIATION_HEADROOM
+      /*
+       * Everyone else who is still in the running gets told what they would
+       * have to do to win.
+       *
+       * A previous version only countered merchants priced ABOVE the leader,
+       * which meant a shortlist where every agent happened to open under
+       * budget produced no negotiation at all — the single most important
+       * thing this product does, silently skipped. Being cheaper than the
+       * leader is not the same as winning: an offer can lose on preferences
+       * or package value and still have room to improve.
+       *
+       * The only merchants excluded are those with nowhere left to go, which
+       * is arithmetic rather than a guess.
+       */
+      return hasRoomToMove(merchant, current)
     })
 
     if (targets.length === 0) break
@@ -591,6 +604,25 @@ export const runNegotiation = async ({
     explanation,
     status,
     offers: ranked.map(r => r.offer)
+  }
+}
+
+/**
+ * Can this merchant legally improve on what it has already offered?
+ *
+ * Compares the offer against the binding floor for that exact package — the
+ * higher of its discount ceiling and its margin floor. A merchant already
+ * sitting on its floor is left alone rather than sent a request it can only
+ * refuse.
+ */
+const hasRoomToMove = (merchant: Merchant, offer: Offer): boolean => {
+  try {
+    const { floor } = minimumAllowedPrice(merchant, offer.bundle, offer.quote.nights, offer.quote.travelers)
+
+    return offer.quote.total_price - floor > NEGOTIATION_HEADROOM
+  } catch {
+    // If the package cannot even be priced, the guard will deal with it.
+    return false
   }
 }
 

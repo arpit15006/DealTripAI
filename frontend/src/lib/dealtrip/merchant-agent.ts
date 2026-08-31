@@ -236,7 +236,12 @@ ${candidateBrief(candidates, merchant)}
 Make your opening offer. This is your first impression: lead with what this property
 does better than a generic booking site, and satisfy every must-have. You do not have
 to fit their budget on the opening offer if your best package is genuinely worth more —
-they can come back to you.`,
+they can come back to you.
+
+Do NOT decline because their budget looks tight. A price gap is what the negotiation is
+for, and their deal desk will come back to you with a target. Set can_meet_request to
+false ONLY if you cannot deliver one of their must-haves from any available room — that
+is a capability you lack, not a price you disagree on.`,
     fallback: () =>
       fallbackFrom(
         plannerChoice,
