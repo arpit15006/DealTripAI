@@ -6,6 +6,8 @@
  * a price field, "the AI hallucinated a price" is not a failure mode the system
  * has — the guard re-runs these same functions to verify.
  */
+import { addDays, countWeekendNights, isWeekendNight, nightsOf } from './dates'
+
 import type { AddOn, Attribute, Bundle, Merchant, Quote, QuoteLine, Room } from './types'
 
 export class CatalogError extends Error {
@@ -14,6 +16,12 @@ export class CatalogError extends Error {
     this.name = 'CatalogError'
   }
 }
+
+/** A room's rate for one specific night, after any weekend uplift. */
+export const nightlyRate = (room: Room, weekendUpliftPct: number, night: string): number =>
+  isWeekendNight(night)
+    ? Math.round(room.base_price_per_night * (1 + weekendUpliftPct / 100))
+    : room.base_price_per_night
 
 export const findRoom = (merchant: Merchant, roomId: string): Room | undefined =>
   merchant.rooms.find(r => r.id === roomId)
@@ -45,14 +53,25 @@ export const computeQuote = (
 
   if (!room) throw new CatalogError(`Unknown room "${bundle.room_id}" for merchant ${merchant.id}`)
 
+  // Rooms are priced night by night: Friday and Saturday nights carry the
+  // merchant's weekend uplift, weekdays do not. Cost is flat, so the day of the
+  // week changes margin rather than expense.
+  const stayNights = nightsOf(bundle.check_in, nights)
+  const weekendNights = countWeekendNights(bundle.check_in, nights)
+
+  const roomAmount = stayNights.reduce(
+    (sum, night) => sum + nightlyRate(room, merchant.weekend_uplift_pct, night),
+    0
+  )
+
   const lines: QuoteLine[] = [
     {
-      label: `${room.name} × ${nights} night${nights === 1 ? '' : 's'}`,
+      label: `${room.name} × ${nights} night${nights === 1 ? '' : 's'}${weekendNights > 0 ? ` (${weekendNights} weekend)` : ''}`,
       kind: 'room',
       ref_id: room.id,
       unit_price: room.base_price_per_night,
       quantity: nights,
-      amount: room.base_price_per_night * nights,
+      amount: roomAmount,
       cost: room.cost_per_night * nights
     }
   ]
@@ -90,6 +109,9 @@ export const computeQuote = (
   const attributes = collectAttributes(merchant, room, uniqueAddOnIds)
 
   return {
+    check_in: bundle.check_in,
+    check_out: addDays(bundle.check_in, nights),
+    weekend_nights: weekendNights,
     lines,
     list_price: listPrice,
     discount_pct: discountPct,

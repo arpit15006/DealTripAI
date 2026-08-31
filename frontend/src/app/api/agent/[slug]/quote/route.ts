@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 import { guardOffer } from '@/lib/dealtrip/commerce-guard'
 import { openingOffer, materializeOffer } from '@/lib/dealtrip/merchant-agent'
+import { resolveCheckIns } from '@/lib/dealtrip/dates'
 import { CatalogError, minimumAllowedPrice } from '@/lib/dealtrip/pricing'
 import { agentJson, allMerchants, CORS } from '@/lib/dealtrip/service'
 import { BundleSchema, TravelIntentSchema } from '@/lib/dealtrip/types'
@@ -18,7 +19,7 @@ const RequestSchema = z.object({
    * Supply it and you are proposing a specific package — which is the honest way
    * to test the Commerce Guard, because you can propose an illegal one.
    */
-  bundle: BundleSchema.optional()
+  bundle: BundleSchema.partial({ check_in: true }).optional()
 })
 
 /**
@@ -57,6 +58,10 @@ export const POST = async (request: Request, { params }: { params: Promise<{ slu
   const travelers = intent.travelers
   const now = new Date()
 
+  // The dates this quote may use, derived from the caller's own intent.
+  const allowedCheckIns = resolveCheckIns(intent.check_in, intent.date_flexibility_days, now)
+  const defaultCheckIn = allowedCheckIns[0] ?? now.toISOString().slice(0, 10)
+
   let offer: Offer
   let composedBy: 'merchant_agent' | 'caller'
 
@@ -66,6 +71,7 @@ export const POST = async (request: Request, { params }: { params: Promise<{ slu
       offer = materializeOffer({
         merchant,
         proposal: {
+          check_in: bundle.check_in ?? null,
           room_id: bundle.room_id,
           addon_ids: bundle.addon_ids,
           discount_pct: bundle.discount_pct,
@@ -78,12 +84,13 @@ export const POST = async (request: Request, { params }: { params: Promise<{ slu
         round: 0,
         nights,
         travelers,
+        default_check_in: defaultCheckIn,
         now
       })
     } else {
       composedBy = 'merchant_agent'
 
-      const turn = await openingOffer({ merchant, intent, nights, travelers })
+      const turn = await openingOffer({ merchant, intent, nights, travelers, allowed_check_ins: allowedCheckIns })
 
       if (!turn.proposal.can_meet_request)
         return agentJson({
@@ -99,6 +106,7 @@ export const POST = async (request: Request, { params }: { params: Promise<{ slu
         round: 0,
         nights,
         travelers,
+        default_check_in: defaultCheckIn,
         now
       })
     }
@@ -114,7 +122,7 @@ export const POST = async (request: Request, { params }: { params: Promise<{ slu
     )
   }
 
-  const verdict = guardOffer({ merchant, offer, intent, rounds_used: 0 })
+  const verdict = guardOffer({ merchant, offer, intent, rounds_used: 0, allowed_check_ins: allowedCheckIns })
 
   // When a caller's own package is refused, tell them what would have been
   // legal. Publishing the floor for a package they already named gives away
@@ -131,6 +139,9 @@ export const POST = async (request: Request, { params }: { params: Promise<{ slu
         id: offer.id,
         bundle: offer.bundle,
         rationale: offer.rationale,
+        check_in: offer.quote.check_in,
+        check_out: offer.quote.check_out,
+        weekend_nights: offer.quote.weekend_nights,
         expires_at: offer.expires_at,
         price: {
           list: offer.quote.list_price,

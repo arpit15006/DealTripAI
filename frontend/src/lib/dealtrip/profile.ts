@@ -307,6 +307,8 @@ export const draftToMerchant = (
     attributes: draft.attributes,
     rooms,
     addons,
+    // A sensible default: most properties charge more at weekends.
+    weekend_uplift_pct: 20,
     policy: {
       max_discount_pct: 8,
       min_margin_pct: 25,

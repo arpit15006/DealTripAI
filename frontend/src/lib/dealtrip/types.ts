@@ -147,6 +147,12 @@ export const MerchantSchema = z.object({
   rooms: z.array(RoomSchema),
   addons: z.array(AddOnSchema),
   policy: MerchantPolicySchema,
+  /**
+   * Percent added to a room's nightly rate on Friday and Saturday nights.
+   * Cost does not move with the day of week, so this is margin the merchant
+   * gives up when it shifts a flexible traveller onto weekdays.
+   */
+  weekend_uplift_pct: z.number().min(0).max(100),
   /** Free-text house style the merchant agent writes in. */
   voice: z.string()
 })
@@ -163,7 +169,13 @@ export const BundleSchema = z.object({
   room_id: z.string(),
   addon_ids: z.array(z.string()),
   /** The one number the agent may propose — and the guard checks it. */
-  discount_pct: z.number().min(0).max(100)
+  discount_pct: z.number().min(0).max(100),
+  /**
+   * ISO date of the first night. Part of the bundle rather than the intent
+   * because which dates a merchant offers is a lever it can pull: a flexible
+   * traveller is worth more on a weekday, and the agent gets to say so.
+   */
+  check_in: z.string()
 })
 export type Bundle = z.infer<typeof BundleSchema>
 
@@ -178,6 +190,10 @@ export interface QuoteLine {
 }
 
 export interface Quote {
+  check_in: string
+  check_out: string
+  /** Nights that fell on a Friday or Saturday and carried the uplift. */
+  weekend_nights: number
   lines: QuoteLine[]
   list_price: number
   discount_pct: number
@@ -255,6 +271,7 @@ export type CheckId =
   | 'currency'
   | 'hard_budget'
   | 'hard_requirements'
+  | 'check_in_window'
 
 export interface GuardCheck {
   id: CheckId

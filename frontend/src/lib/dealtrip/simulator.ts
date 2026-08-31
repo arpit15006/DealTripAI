@@ -18,6 +18,7 @@
  * reproducible from its seed and costs nothing in tokens.
  */
 import { guardOffer } from './commerce-guard'
+import { resolveCheckIns } from './dates'
 import { runNegotiation } from './orchestrator'
 import { computeQuote } from './pricing'
 import { priceBandOf, scoreOffer } from './scoring'
@@ -112,6 +113,7 @@ const requirementsOf = (intent: TravelIntent, strength: RequirementStrength): At
  * add-ons needed to meet their must-haves, nothing negotiated.
  */
 const staticSale = (merchants: Merchant[], intent: TravelIntent): Sale | null => {
+  const staticCheckIn = resolveCheckIns(intent.check_in, 0)[0] ?? new Date().toISOString().slice(0, 10)
   const required = requirementsOf(intent, 'required')
   const preferred = requirementsOf(intent, 'preferred')
   const avoid = new Set(requirementsOf(intent, 'avoid'))
@@ -155,7 +157,15 @@ const staticSale = (merchants: Merchant[], intent: TravelIntent): Sale | null =>
       if (!required.every(a => delivered.has(a))) continue
       if ([...avoid].some(a => delivered.has(a))) continue
 
-      const bundle: Bundle = { room_id: room.id, addon_ids: [...new Set(chosen)], discount_pct: 0 }
+      // The static shelf shows one published date — a booking page does not
+      // shop the calendar for you. That difference is part of what negotiation
+      // is being measured against, so it must not be quietly equalised.
+      const bundle: Bundle = {
+        room_id: room.id,
+        addon_ids: [...new Set(chosen)],
+        discount_pct: 0,
+        check_in: staticCheckIn
+      }
 
       try {
         const quote = computeQuote(merchant, bundle, nights, travelers)

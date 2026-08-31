@@ -12,6 +12,7 @@
  */
 import { guardOffer } from './commerce-guard'
 import { diffBundles, materializeOffer, openingOffer, reviseOffer } from './merchant-agent'
+import { formatStay, resolveCheckIns } from './dates'
 import { CatalogError, formatINR, minimumAllowedPrice } from './pricing'
 import { explainWinner, priceBandOf, rankOffers, scoreOffer } from './scoring'
 import { ATTRIBUTE_LABELS } from './types'
@@ -82,6 +83,16 @@ export const runNegotiation = async ({
   const nights = intent.duration_nights
   const travelers = intent.travelers
 
+  /*
+   * The dates this whole run is bound to.
+   *
+   * Resolved once, up front, and handed to every agent and to the guard — so
+   * "flexible by two days" means the same set of dates to the merchant
+   * proposing a stay and to the check that authorises it.
+   */
+  const allowedCheckIns = resolveCheckIns(intent.check_in, intent.date_flexibility_days)
+  const defaultCheckIn = allowedCheckIns[0] ?? new Date().toISOString().slice(0, 10)
+
   const emit = async (event: DeskEvent) => {
     await onEvent?.(event)
   }
@@ -124,11 +135,16 @@ export const runNegotiation = async ({
     actor: 'orchestrator',
     action: 'discover_merchants',
     decision: 'info',
-    summary: `${eligible.length} merchant${eligible.length === 1 ? '' : 's'} in ${intent.destination} contacted${skipped ? `; ${skipped} outside the destination skipped` : ''}.`,
+    summary:
+      `${eligible.length} merchant${eligible.length === 1 ? '' : 's'} in ${intent.destination} contacted` +
+      `${skipped ? `; ${skipped} outside the destination skipped` : ''}. ` +
+      `${allowedCheckIns.length > 1 ? `${allowedCheckIns.length} check-in dates are acceptable.` : `Fixed check-in ${defaultCheckIn}.`}`,
     detail: {
       destination: intent.destination,
       contacted: eligible.map(m => m.name),
-      skipped_out_of_area: skipped
+      skipped_out_of_area: skipped,
+      check_in_window: allowedCheckIns,
+      stay: formatStay(defaultCheckIn, nights)
     }
   })
 
@@ -237,7 +253,8 @@ export const runNegotiation = async ({
         negotiationId: negotiation.id,
         round,
         nights,
-        travelers
+        travelers,
+        default_check_in: defaultCheckIn
       })
     } catch (error) {
       // An agent naming a room that does not exist is a catalog-integrity
@@ -284,7 +301,7 @@ export const runNegotiation = async ({
     })
 
     /* ---- the guard rules on it ---- */
-    const verdict = guardOffer({ merchant, offer, intent, rounds_used: round })
+    const verdict = guardOffer({ merchant, offer, intent, rounds_used: round, allowed_check_ins: allowedCheckIns })
 
     offer.status = verdict.authorized ? 'authorized' : 'rejected'
 
@@ -357,7 +374,7 @@ export const runNegotiation = async ({
   await Promise.all(
     eligible.map(async merchant => {
       try {
-        const turn = await openingOffer({ merchant, intent, nights, travelers, use_llm })
+        const turn = await openingOffer({ merchant, intent, nights, travelers, allowed_check_ins: allowedCheckIns, use_llm })
 
         await runTurn(merchant, 0, turn)
       } catch (error) {
@@ -524,6 +541,7 @@ export const runNegotiation = async ({
             previous: current,
             rejection: wasRejected ? verdict : null,
             round,
+            allowed_check_ins: allowedCheckIns,
             use_llm
           })
 
@@ -533,7 +551,8 @@ export const runNegotiation = async ({
             turn.proposal.changes_from_previous = diffBundles(merchant, current.bundle, {
               room_id: turn.proposal.room_id,
               addon_ids: turn.proposal.addon_ids,
-              discount_pct: turn.proposal.discount_pct
+              discount_pct: turn.proposal.discount_pct,
+              check_in: turn.proposal.check_in ?? current.bundle.check_in
             })
           }
 

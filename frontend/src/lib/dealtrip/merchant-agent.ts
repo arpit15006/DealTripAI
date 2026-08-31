@@ -19,7 +19,8 @@ import { z } from 'zod'
 
 import { structured } from './llm'
 import { enumerateCandidates, explainNoCandidate, planBundle } from './merchant-planner'
-import { CatalogError, computeQuote, formatINR, minimumAllowedPrice } from './pricing'
+import { formatStay, weekdayName } from './dates'
+import { CatalogError, computeQuote, formatINR, minimumAllowedPrice, nightlyRate } from './pricing'
 import { ATTRIBUTE_LABELS } from './types'
 
 import type { LlmResult } from './llm'
@@ -27,6 +28,12 @@ import type { PlanCandidate } from './merchant-planner'
 import type { Attribute, Bundle, CounterRequest, GuardVerdict, Merchant, Offer, TravelIntent } from './types'
 
 export const MerchantProposalSchema = z.object({
+  /**
+   * ISO check-in date. The agent picks from the dates the traveller said they
+   * would accept — shifting a flexible traveller off a weekend is a concession
+   * it can make without touching the headline rate.
+   */
+  check_in: z.string().nullable().default(null),
   /**
    * Nullable because an agent that is withdrawing has no room to name. Demanding
    * a room id from a merchant that just said "I cannot serve this request"
@@ -54,6 +61,32 @@ export interface AgentTurn {
 /* ------------------------------------------------------------------ *
  * Prompt construction
  * ------------------------------------------------------------------ */
+
+/** What each acceptable check-in date does to the room rate. */
+const dateBrief = (merchant: Merchant, dates: string[], nights: number) => {
+  if (dates.length <= 1) return `CHECK-IN: ${dates[0] ?? 'unspecified'} (the traveller is not flexible on dates).`
+
+  const room = [...merchant.rooms].sort((a, b) => b.tier - a.tier)[0]
+
+  const rows = dates
+    .map(date => {
+      const total = room
+        ? Array.from({ length: nights }, (_, i) => {
+            const night = new Date(Date.parse(`${date}T00:00:00Z`) + i * 86_400_000).toISOString().slice(0, 10)
+
+            return nightlyRate(room, merchant.weekend_uplift_pct, night)
+          }).reduce((a, b) => a + b, 0)
+        : 0
+
+      return `  ${date} (${weekdayName(date)} check-in) → ${formatINR(total)} for ${room?.name ?? 'a room'}`
+    })
+    .join('\n')
+
+  return `CHECK-IN DATES THE TRAVELLER WILL ACCEPT — you choose one (check_in):
+${rows}
+Friday and Saturday nights carry a ${merchant.weekend_uplift_pct}% uplift. Moving a flexible
+traveller onto weekdays costs you less than discounting and may still win the booking.`
+}
 
 const catalogBrief = (merchant: Merchant, nights: number, travelers: number) => {
   const rooms = merchant.rooms
@@ -172,6 +205,7 @@ const fallbackFrom = (
 ): MerchantProposal =>
   candidate
     ? {
+        check_in: candidate.bundle.check_in,
         room_id: candidate.bundle.room_id,
         addon_ids: candidate.bundle.addon_ids,
         discount_pct: candidate.bundle.discount_pct,
@@ -181,6 +215,7 @@ const fallbackFrom = (
         withdrawal_reason: null
       }
     : {
+        check_in: null,
         room_id: merchant.rooms[0]?.id ?? '',
         addon_ids: [],
         discount_pct: 0,
@@ -204,15 +239,17 @@ export const openingOffer = async (args: {
   intent: TravelIntent
   nights: number
   travelers: number
+  allowed_check_ins: string[]
   use_llm?: boolean
 }): Promise<AgentTurn> => {
-  const { merchant, intent, nights, travelers, use_llm = true } = args
+  const { merchant, intent, nights, travelers, allowed_check_ins, use_llm = true } = args
 
   const candidates = enumerateCandidates({
     merchant,
     intent,
     nights,
     travelers,
+    allowed_check_ins,
     target_price: null
   })
 
@@ -223,6 +260,8 @@ export const openingOffer = async (args: {
     schema: MerchantProposalSchema,
     system: `${SYSTEM_BASE}\n\nYour house voice: ${merchant.voice}`,
     user: `${catalogBrief(merchant, nights, travelers)}
+
+${dateBrief(merchant, allowed_check_ins, nights)}
 
 ${policyBrief(merchant)}
 
@@ -246,7 +285,7 @@ is a capability you lack, not a price you disagree on.`,
       fallbackFrom(
         plannerChoice,
         merchant,
-        explainNoCandidate({ merchant, intent, nights, travelers, target_price: null })
+        explainNoCandidate({ merchant, intent, nights, travelers, allowed_check_ins, target_price: null })
       ),
     temperature: 0.5,
     max_tokens: 700,
@@ -268,15 +307,17 @@ export const reviseOffer = async (args: {
   /** Present when the previous attempt was blocked — the agent must react to it. */
   rejection: GuardVerdict | null
   round: number
+  allowed_check_ins: string[]
   use_llm?: boolean
 }): Promise<AgentTurn> => {
-  const { merchant, intent, nights, travelers, counter, previous, rejection, round, use_llm = true } = args
+  const { merchant, intent, nights, travelers, counter, previous, rejection, round, allowed_check_ins, use_llm = true } = args
 
   const candidates = enumerateCandidates({
     merchant,
     intent,
     nights,
     travelers,
+    allowed_check_ins,
     target_price: counter.max_price,
     preserve: counter.preserve,
     previous: previous.bundle,
@@ -299,11 +340,13 @@ itself, or withdraw honestly.\n`
     system: `${SYSTEM_BASE}\n\nYour house voice: ${merchant.voice}`,
     user: `${catalogBrief(merchant, nights, travelers)}
 
+${dateBrief(merchant, allowed_check_ins, nights)}
+
 ${policyBrief(merchant)}
 
 ${intentBrief(intent, nights, travelers)}
 
-YOUR PREVIOUS OFFER (round ${previous.round}):
+YOUR PREVIOUS OFFER (round ${previous.round}, checking in ${previous.bundle.check_in}):
   room_id=${previous.bundle.room_id}, addon_ids=[${previous.bundle.addon_ids.join(', ')}], discount ${previous.bundle.discount_pct}%
   Priced at ${formatINR(previous.quote.total_price)}.${previousFloor ? ` The lowest you may legally sell that exact package for is ${formatINR(previousFloor.floor)} (${previousFloor.binding} floor).` : ''}
 ${rejectionBrief}
@@ -330,6 +373,7 @@ can_meet_request to false and explain why in one sentence.`,
           intent,
           nights,
           travelers,
+          allowed_check_ins,
           target_price: counter.max_price,
           preserve: counter.preserve,
           previous: previous.bundle,
@@ -368,6 +412,9 @@ export const diffBundles = (merchant: Merchant, before: Bundle, after: Bundle): 
 
     changes.push(`${direction} from ${nameOf(before.room_id)} to ${nameOf(after.room_id)}`)
   }
+
+  if (before.check_in !== after.check_in)
+    changes.push(`Moved the stay to ${formatStay(after.check_in, 0) ? weekdayName(after.check_in) : ''} ${after.check_in}`.replace(/\s+/g, ' ').trim())
 
   const removed = before.addon_ids.filter(id => !after.addon_ids.includes(id))
   const added = after.addon_ids.filter(id => !before.addon_ids.includes(id))
@@ -411,6 +458,8 @@ export const materializeOffer = (args: {
   round: number
   nights: number
   travelers: number
+  /** Used when the agent does not name a date of its own. */
+  default_check_in: string
   now?: Date
 }): Offer => {
   const { merchant, proposal, negotiationId, round, nights, travelers, now = new Date() } = args
@@ -420,7 +469,8 @@ export const materializeOffer = (args: {
   const bundle: Bundle = {
     room_id: proposal.room_id,
     addon_ids: [...new Set(proposal.addon_ids)],
-    discount_pct: proposal.discount_pct
+    discount_pct: proposal.discount_pct,
+    check_in: proposal.check_in ?? args.default_check_in
   }
 
   const quote = computeQuote(merchant, bundle, nights, travelers)

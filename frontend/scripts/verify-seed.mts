@@ -3,11 +3,13 @@
  * Run: node --experimental-strip-types scripts/verify-seed.ts
  */
 import { SEED_MERCHANTS } from '../src/lib/dealtrip/seed.ts'
+import { resolveCheckIns } from '../src/lib/dealtrip/dates'
 import { computeQuote, minimumAllowedPrice, maxAllowedDiscountPct, formatINR } from '../src/lib/dealtrip/pricing.ts'
 
 const NIGHTS = 3
 const PAX = 2
 const BUDGET = 60000
+const CHECK_IN = resolveCheckIns(null, 0)[0]!
 
 for (const m of SEED_MERCHANTS.filter(x => x.destination === 'Goa')) {
   console.log(`\n=== ${m.name}  (max_disc ${m.policy.max_discount_pct}%, min_margin ${m.policy.min_margin_pct}%) ===`)
@@ -17,7 +19,7 @@ for (const m of SEED_MERCHANTS.filter(x => x.destination === 'Goa')) {
 
     // Full package: room + every add-on group's priciest option
     const all = m.addons.map(a => a.id)
-    const bundle = { room_id: room.id, addon_ids: all, discount_pct: 0 }
+    const bundle = { room_id: room.id, addon_ids: all, discount_pct: 0, check_in: CHECK_IN }
     const q = computeQuote(m, bundle, NIGHTS, PAX)
     const floors = minimumAllowedPrice(m, bundle, NIGHTS, PAX)
     const maxD = maxAllowedDiscountPct(m, bundle, NIGHTS, PAX)
@@ -31,7 +33,7 @@ for (const m of SEED_MERCHANTS.filter(x => x.destination === 'Goa')) {
     )
 
     // Bare bundle: room only (plus locked add-ons)
-    const bare = { room_id: room.id, addon_ids: m.policy.locked_addons, discount_pct: 0 }
+    const bare = { room_id: room.id, addon_ids: m.policy.locked_addons, discount_pct: 0, check_in: CHECK_IN }
     const bq = computeQuote(m, bare, NIGHTS, PAX)
     const bf = minimumAllowedPrice(m, bare, NIGHTS, PAX)
 

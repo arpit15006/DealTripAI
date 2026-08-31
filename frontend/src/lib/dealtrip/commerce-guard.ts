@@ -19,6 +19,8 @@ interface GuardInput {
   merchant: Merchant
   offer: Offer
   intent: TravelIntent
+  /** Check-in dates the traveller accepted. Empty disables the window check. */
+  allowed_check_ins?: string[]
   /** How many revisions this merchant has already made (opening offer = 0). */
   rounds_used: number
   now?: Date
@@ -40,7 +42,7 @@ const check = (
   advisory: extra.advisory ?? false
 })
 
-export const guardOffer = ({ merchant, offer, intent, rounds_used, now = new Date() }: GuardInput): GuardVerdict => {
+export const guardOffer = ({ merchant, offer, intent, rounds_used, allowed_check_ins = [], now = new Date() }: GuardInput): GuardVerdict => {
   const checks: GuardCheck[] = []
   const { policy } = merchant
   const { bundle, quote } = offer
@@ -235,7 +237,27 @@ export const guardOffer = ({ merchant, offer, intent, rounds_used, now = new Dat
     )
   )
 
-  /* 12. Hard requirements ------------------------------------------------- */
+  /* 12. Check-in inside the window the traveller agreed to ----------------- */
+  // A merchant may move a flexible traveller to a cheaper weekday — but only
+  // within the dates they actually said they would accept. Shifting a stay
+  // outside that window is a different trip, not a better deal.
+  const dateOk = allowed_check_ins.length === 0 || allowed_check_ins.includes(offer.quote.check_in)
+
+  checks.push(
+    check(
+      'check_in_window',
+      'Dates within the traveller’s window',
+      dateOk,
+      allowed_check_ins.length === 0
+        ? 'No date window was specified.'
+        : dateOk
+          ? `Checks in ${offer.quote.check_in}, inside the ${allowed_check_ins.length}-day window the traveller accepted.`
+          : `Checks in ${offer.quote.check_in}, outside the window the traveller accepted (${allowed_check_ins[0]} to ${allowed_check_ins[allowed_check_ins.length - 1]}).`,
+      { expected: `${allowed_check_ins[0]} … ${allowed_check_ins[allowed_check_ins.length - 1]}`, actual: offer.quote.check_in }
+    )
+  )
+
+  /* 13. Hard requirements ------------------------------------------------- */
   const required = (Object.entries(intent.requirements) as [Attribute, string][])
     .filter(([, strength]) => strength === 'required')
     .map(([attr]) => attr)

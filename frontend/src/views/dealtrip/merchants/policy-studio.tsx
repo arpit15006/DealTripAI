@@ -22,6 +22,7 @@ import { Switch } from '@/components/ui/switch'
 
 // Lib Imports
 import { ApiError, updateMerchantPolicy } from '@/lib/dealtrip/client'
+import { resolveCheckIns } from '@/lib/dealtrip/dates'
 import { computeQuote, minimumAllowedPrice } from '@/lib/dealtrip/pricing'
 import { formatINR } from '@/lib/dealtrip/pricing'
 
@@ -61,7 +62,9 @@ const PolicyStudio = ({ merchant: initial }: { merchant: Merchant }) => {
 
     if (!room) return null
 
-    const bundle = { room_id: room.id, addon_ids: policy.locked_addons, discount_pct: 0 }
+    // Preview a representative mid-week stay three weeks out.
+    const checkIn = resolveCheckIns(null, 0)[0] ?? new Date().toISOString().slice(0, 10)
+    const bundle = { room_id: room.id, addon_ids: policy.locked_addons, discount_pct: 0, check_in: checkIn }
     const merchant = { ...initial, policy }
 
     try {

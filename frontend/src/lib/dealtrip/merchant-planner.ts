@@ -16,6 +16,7 @@
  *      should not — that judgement is not in the attribute vocabulary, and it is
  *      the part the model is actually for.
  */
+import { allowedCheckIns } from './dates'
 import { computeQuote, discountToReach, maxAllowedDiscountPct, minimumAllowedPrice } from './pricing'
 
 import type { AddOn, Attribute, Bundle, Merchant, Quote, RequirementStrength, Room, TravelIntent } from './types'
@@ -37,6 +38,8 @@ export interface PlanInput {
   intent: TravelIntent
   nights: number
   travelers: number
+  /** Check-in dates the traveller will accept. Must contain at least one. */
+  allowed_check_ins: string[]
   /** Price the package must land at or under. Null for an opening offer. */
   target_price: number | null
   /** Attributes that must be present (over and above the intent's own). */
@@ -171,6 +174,7 @@ export const enumerateCandidates = ({
   intent,
   nights,
   travelers,
+  allowed_check_ins,
   target_price,
   preserve = [],
   previous = null,
@@ -205,14 +209,17 @@ export const enumerateCandidates = ({
   const subsets = addOnSubsets(merchant, avoid)
   const candidates: PlanCandidate[] = []
 
-  for (const room of rooms) {
-    for (const addonIds of subsets) {
+  const dates = allowed_check_ins.length > 0 ? allowed_check_ins : [previous?.check_in ?? ''].filter(Boolean)
+
+  for (const checkIn of dates) {
+    for (const room of rooms) {
+      for (const addonIds of subsets) {
       // Honour substitution limits: groups the buyer did not open up must match
       // whatever the previous round already contained.
       if (previous && substitution_allowed !== null && !sameOutsideAllowedGroups(merchant, previous.addon_ids, addonIds, substitution_allowed))
         continue
 
-      const bundle: Bundle = { room_id: room.id, addon_ids: addonIds, discount_pct: 0 }
+      const bundle: Bundle = { room_id: room.id, addon_ids: addonIds, discount_pct: 0, check_in: checkIn }
 
       let quote: Quote
 
@@ -258,6 +265,7 @@ export const enumerateCandidates = ({
         preferred_hit: preferredHit,
         preferred_total: preferred.length
       })
+      }
     }
   }
 
@@ -301,7 +309,7 @@ export const planBundle = (input: PlanInput): PlanCandidate | null =>
  * rather than a silent absence.
  */
 export const explainNoCandidate = (input: PlanInput): string => {
-  const { merchant, intent, nights, travelers, target_price } = input
+  const { merchant, intent, nights, travelers, target_price, allowed_check_ins } = input
   const required = requirementsOf(intent, 'required')
 
   const fitting = merchant.rooms.filter(r => r.inventory_available > 0 && r.max_occupancy >= travelers)
@@ -325,10 +333,24 @@ export const explainNoCandidate = (input: PlanInput): string => {
 
   const cheapest = Math.min(
     ...canDeliver.map(room => {
-      const bundle: Bundle = { room_id: room.id, addon_ids: merchant.policy.locked_addons, discount_pct: 0 }
+      // Price the cheapest acceptable date — the merchant's best possible case.
+      const floors = (allowed_check_ins.length > 0 ? allowed_check_ins : ['']).filter(Boolean).map(checkIn => {
+        const bundle: Bundle = {
+          room_id: room.id,
+          addon_ids: merchant.policy.locked_addons,
+          discount_pct: 0,
+          check_in: checkIn
+        }
+
+        try {
+          return minimumAllowedPrice(merchant, bundle, nights, travelers).floor
+        } catch {
+          return Infinity
+        }
+      })
 
       try {
-        return minimumAllowedPrice(merchant, bundle, nights, travelers).floor
+        return Math.min(...floors)
       } catch {
         return Infinity
       }

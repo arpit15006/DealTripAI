@@ -1,6 +1,11 @@
 /**
  * Seed marketplace.
  *
+ * Every property charges more for Friday and Saturday nights (weekend_uplift_pct)
+ * while its costs stay flat, so shifting a flexible traveller onto weekdays is a
+ * real concession a merchant can make instead of discounting — and a real saving
+ * a traveller can win by being flexible.
+ *
  * Five Goa merchants plus two elsewhere. The numbers are deliberate: each
  * merchant plays a distinct structural role against the reference intent
  * ("Goa, 2 people, 3 nights, ₹60,000 hard, beachfront required, breakfast
@@ -87,6 +92,7 @@ export const SEED_MERCHANTS: Merchant[] = [
       objectives: ['maximize_revenue', 'protect_margin', 'move_unsold_inventory'],
       offer_ttl_minutes: 20
     },
+    weekend_uplift_pct: 28,
     voice: 'Warm and concierge-like. Leads with the beachfront position, and would rather restructure a package than cut the headline rate.'
   },
 
@@ -137,6 +143,7 @@ export const SEED_MERCHANTS: Merchant[] = [
       objectives: ['protect_margin', 'maximize_occupancy'],
       offer_ttl_minutes: 20
     },
+    weekend_uplift_pct: 22,
     voice: 'Plain and slightly blunt. Will say when it cannot go lower rather than dressing it up.'
   },
 
@@ -198,6 +205,7 @@ export const SEED_MERCHANTS: Merchant[] = [
       objectives: ['maximize_occupancy', 'maximize_revenue', 'increase_package_value'],
       offer_ttl_minutes: 20
     },
+    weekend_uplift_pct: 20,
     voice: 'Friendly and practical. Quotes a fair number first rather than holding margin back for a haggle.'
   },
 
@@ -248,6 +256,7 @@ export const SEED_MERCHANTS: Merchant[] = [
       objectives: ['maximize_occupancy', 'move_unsold_inventory'],
       offer_ttl_minutes: 20
     },
+    weekend_uplift_pct: 18,
     voice: 'Understated and design-led. Honest that it does not do breakfast.'
   },
 
@@ -298,6 +307,7 @@ export const SEED_MERCHANTS: Merchant[] = [
       objectives: ['protect_margin', 'maximize_revenue'],
       offer_ttl_minutes: 20
     },
+    weekend_uplift_pct: 32,
     voice: 'Assured, a little aloof. Sells the view, never apologises for the rate.'
   },
 
@@ -330,6 +340,7 @@ export const SEED_MERCHANTS: Merchant[] = [
       objectives: ['maximize_occupancy', 'move_unsold_inventory'],
       offer_ttl_minutes: 20
     },
+    weekend_uplift_pct: 15,
     voice: 'Unhurried and outdoorsy.'
   },
 
@@ -360,6 +371,7 @@ export const SEED_MERCHANTS: Merchant[] = [
       objectives: ['protect_margin', 'increase_package_value'],
       offer_ttl_minutes: 20
     },
+    weekend_uplift_pct: 24,
     voice: 'Formal and heritage-proud.'
   }
 ]

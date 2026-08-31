@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 import { guardOffer } from '@/lib/dealtrip/commerce-guard'
 import { diffBundles, materializeOffer, reviseOffer } from '@/lib/dealtrip/merchant-agent'
+import { resolveCheckIns } from '@/lib/dealtrip/dates'
 import { computeQuote, CatalogError } from '@/lib/dealtrip/pricing'
 import { agentJson, allMerchants, CORS } from '@/lib/dealtrip/service'
 import { BundleSchema, CounterRequestSchema, TravelIntentSchema } from '@/lib/dealtrip/types'
@@ -14,7 +15,7 @@ export const dynamic = 'force-dynamic'
 const RequestSchema = z.object({
   intent: TravelIntentSchema,
   /** The package you are countering — normally the one a quote returned. */
-  previous_bundle: BundleSchema,
+  previous_bundle: BundleSchema.partial({ check_in: true }),
   counter: CounterRequestSchema,
   round: z.number().int().min(1).max(5).default(1)
 })
@@ -50,6 +51,10 @@ export const POST = async (request: Request, { params }: { params: Promise<{ slu
   const nights = intent.duration_nights
   const travelers = intent.travelers
 
+  const allowedCheckIns = resolveCheckIns(intent.check_in, intent.date_flexibility_days)
+  const defaultCheckIn = previous_bundle.check_in ?? allowedCheckIns[0] ?? new Date().toISOString().slice(0, 10)
+  const previousBundle = { ...previous_bundle, check_in: defaultCheckIn }
+
   if (round > merchant.policy.max_counter_rounds)
     return agentJson(
       {
@@ -68,8 +73,8 @@ export const POST = async (request: Request, { params }: { params: Promise<{ slu
       negotiation_id: 'ext',
       merchant_id: merchant.id,
       round: round - 1,
-      bundle: previous_bundle,
-      quote: computeQuote(merchant, previous_bundle, nights, travelers),
+      bundle: previousBundle,
+      quote: computeQuote(merchant, previousBundle, nights, travelers),
       rationale: '',
       changes_from_previous: [],
       status: 'superseded',
@@ -91,7 +96,8 @@ export const POST = async (request: Request, { params }: { params: Promise<{ slu
     counter,
     previous,
     rejection: null,
-    round
+    round,
+    allowed_check_ins: allowedCheckIns
   })
 
   if (!turn.proposal.can_meet_request)
@@ -111,7 +117,8 @@ export const POST = async (request: Request, { params }: { params: Promise<{ slu
       negotiationId: 'ext',
       round,
       nights,
-      travelers
+      travelers,
+      default_check_in: defaultCheckIn
     })
   } catch (error) {
     return agentJson(
@@ -120,11 +127,11 @@ export const POST = async (request: Request, { params }: { params: Promise<{ slu
     )
   }
 
-  const verdict = guardOffer({ merchant, offer, intent, rounds_used: round })
+  const verdict = guardOffer({ merchant, offer, intent, rounds_used: round, allowed_check_ins: allowedCheckIns })
 
   const changes = offer.changes_from_previous.length
     ? offer.changes_from_previous
-    : diffBundles(merchant, previous_bundle, offer.bundle)
+    : diffBundles(merchant, previousBundle, offer.bundle)
 
   return agentJson(
     {
