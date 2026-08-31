@@ -179,7 +179,7 @@ const Checkout = ({ state, negotiationId, offerId }: Props) => {
             Nothing is charged until you approve this exact offer.
           </p>
         </div>
-        <Button variant='outline' size='sm' render={<Link href={`/deal/${negotiationId}`} />}>
+        <Button variant='outline' size='sm' nativeButton={false} render={<Link href={`/deal/${negotiationId}`} />}>
           <ArrowLeftIcon />
           Back
         </Button>
@@ -305,12 +305,13 @@ const Checkout = ({ state, negotiationId, offerId }: Props) => {
               <Button
                 variant='outline'
                 className='flex-1'
+                nativeButton={false}
                 render={<Link href={`/deal/${negotiationId}/timeline`} />}
               >
                 <ScrollTextIcon />
                 See the full Trust Timeline
               </Button>
-              <Button variant='outline' className='flex-1' render={<Link href='/' />}>
+              <Button variant='outline' className='flex-1' nativeButton={false} render={<Link href='/' />}>
                 Plan another trip
               </Button>
             </div>

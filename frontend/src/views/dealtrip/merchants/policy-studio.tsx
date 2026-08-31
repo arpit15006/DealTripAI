@@ -130,7 +130,7 @@ const PolicyStudio = ({ merchant: initial }: { merchant: Merchant }) => {
           </p>
         </div>
         <div className='flex gap-2'>
-          <Button variant='outline' size='sm' render={<Link href='/dashboard/merchants' />}>
+          <Button variant='outline' size='sm' nativeButton={false} render={<Link href='/dashboard/merchants' />}>
             <ArrowLeftIcon />
             All merchants
           </Button>

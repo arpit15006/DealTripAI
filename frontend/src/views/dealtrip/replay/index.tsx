@@ -120,10 +120,10 @@ const NegotiationReplay = ({ state, negotiationId }: { state: NegotiationView; n
           </p>
         </div>
         <div className='flex gap-2'>
-          <Button variant='outline' size='sm' render={<Link href={`/deal/${negotiationId}/timeline`} />}>
+          <Button variant='outline' size='sm' nativeButton={false} render={<Link href={`/deal/${negotiationId}/timeline`} />}>
             Trust Timeline
           </Button>
-          <Button variant='outline' size='sm' render={<Link href={`/deal/${negotiationId}`} />}>
+          <Button variant='outline' size='sm' nativeButton={false} render={<Link href={`/deal/${negotiationId}`} />}>
             <ArrowLeftIcon />
             Back
           </Button>

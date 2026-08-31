@@ -24,10 +24,10 @@ const TravellerHeader = () => {
 
         <nav className='flex items-center gap-1'>
           {/* Base UI composes via `render`, not `asChild`. */}
-          <Button variant='ghost' size='sm' render={<Link href='/dashboard/merchants' />}>
+          <Button variant='ghost' size='sm' nativeButton={false} render={<Link href='/dashboard/merchants' />}>
             Merchants
           </Button>
-          <Button variant='ghost' size='sm' className='max-sm:hidden' render={<Link href='/dashboard/agent-api' />}>
+          <Button variant='ghost' size='sm' className='max-sm:hidden' nativeButton={false} render={<Link href='/dashboard/agent-api' />}>
             Agent API
           </Button>
           <ModeToggle />

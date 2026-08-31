@@ -130,7 +130,7 @@ const DealDesk = ({ negotiationId }: { negotiationId: string }) => {
           <AlertDescription>
             {desk.explanation}
             {eligible.length > 0 && (
-              <Button size='sm' className='mt-3 w-fit' render={<Link href={`/deal/${negotiationId}`} />}>
+              <Button size='sm' className='mt-3 w-fit' nativeButton={false} render={<Link href={`/deal/${negotiationId}`} />}>
                 Compare the deals
                 <ArrowRightIcon />
               </Button>

@@ -56,7 +56,7 @@ const MerchantList = ({ merchants, baseUrl }: { merchants: MerchantListItem[]; b
             {merchants.length} merchants publishing machine-readable catalogs that AI buyers can transact against.
           </p>
         </div>
-        <Button render={<Link href='/dashboard/merchants/onboard' />}>
+        <Button nativeButton={false} render={<Link href='/dashboard/merchants/onboard' />}>
           <PlusIcon />
           Onboard a merchant
         </Button>
@@ -142,6 +142,7 @@ const MerchantList = ({ merchants, baseUrl }: { merchants: MerchantListItem[]; b
                         variant='ghost'
                         size='icon-xs'
                         aria-label='Open profile'
+                        nativeButton={false}
                         render={<a href={url} target='_blank' rel='noreferrer' />}
                       >
                         <ExternalLinkIcon />
@@ -152,6 +153,7 @@ const MerchantList = ({ merchants, baseUrl }: { merchants: MerchantListItem[]; b
                       variant='outline'
                       size='sm'
                       className='w-full'
+                      nativeButton={false}
                       render={<Link href={`/dashboard/merchants/${merchant.slug}`} />}
                     >
                       <ShieldCheckIcon />

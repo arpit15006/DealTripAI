@@ -127,6 +127,7 @@ const AgentApiReference = ({ baseUrl }: { baseUrl: string }) => {
         <Button
           variant='outline'
           size='sm'
+          nativeButton={false}
           render={<a href='/.well-known/agent-commerce.json' target='_blank' rel='noreferrer' />}
         >
           <ExternalLinkIcon />

@@ -219,6 +219,7 @@ const MerchantOnboarding = () => {
                           variant='outline'
                           size='sm'
                           className='flex-1'
+                          nativeButton={false}
                           render={<a href={result.profile_url} target='_blank' rel='noreferrer' />}
                         >
                           <ExternalLinkIcon />
@@ -227,6 +228,7 @@ const MerchantOnboarding = () => {
                         <Button
                           size='sm'
                           className='flex-1'
+                          nativeButton={false}
                           render={<Link href={`/dashboard/merchants/${merchant.slug}`} />}
                         >
                           Tune the policy

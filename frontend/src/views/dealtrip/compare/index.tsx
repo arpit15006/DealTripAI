@@ -98,15 +98,15 @@ const DealComparison = ({ negotiationId, initialState }: Props) => {
           </p>
         </div>
         <div className='flex gap-2'>
-          <Button variant='outline' size='sm' render={<Link href={`/deal/${negotiationId}/replay`} />}>
+          <Button variant='outline' size='sm' nativeButton={false} render={<Link href={`/deal/${negotiationId}/replay`} />}>
             <PlayIcon />
             Replay
           </Button>
-          <Button variant='outline' size='sm' render={<Link href={`/deal/${negotiationId}/timeline`} />}>
+          <Button variant='outline' size='sm' nativeButton={false} render={<Link href={`/deal/${negotiationId}/timeline`} />}>
             <ScrollTextIcon />
             Trust Timeline
           </Button>
-          <Button variant='outline' size='sm' render={<Link href={`/desk/${negotiationId}`} />}>
+          <Button variant='outline' size='sm' nativeButton={false} render={<Link href={`/desk/${negotiationId}`} />}>
             Back to the desk
           </Button>
         </div>
@@ -294,6 +294,7 @@ const DealComparison = ({ negotiationId, initialState }: Props) => {
                 <Button
                   className='w-full'
                   variant={row.rank === 1 ? 'default' : 'outline'}
+                  nativeButton={false}
                   render={<Link href={`/deal/${negotiationId}/checkout?offer=${row.offer.id}`} />}
                 >
                   Approve and pay {formatINR(row.offer.quote.total_price)}

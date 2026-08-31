@@ -47,7 +47,7 @@ const Overview = ({ health, negotiations }: { health: HealthResponse; negotiatio
         <h1 className='text-xl font-semibold tracking-tight'>Overview</h1>
         <p className='text-muted-foreground text-sm'>The agentic deal desk for travel.</p>
       </div>
-      <Button render={<Link href='/' />}>
+      <Button nativeButton={false} render={<Link href='/' />}>
         <SparklesIcon />
         Start a negotiation
       </Button>

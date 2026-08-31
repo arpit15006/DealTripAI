@@ -51,11 +51,11 @@ const TrustTimeline = ({ state, negotiationId }: { state: NegotiationView; negot
           </p>
         </div>
         <div className='flex gap-2'>
-          <Button variant='outline' size='sm' render={<Link href={`/deal/${negotiationId}/replay`} />}>
+          <Button variant='outline' size='sm' nativeButton={false} render={<Link href={`/deal/${negotiationId}/replay`} />}>
             <PlayIcon />
             Replay it
           </Button>
-          <Button variant='outline' size='sm' render={<Link href={`/deal/${negotiationId}`} />}>
+          <Button variant='outline' size='sm' nativeButton={false} render={<Link href={`/deal/${negotiationId}`} />}>
             <ArrowLeftIcon />
             Back to the deals
           </Button>
