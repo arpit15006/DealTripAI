@@ -51,8 +51,7 @@ export const SEED_MERCHANTS: Merchant[] = [
         cost_per_night: 6300,
         max_occupancy: 3,
         attributes: ['quiet', 'balcony'],
-        inventory_available: 6,
-        image: '/images/countries/maldives/maldives-2.webp',
+        inventory_available: 6
       },
       {
         id: 'ov-standard-beach',
@@ -62,8 +61,7 @@ export const SEED_MERCHANTS: Merchant[] = [
         cost_per_night: 8300,
         max_occupancy: 2,
         attributes: ['sea_view', 'balcony'],
-        inventory_available: 4,
-        image: '/images/countries/maldives/maldives-3.webp',
+        inventory_available: 4
       },
       {
         id: 'ov-premium-beach',
@@ -73,8 +71,7 @@ export const SEED_MERCHANTS: Merchant[] = [
         cost_per_night: 10400,
         max_occupancy: 3,
         attributes: ['sea_view', 'balcony', 'romantic'],
-        inventory_available: 2,
-        image: '/images/countries/maldives/maldives-4.webp',
+        inventory_available: 2
       }
     ],
     addons: [
@@ -109,7 +106,7 @@ export const SEED_MERCHANTS: Merchant[] = [
     description:
       'Six standalone villas set back from Morjim beach, plus garden cabanas. Only the villas front the sand. Housekeeping is bundled into every stay and cannot be removed.',
     rating: 4.4,
-    image: '/images/countries/indonesia/indonesia-2.webp',
+    image: '/images/countries/maldives/maldives-2.webp',
     attributes: ['wifi', 'air_conditioning', 'quiet', 'pet_friendly', 'free_cancellation'],
     rooms: [
       {
@@ -120,8 +117,7 @@ export const SEED_MERCHANTS: Merchant[] = [
         cost_per_night: 13900,
         max_occupancy: 4,
         attributes: ['beachfront', 'sea_view', 'kitchenette', 'balcony'],
-        inventory_available: 2,
-        image: '/images/countries/indonesia/indonesia-1.webp',
+        inventory_available: 2
       },
       {
         id: 'ps-cabana',
@@ -131,8 +127,7 @@ export const SEED_MERCHANTS: Merchant[] = [
         cost_per_night: 8900,
         max_occupancy: 2,
         attributes: ['quiet', 'balcony'],
-        inventory_available: 5,
-        image: '/images/countries/indonesia/indonesia-4.webp',
+        inventory_available: 5
       }
     ],
     addons: [
@@ -163,7 +158,7 @@ export const SEED_MERCHANTS: Merchant[] = [
     description:
       'A mid-market beachfront property on Colva with a large pool and a family focus. Prices its packages to fill rooms rather than to top the rate card.',
     rating: 4.5,
-    image: '/images/countries/thailand/thailand-1.webp',
+    image: '/images/countries/maldives/maldives-4.webp',
     attributes: ['beachfront', 'pool', 'wifi', 'air_conditioning', 'family_friendly', 'free_cancellation'],
     rooms: [
       {
@@ -174,8 +169,7 @@ export const SEED_MERCHANTS: Merchant[] = [
         cost_per_night: 6400,
         max_occupancy: 2,
         attributes: ['quiet'],
-        inventory_available: 8,
-        image: '/images/countries/thailand/thailand-2.webp',
+        inventory_available: 8
       },
       {
         id: 'sb-sea',
@@ -185,8 +179,7 @@ export const SEED_MERCHANTS: Merchant[] = [
         cost_per_night: 8600,
         max_occupancy: 3,
         attributes: ['sea_view', 'balcony'],
-        inventory_available: 5,
-        image: '/images/countries/thailand/thailand-3.webp',
+        inventory_available: 5
       },
       {
         id: 'sb-suite',
@@ -196,8 +189,7 @@ export const SEED_MERCHANTS: Merchant[] = [
         cost_per_night: 11200,
         max_occupancy: 4,
         attributes: ['sea_view', 'balcony', 'spa'],
-        inventory_available: 3,
-        image: '/images/countries/thailand/thailand-4.webp',
+        inventory_available: 3
       }
     ],
     addons: [
@@ -229,7 +221,7 @@ export const SEED_MERCHANTS: Merchant[] = [
     description:
       'A nine-key boutique house in Anjuna. Self-catering by design — there is no kitchen service, so no breakfast product exists to sell. Cheapest beachfront inventory in the set.',
     rating: 4.3,
-    image: '/images/countries/indonesia/indonesia-3.webp',
+    image: '/images/countries/indonesia/indonesia-2.webp',
     attributes: ['wifi', 'air_conditioning', 'nightlife_nearby'],
     rooms: [
       {
@@ -240,8 +232,7 @@ export const SEED_MERCHANTS: Merchant[] = [
         cost_per_night: 5200,
         max_occupancy: 2,
         attributes: ['workspace', 'quiet'],
-        inventory_available: 6,
-        image: '/images/countries/indonesia/indonesia-1.webp',
+        inventory_available: 6
       },
       {
         id: 'ca-beach',
@@ -251,8 +242,7 @@ export const SEED_MERCHANTS: Merchant[] = [
         cost_per_night: 9100,
         max_occupancy: 3,
         attributes: ['beachfront', 'sea_view', 'kitchenette'],
-        inventory_available: 3,
-        image: '/images/countries/indonesia/indonesia-4.webp',
+        inventory_available: 3
       }
     ],
     addons: [
@@ -294,8 +284,7 @@ export const SEED_MERCHANTS: Merchant[] = [
         cost_per_night: 9600,
         max_occupancy: 2,
         attributes: ['sea_view', 'balcony'],
-        inventory_available: 4,
-        image: '/images/countries/greece/greece-2.webp',
+        inventory_available: 4
       },
       {
         id: 'kc-suite',
@@ -305,8 +294,7 @@ export const SEED_MERCHANTS: Merchant[] = [
         cost_per_night: 13200,
         max_occupancy: 2,
         attributes: ['sea_view', 'balcony', 'romantic'],
-        inventory_available: 2,
-        image: '/images/countries/greece/greece-3.webp',
+        inventory_available: 2
       }
     ],
     addons: [
@@ -341,8 +329,8 @@ export const SEED_MERCHANTS: Merchant[] = [
     image: '/images/countries/switzerland/switzerland-1.webp',
     attributes: ['wifi', 'quiet', 'family_friendly', 'free_cancellation'],
     rooms: [
-      { id: 'ar-valley', name: 'Valley View Room', tier: 3, base_price_per_night: 8400, cost_per_night: 4600, max_occupancy: 3, attributes: ['balcony'], inventory_available: 7, image: '/images/countries/switzerland/switzerland-2.webp' },
-      { id: 'ar-cabin', name: 'Cedar Cabin', tier: 4, base_price_per_night: 12600, cost_per_night: 6900, max_occupancy: 4, attributes: ['balcony', 'kitchenette', 'romantic'], inventory_available: 3, image: '/images/countries/switzerland/switzerland-3.webp' }
+      { id: 'ar-valley', name: 'Valley View Room', tier: 3, base_price_per_night: 8400, cost_per_night: 4600, max_occupancy: 3, attributes: ['balcony'], inventory_available: 7 },
+      { id: 'ar-cabin', name: 'Cedar Cabin', tier: 4, base_price_per_night: 12600, cost_per_night: 6900, max_occupancy: 4, attributes: ['balcony', 'kitchenette', 'romantic'], inventory_available: 3 }
     ],
     addons: [
       { id: 'ar-breakfast', name: 'Mountain breakfast', price: 700, cost: 300, per_night: true, per_person: false, attributes: ['breakfast'], group: 'meals' },
@@ -370,11 +358,11 @@ export const SEED_MERCHANTS: Merchant[] = [
     tagline: 'Lake Pichola · restored haveli',
     description: 'A restored twelve-room haveli on the eastern ghats of Lake Pichola, with a rooftop dining terrace.',
     rating: 4.8,
-    image: '/images/countries/india/india-1.webp',
+    image: '/images/countries/india/india-3.webp',
     attributes: ['wifi', 'air_conditioning', 'city_center', 'romantic', 'spa'],
     rooms: [
-      { id: 'ha-courtyard', name: 'Courtyard Chamber', tier: 3, base_price_per_night: 13800, cost_per_night: 7200, max_occupancy: 2, attributes: ['quiet'], inventory_available: 5, image: '/images/countries/india/india-2.webp' },
-      { id: 'ha-lake', name: 'Lake-Facing Suite', tier: 5, base_price_per_night: 22400, cost_per_night: 11800, max_occupancy: 3, attributes: ['balcony', 'romantic'], inventory_available: 2, image: '/images/countries/india/india-3.webp' }
+      { id: 'ha-courtyard', name: 'Courtyard Chamber', tier: 3, base_price_per_night: 13800, cost_per_night: 7200, max_occupancy: 2, attributes: ['quiet'], inventory_available: 5 },
+      { id: 'ha-lake', name: 'Lake-Facing Suite', tier: 5, base_price_per_night: 22400, cost_per_night: 11800, max_occupancy: 3, attributes: ['balcony', 'romantic'], inventory_available: 2 }
     ],
     addons: [
       { id: 'ha-breakfast', name: 'Rooftop breakfast', price: 1200, cost: 500, per_night: true, per_person: false, attributes: ['breakfast'], group: 'meals' },

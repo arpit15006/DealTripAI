@@ -88,11 +88,7 @@ const DealComparison = ({ negotiationId, initialState }: Props) => {
     .filter(([, s]) => s === 'preferred')
     .map(([a]) => a)
 
-  const imageFor = (merchantId: string, roomId: string) => {
-    const merchant = state.merchants.find(m => m.id === merchantId)
-
-    return merchant?.rooms?.find(r => r.id === roomId)?.image || merchant?.image || ''
-  }
+  const imageFor = (merchantId: string) => state.merchants.find(m => m.id === merchantId)?.image ?? ''
 
   const openingOf = (merchantId: string) =>
     state.offers.filter(o => o.merchant_id === merchantId).sort((a, b) => a.round - b.round)[0] ?? null
@@ -172,7 +168,7 @@ const DealComparison = ({ negotiationId, initialState }: Props) => {
                   <TableCell>
                     <div className='flex items-center gap-2'>
                       <PropertyImage
-                        src={imageFor(row.merchant.id, row.offer.bundle.room_id)}
+                        src={imageFor(row.merchant.id)}
                         alt={row.merchant.name}
                         fallbackLabel={row.merchant.name}
                         className='size-9 shrink-0 rounded-md text-xs'
@@ -237,10 +233,10 @@ const DealComparison = ({ negotiationId, initialState }: Props) => {
               className={cn('gap-0 overflow-hidden py-0', row.rank === 1 && 'border-primary/50')}
             >
               <PropertyImage
-                src={imageFor(row.merchant.id, row.offer.bundle.room_id)}
+                src={imageFor(row.merchant.id)}
                 alt={`${row.merchant.name} — ${row.offer.quote.lines[0]?.label ?? 'room'}`}
                 fallbackLabel={row.merchant.name}
-                className='h-40 w-full sm:h-48'
+                className='aspect-[21/9] w-full'
                 sizes='(max-width: 1024px) 100vw, 900px'
                 priority={row.rank === 1}
               />
@@ -304,11 +300,16 @@ const DealComparison = ({ negotiationId, initialState }: Props) => {
                       )}
                     </ul>
                     <div className='flex flex-wrap gap-1'>
-                      {row.offer.quote.attributes.map(a => (
+                      {row.offer.quote.attributes.slice(0, 6).map(a => (
                         <Badge key={a} variant='outline' className='h-5 px-1.5 text-[11px] font-normal'>
                           {ATTRIBUTE_LABELS[a]}
                         </Badge>
                       ))}
+                      {row.offer.quote.attributes.length > 6 && (
+                        <Badge variant='outline' className='text-muted-foreground h-5 px-1.5 text-[11px] font-normal'>
+                          +{row.offer.quote.attributes.length - 6} more
+                        </Badge>
+                      )}
                     </div>
                   </div>
 

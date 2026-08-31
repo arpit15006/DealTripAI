@@ -21,8 +21,8 @@ import type { DeskMerchant } from '@/hooks/use-negotiation-stream'
 
 type Props = {
   merchant: DeskMerchant
-  /** Room photograph for the package currently on the table. */
-  roomImage?: string
+  /** Property photograph. */
+  image?: string
   /** Attributes the traveller marked as must-have, for highlighting. */
   required: Attribute[]
   className?: string
@@ -36,16 +36,16 @@ type Props = {
  * traveller nothing, whereas "its only beachfront room cannot legally reach
  * your budget" tells them something real about the market.
  */
-const OfferCard = ({ merchant, required, roomImage, className }: Props) => {
+const OfferCard = ({ merchant, required, image, className }: Props) => {
   const { offer, verdict } = merchant
 
   return (
     <Card className={cn('gap-0 overflow-hidden py-0', className)}>
       <PropertyImage
-        src={roomImage}
+        src={image}
         alt={merchant.name}
         fallbackLabel={merchant.name}
-        className={cn('h-28 w-full', merchant.withdrawn && 'opacity-40 grayscale')}
+        className={cn('aspect-[16/6] w-full', merchant.withdrawn && 'opacity-40 grayscale')}
         sizes='(max-width: 640px) 100vw, 50vw'
       />
       <CardHeader className='flex items-start justify-between gap-3 px-4 py-3'>
@@ -106,7 +106,7 @@ const OfferCard = ({ merchant, required, roomImage, className }: Props) => {
             </ul>
 
             <div className='flex flex-wrap gap-1'>
-              {offer.quote.attributes.slice(0, 8).map(attribute => (
+              {offer.quote.attributes.slice(0, 5).map(attribute => (
                 <Badge
                   key={attribute}
                   variant='outline'
@@ -118,6 +118,11 @@ const OfferCard = ({ merchant, required, roomImage, className }: Props) => {
                   {ATTRIBUTE_LABELS[attribute]}
                 </Badge>
               ))}
+              {offer.quote.attributes.length > 5 && (
+                <Badge variant='outline' className='text-muted-foreground h-5 px-1.5 text-[11px] font-normal'>
+                  +{offer.quote.attributes.length - 5}
+                </Badge>
+              )}
             </div>
 
             {offer.rationale && <p className='text-muted-foreground text-xs italic'>“{offer.rationale}”</p>}

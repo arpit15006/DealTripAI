@@ -232,13 +232,10 @@ const Checkout = ({ state, negotiationId, offerId }: Props) => {
       {/* ── Offer summary ────────────────────────────────────────────── */}
       <Card className='mt-5 gap-0 overflow-hidden py-0'>
         <PropertyImage
-          src={
-            state.merchants.find(m => m.id === offer.merchant_id)?.rooms.find(r => r.id === offer.bundle.room_id)
-              ?.image ?? state.merchants.find(m => m.id === offer.merchant_id)?.image
-          }
+          src={state.merchants.find(m => m.id === offer.merchant_id)?.image}
           alt={merchant.name}
           fallbackLabel={merchant.name}
-          className='h-44 w-full'
+          className='aspect-[21/9] w-full'
           sizes='(max-width: 768px) 100vw, 672px'
           priority
         />

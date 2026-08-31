@@ -15,46 +15,63 @@ import type { Merchant } from './types'
  * load — it loads with holes, and a missing number propagates into pricing.
  * Detecting that here is cheaper than defending against it everywhere.
  */
+/**
+ * Seeds the marketplace on first use, and keeps the seeded catalog current.
+ *
+ * Merchants live in JSONB, so a stored row never fails to load when the catalog
+ * changes — it just loads with holes, or with fields that no longer mean
+ * anything. Detecting drift by comparing the stored document against the seed
+ * catches both directions: a field added since it was written, and a field
+ * since removed.
+ *
+ * The merchant's POLICY is deliberately excluded from that comparison and
+ * carried across untouched. Those numbers are the operator's, edited in the
+ * Policy Studio, and re-seeding is not a reason to silently discard them.
+ */
 export const ensureSeeded = async (): Promise<DealTripStore> => {
   const store = await getStore()
   const existing = await store.listMerchants()
 
-  /*
-   * A stored merchant is stale when it lacks a top-level field the current
-   * catalog defines. Merchants live in JSONB, so an older row does not fail to
-   * load — it loads with holes, and a missing number reaches pricing. Keying on
-   * the shape rather than on one named field means the next field added is
-   * caught without anyone remembering to update this line.
-   */
-  const seeded = new Set(SEED_MERCHANTS.map(m => m.slug))
-  const expectedKeys = Object.keys(SEED_MERCHANTS[0] ?? {})
-
-  const stale = existing
-    .filter(m => expectedKeys.some(key => (m as Record<string, unknown>)[key] === undefined))
-    .map(m => m.slug)
-
   if (existing.length === 0) {
     for (const merchant of SEED_MERCHANTS) await store.upsertMerchant(merchant)
     console.info(`[dealtrip] seeded ${SEED_MERCHANTS.length} merchants`)
-  } else if (stale.length > 0) {
-    // Refresh only the seeded properties; a merchant someone onboarded is
-    // theirs, so it is repaired in place rather than overwritten.
-    for (const merchant of SEED_MERCHANTS) await store.upsertMerchant(merchant)
 
-    for (const slug of stale.filter(s => !seeded.has(s))) {
-      const merchant = existing.find(m => m.slug === slug)
-
-      if (merchant)
-        await store.upsertMerchant({
-          ...merchant,
-          weekend_uplift_pct: merchant.weekend_uplift_pct ?? 20,
-          image: merchant.image ?? '',
-          rooms: merchant.rooms.map(room => ({ ...room, image: room.image ?? '' }))
-        })
-    }
-
-    console.info(`[dealtrip] refreshed ${stale.length} merchant(s) with an outdated catalog shape`)
+    return store
   }
+
+  const catalogOf = (merchant: Merchant) => {
+    const { policy: _policy, ...catalog } = merchant
+
+    return JSON.stringify(catalog)
+  }
+
+  const drifted: string[] = []
+
+  for (const seed of SEED_MERCHANTS) {
+    const stored = existing.find(m => m.slug === seed.slug)
+
+    if (stored && catalogOf(stored) === catalogOf(seed)) continue
+
+    // Keep whatever policy the operator has set; refresh everything else.
+    await store.upsertMerchant({ ...seed, policy: stored?.policy ?? seed.policy })
+    drifted.push(seed.slug)
+  }
+
+  // Onboarded merchants are not ours to reshape, but they must still parse.
+  for (const merchant of existing) {
+    if (SEED_MERCHANTS.some(s => s.slug === merchant.slug)) continue
+    if (Number.isFinite(merchant.weekend_uplift_pct) && merchant.image !== undefined) continue
+
+    await store.upsertMerchant({
+      ...merchant,
+      weekend_uplift_pct: merchant.weekend_uplift_pct ?? 20,
+      image: merchant.image ?? ''
+    })
+    drifted.push(merchant.slug)
+  }
+
+  if (drifted.length > 0)
+    console.info(`[dealtrip] refreshed ${drifted.length} merchant catalog(s): ${drifted.join(', ')}`)
 
   return store
 }

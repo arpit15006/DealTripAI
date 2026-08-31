@@ -48,8 +48,8 @@ const phaseFor = (status: string) => {
 const DealDesk = ({ negotiationId }: { negotiationId: string }) => {
   const desk = useNegotiationStream(negotiationId)
   const [intent, setIntent] = useState<TravelIntent | null>(null)
-  /** roomId -> photograph, so a card can show the room actually being offered. */
-  const [roomImages, setRoomImages] = useState<Record<string, string>>({})
+  /** merchantId -> property photograph. */
+  const [images, setImages] = useState<Record<string, string>>({})
 
   // The stream carries the negotiation's events but not the intent itself, and
   // the header needs to state the constraints the whole run is being held to.
@@ -66,11 +66,7 @@ const DealDesk = ({ negotiationId }: { negotiationId: string }) => {
       .then(({ merchants }) => {
         if (cancelled) return
 
-        const map: Record<string, string> = {}
-
-        for (const m of merchants) for (const room of m.rooms) map[room.id] = room.image || m.image
-
-        setRoomImages(map)
+        setImages(Object.fromEntries(merchants.map(m => [m.id, m.image])))
       })
       .catch(() => undefined)
 
@@ -141,16 +137,24 @@ const DealDesk = ({ negotiationId }: { negotiationId: string }) => {
               ? `${eligible.length} offer${eligible.length === 1 ? '' : 's'} cleared every hard constraint`
               : 'No offer cleared every hard constraint'}
           </AlertTitle>
-          <AlertDescription>
-            {desk.explanation}
-            {eligible.length > 0 && (
-              <Button size='sm' className='mt-3 w-fit' nativeButton={false} render={<Link href={`/deal/${negotiationId}`} />}>
-                Compare the deals
-                <ArrowRightIcon />
-              </Button>
-            )}
-          </AlertDescription>
+          <AlertDescription>{desk.explanation}</AlertDescription>
         </Alert>
+      )}
+
+      {/* The call to action sits outside the alert. Inside it, the button
+          inherited the description's link underline and had nowhere to breathe. */}
+      {settled && eligible.length > 0 && (
+        <div className='mt-4 flex justify-end'>
+          <Button
+            size='lg'
+            className='no-underline'
+            nativeButton={false}
+            render={<Link href={`/deal/${negotiationId}`} />}
+          >
+            Compare the deals
+            <ArrowRightIcon />
+          </Button>
+        </div>
       )}
 
       {/* ── Desk ─────────────────────────────────────────────────────── */}
@@ -180,7 +184,7 @@ const DealDesk = ({ negotiationId }: { negotiationId: string }) => {
                   key={merchant.id}
                   merchant={merchant}
                   required={required}
-                  roomImage={merchant.offer ? roomImages[merchant.offer.bundle.room_id] : undefined}
+                  image={images[merchant.id]}
                 />
               ))}
             </div>

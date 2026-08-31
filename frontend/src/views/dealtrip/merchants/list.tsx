@@ -90,7 +90,7 @@ const MerchantList = ({ merchants, baseUrl }: { merchants: MerchantListItem[]; b
                     src={merchant.image}
                     alt={merchant.name}
                     fallbackLabel={merchant.name}
-                    className='h-32 w-full'
+                    className='aspect-[16/9] w-full'
                     sizes='(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw'
                   />
                   <CardHeader className='flex items-start justify-between gap-2 px-4 py-3'>
