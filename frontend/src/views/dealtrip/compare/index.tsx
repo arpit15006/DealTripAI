@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import AgentJudgment from '@/views/dealtrip/shared/agent-judgment'
 import GuardChecklist from '@/views/dealtrip/shared/guard-checklist'
 import PropertyImage from '@/views/dealtrip/shared/property-image'
 import ScoreBreakdown from '@/views/dealtrip/shared/score-breakdown'
@@ -90,6 +91,14 @@ const DealComparison = ({ negotiationId, initialState }: Props) => {
     .map(([a]) => a)
 
   const imageFor = (merchantId: string) => state.merchants.find(m => m.id === merchantId)?.image ?? ''
+
+  /** The audit event that produced a given offer, for the agent-vs-planner view. */
+  const originOf = (offerId: string) =>
+    state.audit.find(
+      e =>
+        (e.action === 'opening_offer' || e.action === 'revised_offer') &&
+        (e.detail as { offer_id?: string }).offer_id === offerId
+    ) ?? null
 
   const openingOf = (merchantId: string) =>
     state.offers.filter(o => o.merchant_id === merchantId).sort((a, b) => a.round - b.round)[0] ?? null
@@ -318,6 +327,12 @@ const DealComparison = ({ negotiationId, initialState }: Props) => {
                 </div>
 
                 <GuardChecklist verdict={row.verdict} />
+
+                {(() => {
+                  const origin = originOf(row.offer.id)
+
+                  return origin ? <AgentJudgment event={origin} /> : null
+                })()}
 
                 <Separator />
 

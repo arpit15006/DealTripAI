@@ -7,6 +7,7 @@ import { ArrowDownIcon, BanIcon, Loader2Icon, StarIcon } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
+import AgentJudgment from './agent-judgment'
 import GuardChecklist from './guard-checklist'
 import PropertyImage from './property-image'
 
@@ -17,10 +18,13 @@ import { formatINR } from '@/lib/dealtrip/pricing'
 import { ATTRIBUTE_LABELS } from '@/lib/dealtrip/vocabulary'
 
 import type { Attribute } from '@/lib/dealtrip/vocabulary'
+import type { AuditEvent } from '@/lib/dealtrip/types'
 import type { DeskMerchant } from '@/hooks/use-negotiation-stream'
 
 type Props = {
   merchant: DeskMerchant
+  /** The audit event behind the current offer, if it has arrived yet. */
+  originEvent?: AuditEvent | null
 
   /** Property photograph. */
   image?: string
@@ -38,7 +42,7 @@ type Props = {
  * traveller nothing, whereas "its only beachfront room cannot legally reach
  * your budget" tells them something real about the market.
  */
-const OfferCard = ({ merchant, required, image, className }: Props) => {
+const OfferCard = ({ merchant, required, image, originEvent, className }: Props) => {
   const { offer, verdict } = merchant
 
   return (
@@ -159,6 +163,7 @@ const OfferCard = ({ merchant, required, image, className }: Props) => {
             )}
 
             {verdict && <GuardChecklist verdict={verdict} />}
+            {originEvent && <AgentJudgment event={originEvent} />}
           </>
         )}
       </CardContent>

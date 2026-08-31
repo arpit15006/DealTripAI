@@ -29,6 +29,8 @@ export const POST = async (request: Request) => {
   const reason = (body?.reason ?? 'Payment was not completed.').slice(0, 300)
 
   await store.updatePayment(payment.id, { status: 'failed', failure_reason: reason })
+  // Hand the room back rather than holding it against a sale that did not happen.
+  await store.releaseReservation(payment.offer_id, 'released')
   await store.updateNegotiation(payment.negotiation_id, { status: 'payment_failed' })
 
   const offer = await store.getOffer(payment.offer_id)

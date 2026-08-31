@@ -296,9 +296,32 @@ export const runNegotiation = async ({
         agent_source: turn.llm.source,
         agent_model: turn.llm.model,
         agent_latency_ms: turn.llm.latency_ms,
+        /*
+         * What the deterministic planner would have picked, alongside what the
+         * agent actually did. Recording both is the only way to answer "what is
+         * the model adding?" with evidence rather than assertion — the planner
+         * optimises a scalar objective; the model reads words the vocabulary
+         * cannot express.
+         */
         planner_would_have_chosen: turn.planner_choice
-          ? { bundle: turn.planner_choice.bundle, total_price: turn.planner_choice.quote.total_price }
-          : null
+          ? {
+              bundle: turn.planner_choice.bundle,
+              total_price: turn.planner_choice.quote.total_price,
+              room: merchant.rooms.find(r => r.id === turn.planner_choice!.bundle.room_id)?.name ?? null,
+              addons: turn.planner_choice.bundle.addon_ids.map(
+                id => merchant.addons.find(a => a.id === id)?.name ?? id
+              )
+            }
+          : null,
+        agent_chose: {
+          bundle: offer.bundle,
+          total_price: offer.quote.total_price,
+          room: merchant.rooms.find(r => r.id === offer.bundle.room_id)?.name ?? null,
+          addons: offer.bundle.addon_ids.map(id => merchant.addons.find(a => a.id === id)?.name ?? id)
+        },
+        agent_diverged_from_planner:
+          turn.planner_choice !== null &&
+          JSON.stringify(turn.planner_choice.bundle) !== JSON.stringify(offer.bundle)
       }
     })
 

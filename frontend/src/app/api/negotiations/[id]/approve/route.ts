@@ -51,7 +51,13 @@ export const POST = async (request: Request, { params }: { params: Promise<{ id:
       id: `evt_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
       negotiation_id: id,
       ts: new Date().toISOString(),
-      actor: action.startsWith('user') ? 'user' : action.startsWith('guard') ? 'commerce_guard' : 'razorpay',
+      actor: action.startsWith('user')
+        ? 'user'
+        : action.startsWith('guard')
+          ? 'commerce_guard'
+          : action.startsWith('inventory')
+            ? 'system'
+            : 'razorpay',
       merchant_id: merchant.id,
       action,
       summary,
@@ -96,6 +102,53 @@ export const POST = async (request: Request, { params }: { params: Promise<{ id:
       { status: 409 }
     )
   }
+
+  /* ---- Hold the room before any order exists ----
+   * The guard checks that inventory is non-zero, but a count nobody decrements
+   * is only advisory: two travellers approving the last room would both pass.
+   * The hold is taken atomically, and released again if the payment fails.  */
+  const room = merchant.rooms.find(r => r.id === offer.bundle.room_id)
+
+  const reservation = room
+    ? await store.reserveRoom(
+        {
+          id: `res_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
+          negotiation_id: id,
+          offer_id: offer.id,
+          merchant_id: merchant.id,
+          room_id: room.id,
+          status: 'held',
+          created_at: new Date().toISOString(),
+          expires_at: offer.expires_at
+        },
+        room.inventory_available
+      )
+    : null
+
+  if (room && !reservation) {
+    await audit(
+      'inventory_unavailable',
+      `${room.name} at ${merchant.name} was taken while this offer was being considered. Nothing was charged.`,
+      'fail',
+      { offer_id: offer.id, room_id: room.id, capacity: room.inventory_available }
+    )
+
+    return json(
+      {
+        error: `The last ${room.name} at ${merchant.name} has just been taken.`,
+        remediation: 'Re-run the negotiation — the desk will find what is still available.'
+      },
+      { status: 409 }
+    )
+  }
+
+  if (reservation)
+    await audit(
+      'inventory_held',
+      `One ${room?.name} held at ${merchant.name} until ${new Date(reservation.expires_at).toLocaleTimeString('en-IN')}.`,
+      'pass',
+      { reservation_id: reservation.id, room_id: reservation.room_id, expires_at: reservation.expires_at }
+    )
 
   /* ---- Amount is derived here, from the catalog, at this moment. ---- */
   const authoritative = computeQuote(merchant, offer.bundle, offer.quote.nights, offer.quote.travelers)

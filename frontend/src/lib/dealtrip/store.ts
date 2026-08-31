@@ -42,6 +42,25 @@ export interface StoredVerdict {
   verdict: GuardVerdict
 }
 
+/**
+ * A hold on one unit of a room.
+ *
+ * Taken when a traveller approves an offer, released if the payment fails or
+ * the hold lapses, and made permanent when the booking confirms. Without this
+ * the guard's inventory check is advisory: it reads a count nobody decrements,
+ * so the last room can be sold twice.
+ */
+export interface Reservation {
+  id: string
+  negotiation_id: string
+  offer_id: string
+  merchant_id: string
+  room_id: string
+  status: 'held' | 'confirmed' | 'released'
+  created_at: string
+  expires_at: string
+}
+
 export interface SimulationRecord {
   id: string
   created_at: string
@@ -81,6 +100,18 @@ export interface DealTripStore {
 
   saveSimulation(s: SimulationRecord): Promise<void>
   listSimulations(limit: number): Promise<SimulationRecord[]>
+
+  /**
+   * Take a hold, but only if one is actually available.
+   *
+   * Returns null when the room is already fully held or booked. The check and
+   * the write must happen together — reading a count and then writing it back
+   * is precisely the race this exists to close.
+   */
+  reserveRoom(r: Reservation, capacity: number): Promise<Reservation | null>
+  releaseReservation(offerId: string, reason: 'released' | 'confirmed'): Promise<void>
+  countActiveReservations(merchantId: string, roomId: string): Promise<number>
+  listReservations(negotiationId: string): Promise<Reservation[]>
 }
 
 /* ==================================================================== *
@@ -169,6 +200,21 @@ const SCHEMA: string[] = [
      settled_at         TIMESTAMPTZ
    )`,
   `CREATE INDEX IF NOT EXISTS payments_order_idx ON payments (razorpay_order_id)`,
+
+  `CREATE TABLE IF NOT EXISTS reservations (
+     id              TEXT PRIMARY KEY,
+     negotiation_id  TEXT NOT NULL,
+     offer_id        TEXT NOT NULL,
+     merchant_id     TEXT NOT NULL,
+     room_id         TEXT NOT NULL,
+     status          TEXT NOT NULL,
+     created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+     expires_at      TIMESTAMPTZ NOT NULL
+   )`,
+  // One live hold per offer: re-approving the same offer must not take a second unit.
+  `CREATE UNIQUE INDEX IF NOT EXISTS reservations_offer_live_idx
+     ON reservations (offer_id) WHERE status IN ('held', 'confirmed')`,
+  `CREATE INDEX IF NOT EXISTS reservations_room_idx ON reservations (merchant_id, room_id, status)`,
 
   `CREATE TABLE IF NOT EXISTS simulations (
      id         TEXT PRIMARY KEY,
@@ -379,6 +425,60 @@ class PostgresStore implements DealTripStore {
       result: r.result as Record<string, unknown>
     }))
   }
+
+  /* --- reservations ----------------------------------------------------- */
+
+  /**
+   * Insert only if the room still has a free unit.
+   *
+   * The capacity test lives inside the INSERT rather than in a read-then-write,
+   * so two approvals racing for the last room cannot both observe it as
+   * available. Expired holds are excluded by the same statement, so a lapsed
+   * hold frees its unit without a sweeper.
+   */
+  async reserveRoom(r: Reservation, capacity: number) {
+    const rows = await this.q`
+      INSERT INTO reservations (id, negotiation_id, offer_id, merchant_id, room_id, status, created_at, expires_at)
+      SELECT ${r.id}, ${r.negotiation_id}, ${r.offer_id}, ${r.merchant_id}, ${r.room_id}, ${r.status}, ${r.created_at}, ${r.expires_at}
+      WHERE (
+        SELECT count(*) FROM reservations
+        WHERE merchant_id = ${r.merchant_id}
+          AND room_id = ${r.room_id}
+          AND (status = 'confirmed' OR (status = 'held' AND expires_at > now()))
+      ) < ${capacity}
+      ON CONFLICT (offer_id) WHERE status IN ('held', 'confirmed') DO NOTHING
+      RETURNING *`
+
+    // No row means either the room was full or this offer already holds one.
+    if (rows.length === 0) {
+      const existing = await this.q`
+        SELECT * FROM reservations
+        WHERE offer_id = ${r.offer_id} AND status IN ('held', 'confirmed') LIMIT 1`
+
+      return existing.length ? rowToReservation(existing[0]) : null
+    }
+
+    return rowToReservation(rows[0])
+  }
+
+  async releaseReservation(offerId: string, reason: 'released' | 'confirmed') {
+    await this.q`UPDATE reservations SET status = ${reason} WHERE offer_id = ${offerId} AND status = 'held'`
+  }
+
+  async countActiveReservations(merchantId: string, roomId: string) {
+    const rows = await this.q`
+      SELECT count(*)::int AS n FROM reservations
+      WHERE merchant_id = ${merchantId} AND room_id = ${roomId}
+        AND (status = 'confirmed' OR (status = 'held' AND expires_at > now()))`
+
+    return Number(rows[0]?.n ?? 0)
+  }
+
+  async listReservations(negotiationId: string) {
+    const rows = await this.q`SELECT * FROM reservations WHERE negotiation_id = ${negotiationId} ORDER BY created_at`
+
+    return rows.map(rowToReservation)
+  }
 }
 
  
@@ -429,6 +529,17 @@ const rowToOffer = (r: any): Offer => ({
   expires_at: iso(r.expires_at)
 })
 
+const rowToReservation = (r: any): Reservation => ({
+  id: r.id,
+  negotiation_id: r.negotiation_id,
+  offer_id: r.offer_id,
+  merchant_id: r.merchant_id,
+  room_id: r.room_id,
+  status: r.status,
+  created_at: iso(r.created_at),
+  expires_at: iso(r.expires_at)
+})
+
 const rowToPayment = (r: any): PaymentRecord => ({
   id: r.id,
   negotiation_id: r.negotiation_id,
@@ -457,6 +568,7 @@ class MemoryStore implements DealTripStore {
   private audit: AuditEvent[] = []
   private payments = new Map<string, PaymentRecord>()
   private simulations: SimulationRecord[] = []
+  private reservations: Reservation[] = []
   private auditSeq = 0
 
   async init() {}
@@ -569,6 +681,45 @@ class MemoryStore implements DealTripStore {
 
   async listSimulations(limit: number) {
     return this.simulations.slice(0, limit)
+  }
+
+  async reserveRoom(r: Reservation, capacity: number) {
+    const live = this.reservations.find(
+      x => x.offer_id === r.offer_id && (x.status === 'confirmed' || x.status === 'held')
+    )
+
+    if (live) return live
+
+    // Single-threaded, so read-then-write is atomic enough here in a way it
+    // would never be against a shared database.
+    if (this.countLive(r.merchant_id, r.room_id) >= capacity) return null
+
+    this.reservations.push(r)
+
+    return r
+  }
+
+  async releaseReservation(offerId: string, reason: 'released' | 'confirmed') {
+    for (const r of this.reservations) if (r.offer_id === offerId && r.status === 'held') r.status = reason
+  }
+
+  async countActiveReservations(merchantId: string, roomId: string) {
+    return this.countLive(merchantId, roomId)
+  }
+
+  async listReservations(negotiationId: string) {
+    return this.reservations.filter(r => r.negotiation_id === negotiationId)
+  }
+
+  private countLive(merchantId: string, roomId: string) {
+    const now = Date.now()
+
+    return this.reservations.filter(
+      r =>
+        r.merchant_id === merchantId &&
+        r.room_id === roomId &&
+        (r.status === 'confirmed' || (r.status === 'held' && Date.parse(r.expires_at) > now))
+    ).length
   }
 }
 

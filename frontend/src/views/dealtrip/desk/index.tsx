@@ -194,7 +194,18 @@ const DealDesk = ({ negotiationId }: { negotiationId: string }) => {
             <ul aria-labelledby='merchants-heading' className='grid list-none gap-3 sm:grid-cols-2'>
               {desk.merchants.map(merchant => (
                 <li key={merchant.id}>
-                  <OfferCard merchant={merchant} required={required} image={images[merchant.id]} />
+                  <OfferCard
+                    merchant={merchant}
+                    required={required}
+                    image={images[merchant.id]}
+                    originEvent={
+                      desk.audit.findLast(
+                        e =>
+                          (e.action === 'opening_offer' || e.action === 'revised_offer') &&
+                          (e.detail as { offer_id?: string }).offer_id === merchant.offer?.id
+                      ) ?? null
+                    }
+                  />
                 </li>
               ))}
             </ul>
