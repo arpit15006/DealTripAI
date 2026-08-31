@@ -211,6 +211,7 @@ const SCHEMA: string[] = [
      created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
      expires_at      TIMESTAMPTZ NOT NULL
    )`,
+
   // One live hold per offer: re-approving the same offer must not take a second unit.
   `CREATE UNIQUE INDEX IF NOT EXISTS reservations_offer_live_idx
      ON reservations (offer_id) WHERE status IN ('held', 'confirmed')`,

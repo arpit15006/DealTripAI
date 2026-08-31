@@ -14,6 +14,7 @@ export const dynamic = 'force-dynamic'
 
 const RequestSchema = z.object({
   intent: TravelIntentSchema,
+
   /** The package you are countering — normally the one a quote returned. */
   previous_bundle: BundleSchema.partial({ check_in: true }),
   counter: CounterRequestSchema,

@@ -296,6 +296,7 @@ export const runNegotiation = async ({
         agent_source: turn.llm.source,
         agent_model: turn.llm.model,
         agent_latency_ms: turn.llm.latency_ms,
+
         /*
          * What the deterministic planner would have picked, alongside what the
          * agent actually did. Recording both is the only way to answer "what is

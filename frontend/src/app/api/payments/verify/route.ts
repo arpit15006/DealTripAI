@@ -113,6 +113,7 @@ export const POST = async (request: Request) => {
   })
 
   await store.setOfferStatus(payment.offer_id, 'purchased')
+
   // The hold becomes permanent: this unit is now sold, not merely spoken for.
   await store.releaseReservation(payment.offer_id, 'confirmed')
   await store.updateNegotiation(payment.negotiation_id, { status: 'booked' })

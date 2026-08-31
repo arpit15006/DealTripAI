@@ -209,6 +209,7 @@ server.registerTool(
 
 const main = async () => {
   await server.connect(new StdioServerTransport())
+
   // stderr only: stdout is the transport.
   console.error(`[dealtrip-mcp] connected · marketplace ${BASE_URL}`)
 }

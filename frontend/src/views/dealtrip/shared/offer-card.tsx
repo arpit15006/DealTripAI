@@ -23,6 +23,7 @@ import type { DeskMerchant } from '@/hooks/use-negotiation-stream'
 
 type Props = {
   merchant: DeskMerchant
+
   /** The audit event behind the current offer, if it has arrived yet. */
   originEvent?: AuditEvent | null
 

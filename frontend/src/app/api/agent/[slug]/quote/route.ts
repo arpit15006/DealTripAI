@@ -14,6 +14,7 @@ export const dynamic = 'force-dynamic'
 
 const RequestSchema = z.object({
   intent: TravelIntentSchema,
+
   /**
    * Optional. Omit it and the merchant's own agent composes a package for you.
    * Supply it and you are proposing a specific package — which is the honest way

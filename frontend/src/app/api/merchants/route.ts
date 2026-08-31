@@ -14,6 +14,7 @@ export const GET = async (request: Request) => {
     merchants: merchants.map(m => ({
       ...m,
       profile_url: `${base}/api/agent/${m.slug}/profile`,
+
       // The public view of what this merchant will negotiate over — the same
       // thing an external agent sees, so the portal never shows the merchant a
       // rosier picture than its buyers get.
