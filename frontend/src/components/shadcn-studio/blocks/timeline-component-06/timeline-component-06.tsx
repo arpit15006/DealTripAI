@@ -16,7 +16,19 @@ export interface TimelineEntry {
   content: string
 }
 
-const Process = ({ data }: { data: TimelineEntry[] }) => {
+type ProcessProps = {
+  data: TimelineEntry[]
+  eyebrow?: string
+  title?: string
+  description?: string
+}
+
+const Process = ({
+  data,
+  eyebrow = 'Process',
+  title = 'Our Process',
+  description = 'From strategy to execution, our process ensures we create customized marketing plans that drive results.'
+}: ProcessProps) => {
   const ref = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [height, setHeight] = useState(0)
@@ -80,13 +92,10 @@ const Process = ({ data }: { data: TimelineEntry[] }) => {
         <div className='h-fit items-start md:sticky md:top-26'>
           <div className='flex h-auto flex-col items-start gap-4'>
             <Badge variant='outline' className='border-primary h-auto border text-sm font-normal'>
-              Process
+              {eyebrow}
             </Badge>
-            <h2 className='text-2xl font-semibold tracking-tight md:text-3xl lg:text-4xl'>Our Process</h2>
-            <p className='text-muted-foreground text-xl'>
-              From strategy to execution, our process ensures we create customized marketing plans that drive results.
-              We understand your goals, tailor our approach, and execute with precision to deliver measurable success.
-            </p>
+            <h2 className='text-2xl font-semibold tracking-tight md:text-3xl lg:text-4xl'>{title}</h2>
+            <p className='text-muted-foreground text-xl'>{description}</p>
           </div>
         </div>
         <div ref={ref} className='relative'>
