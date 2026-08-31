@@ -1,161 +1,68 @@
 // Third-party Imports
 import {
-  CalendarCheckIcon,
-  CompassIcon,
-  CreditCardIcon,
-  EyeIcon,
+  FileJson2Icon,
+  HistoryIcon,
   LayoutDashboardIcon,
-  MailIcon,
-  PackageIcon,
-  PencilIcon,
-  PlusIcon,
-  StarIcon,
+  ShieldCheckIcon,
+  SparklesIcon,
   StoreIcon,
-  TicketPercentIcon,
-  UserIcon,
-  UsersIcon
+  TerminalIcon,
+  TrendingUpIcon,
+  UploadIcon
 } from 'lucide-react'
 
 // Type Imports
 import type { SearchData } from '@/assets/data/search'
 
-// Data Imports
-import { db as bookingsDb } from '@/fake-db/account/bookings'
-import { db as invoicesDb } from '@/fake-db/apps/invoices'
-import { db as tourPackagesDb } from '@/fake-db/packages/tour-packages'
-
+/** Command-palette index for the operator dashboard. */
 export const adminSearchData: SearchData[] = [
   {
-    title: 'Travel Management',
+    title: 'Deal Desk',
     data: [
+      { icon: LayoutDashboardIcon, name: 'Overview', href: '/dashboard', tags: ['home', 'dashboard'] },
+      { icon: SparklesIcon, name: 'Start a new negotiation', href: '/', tags: ['intent', 'traveller', 'new'] },
+      { icon: HistoryIcon, name: 'Negotiations', href: '/dashboard/negotiations', tags: ['history', 'runs'] }
+    ]
+  },
+  {
+    title: 'Merchants',
+    data: [
+      { icon: StoreIcon, name: 'All merchants', href: '/dashboard/merchants', tags: ['catalog', 'inventory'] },
       {
-        icon: LayoutDashboardIcon,
-        name: 'Dashboard',
-        href: '/dashboard',
-        tags: ['overview', 'analytics']
+        icon: UploadIcon,
+        name: 'Onboard a merchant',
+        href: '/dashboard/merchants/onboard',
+        tags: ['add', 'import', 'catalog']
       },
       {
-        icon: CalendarCheckIcon,
-        name: 'All Bookings',
-        href: '/dashboard/bookings',
-        tags: ['reservations', 'calendar', 'table']
-      },
-      {
-        icon: PlusIcon,
-        name: 'Create Booking',
-        href: '/dashboard/bookings/create'
-      },
-      {
-        icon: EyeIcon,
-        name: 'Booking Details',
-        href: `/dashboard/bookings/${bookingsDb[0].id}`
-      },
-      {
-        icon: PencilIcon,
-        name: 'Edit Booking',
-        href: `/dashboard/bookings/${bookingsDb[0].id}/edit`
-      },
-      {
-        icon: UsersIcon,
-        name: 'Customer List',
-        href: '/dashboard/customers-list',
-        tags: ['customers']
-      },
-      {
-        icon: UserIcon,
-        name: 'Customer Profile',
-        href: '/dashboard/customers-list/profile'
-      },
-      {
-        icon: PackageIcon,
-        name: 'Tour Packages',
-        href: '/dashboard/tour-packages',
-        tags: ['trips', 'packages']
-      },
-      {
-        icon: PlusIcon,
-        name: 'Create Package',
-        href: '/dashboard/tour-packages/create'
-      },
-      {
-        icon: EyeIcon,
-        name: 'Package Details',
-        href: '/dashboard/tour-packages/package-details'
-      },
-      {
-        icon: PencilIcon,
-        name: 'Edit Package',
-        href: `/dashboard/tour-packages/${tourPackagesDb[0].id}/edit`
-      },
-      {
-        icon: CompassIcon,
-        name: 'Destinations',
-        href: '/dashboard/tour-packages/destinations'
+        icon: ShieldCheckIcon,
+        name: 'Policy Studio',
+        href: '/dashboard/merchants',
+        tags: ['discount', 'margin', 'guard', 'limits']
       }
     ]
   },
   {
-    title: 'Commerce & Finance',
+    title: 'Insights',
     data: [
       {
-        icon: TicketPercentIcon,
-        name: 'Coupons & Promotions',
-        href: '/dashboard/coupons-promotions',
-        tags: ['discounts', 'offers']
-      },
-      {
-        icon: CreditCardIcon,
-        name: 'Transactions',
-        href: '/dashboard/payments-invoices/transactions',
-        tags: ['payments', 'invoices', 'billing']
-      },
-      {
-        icon: PlusIcon,
-        name: 'Create Invoice',
-        href: '/dashboard/payments-invoices/invoices/create'
-      },
-      {
-        icon: EyeIcon,
-        name: 'Invoice View',
-        href: `/dashboard/payments-invoices/invoices/${invoicesDb[0].id}`
+        icon: TrendingUpIcon,
+        name: 'Revenue simulator',
+        href: '/dashboard/simulator',
+        tags: ['revenue', 'conversion', 'margin', 'evaluation']
       }
     ]
   },
   {
-    title: 'Settings',
+    title: 'Developers',
     data: [
+      { icon: TerminalIcon, name: 'Agent API', href: '/dashboard/agent-api', tags: ['curl', 'endpoints', 'quote'] },
       {
-        icon: UserIcon,
-        name: 'Profile Settings',
-        href: '/dashboard/settings/profile'
-      },
-      {
-        icon: StoreIcon,
-        name: 'Store Information',
-        href: '/dashboard/settings/store-information'
-      },
-      {
-        icon: UsersIcon,
-        name: 'Members',
-        href: '/dashboard/settings/members',
-        tags: ['team']
-      },
-      {
-        icon: UsersIcon,
-        name: 'Roles & Permissions',
-        href: '/dashboard/settings/roles-permissions',
-        tags: ['access', 'security']
-      },
-      {
-        icon: MailIcon,
-        name: 'Email Templates',
-        href: '/dashboard/settings/email-templates'
-      },
-      {
-        icon: StarIcon,
-        name: 'Reviews & Ratings',
-        href: '/dashboard/settings/reviews-ratings',
-        tags: ['feedback']
+        icon: FileJson2Icon,
+        name: 'Discovery document',
+        href: '/.well-known/agent-commerce.json',
+        openInNewTab: true,
+        tags: ['well-known', 'agent', 'discovery']
       }
     ]
   }

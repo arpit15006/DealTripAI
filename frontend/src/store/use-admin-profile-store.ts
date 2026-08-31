@@ -4,69 +4,37 @@
 import { create } from 'zustand'
 import { useShallow } from 'zustand/react/shallow'
 
-// Type Imports
-import type {
-  AdminProfile,
-  ChangeAdminPasswordInput,
-  UpdateAdminPersonalInfoInput
-} from '@/types/settings/profile-types'
+/**
+ * The signed-in operator.
+ *
+ * DealTrip has no auth yet, so this is a single static identity used by the
+ * dashboard chrome. It stays a store rather than a constant so that wiring a
+ * real session later is a change to the initial state, not a change to every
+ * component that reads it.
+ */
+export type AdminProfile = {
+  firstName: string
+  lastName: string
+  email: string
+  avatar: string
+  role: string
+}
 
-// Data Imports
-import { db } from '@/fake-db/settings/profile'
-
-export type ChangePasswordResult = 'success' | 'incorrect-current-password'
-
-type AdminProfileData = {
+type AdminProfileStore = {
   profile: AdminProfile
-  isDeactivated: boolean
+  setProfile: (profile: Partial<AdminProfile>) => void
 }
-
-type AdminProfileActions = {
-  updatePersonalInfo: (input: UpdateAdminPersonalInfoInput) => void
-  updateAvatar: (avatar: string) => void
-  removeAvatar: () => void
-  changePassword: (input: ChangeAdminPasswordInput) => ChangePasswordResult
-  deactivateAccount: () => void
-}
-
-export type AdminProfileStore = AdminProfileData & AdminProfileActions
 
 export const useAdminProfileStore = create<AdminProfileStore>()(set => ({
-  profile: db,
-  isDeactivated: false,
-
-  updatePersonalInfo: input => set(state => ({ profile: { ...state.profile, ...input } })),
-
-  updateAvatar: avatar => set(state => ({ profile: { ...state.profile, avatar } })),
-
-  removeAvatar: () => set(state => ({ profile: { ...state.profile, avatar: '' } })),
-
-  changePassword: input => {
-    if (input.currentPassword === 'wrongpassword') return 'incorrect-current-password'
-
-    return 'success'
+  profile: {
+    firstName: 'Deal',
+    lastName: 'Desk',
+    email: 'ops@dealtrip.ai',
+    avatar: '',
+    role: 'Marketplace operator'
   },
-
-  deactivateAccount: () => set({ isDeactivated: true })
+  setProfile: profile => set(state => ({ profile: { ...state.profile, ...profile } }))
 }))
 
-export function useAdminPersonalInfo() {
-  return useAdminProfileStore(
-    useShallow(state => ({
-      profile: state.profile,
-      updatePersonalInfo: state.updatePersonalInfo,
-      updateAvatar: state.updateAvatar,
-      removeAvatar: state.removeAvatar
-    }))
-  )
-}
-
-export function useAdminPasswordAction() {
-  return useAdminProfileStore(useShallow(state => ({ changePassword: state.changePassword })))
-}
-
-export function useAdminDangerZone() {
-  return useAdminProfileStore(
-    useShallow(state => ({ isDeactivated: state.isDeactivated, deactivateAccount: state.deactivateAccount }))
-  )
-}
+export const useAdminPersonalInfo = () =>
+  useAdminProfileStore(useShallow(state => ({ profile: state.profile, setProfile: state.setProfile })))

@@ -1,10 +1,6 @@
 // Third-party Imports
 import type * as Icon from 'lucide-react'
 
-// Data Imports
-import { db as bookingsDb } from '@/fake-db/account/bookings'
-import { db as invoicesDb } from '@/fake-db/apps/invoices'
-
 type IconName = keyof typeof Icon
 
 export type MenuLeafSubItem = {
@@ -47,141 +43,61 @@ export type NavItem = {
 
 export const navItems: NavItem[] = [
   {
-    groupLabel: 'Travel Management',
+    groupLabel: 'Deal Desk',
     items: [
       {
         icon: 'LayoutDashboardIcon',
-        label: 'Dashboard',
+        label: 'Overview',
         href: '/dashboard'
       },
       {
-        icon: 'CalendarCheckIcon',
-        label: 'Bookings',
-        childItems: [
-          { label: 'All Bookings', href: '/dashboard/bookings' },
-          { label: 'Create Booking', href: '/dashboard/bookings/create' },
-          {
-            label: 'Booking Details',
-            href: `/dashboard/bookings/${bookingsDb[0].id}`,
-
-            // Any booking's detail page, but not /create or /{id}/edit — both also start with
-            // `/dashboard/bookings/` and would otherwise match too.
-            activePath: /^\/dashboard\/bookings\/(?!create$)[^/]+$/
-          },
-          {
-            label: 'Edit Booking',
-            href: `/dashboard/bookings/${bookingsDb[0].id}/edit`,
-            activePath: /^\/dashboard\/bookings\/[^/]+\/edit$/
-          }
-        ]
+        icon: 'SparklesIcon',
+        label: 'New negotiation',
+        href: '/',
+        target: '_self'
       },
       {
-        icon: 'UsersIcon',
-        label: 'Customers',
-        childItems: [
-          { label: 'Customer List', href: '/dashboard/customers-list' },
-          { label: 'Customer Profile', href: '/dashboard/customers-list/profile' }
-        ]
-      },
-      {
-        icon: 'PackageIcon',
-        label: 'Tour Packages',
-        childItems: [
-          { label: 'Package List', href: '/dashboard/tour-packages' },
-          { label: 'Create Package', href: '/dashboard/tour-packages/create' },
-          { label: 'Destinations', href: '/dashboard/tour-packages/destinations' },
-          {
-            label: 'Package Details',
-            href: '/dashboard/tour-packages/package-details',
-
-            // Also match single-package deep links `/dashboard/tour-packages/{id}` and
-            // `/dashboard/tour-packages/{id}/edit` (e.g. from a "View package" action) while
-            // excluding static sibling routes.
-            activePath: /^\/dashboard\/tour-packages\/(?!create$|destinations$)[^/]+(?:\/edit)?$/
-          }
-        ]
+        icon: 'HistoryIcon',
+        label: 'Negotiations',
+        href: '/dashboard/negotiations'
       }
     ]
   },
   {
-    groupLabel: 'Commerce & Finance',
+    groupLabel: 'Merchants',
     items: [
-      {
-        icon: 'TicketPercentIcon',
-        label: 'Coupons & Promotions',
-        href: '/dashboard/coupons-promotions'
-      },
-      {
-        icon: 'CreditCardIcon',
-        label: 'Payments & Invoices',
-        childItems: [
-          { label: 'Transactions', href: '/dashboard/payments-invoices/transactions' },
-          { label: 'Create Invoice', href: '/dashboard/payments-invoices/invoices/create' },
-          {
-            label: 'Invoice View',
-            href: `/dashboard/payments-invoices/invoices/${invoicesDb[0].id}`,
-            activePath: /^\/dashboard\/payments-invoices\/invoices\/(?!create$)[^/]+$/
-          }
-        ]
-      }
-    ]
-  },
-  {
-    groupLabel: 'Settings',
-    items: [
-      {
-        icon: 'UserIcon',
-        label: 'Profile Settings',
-        href: '/dashboard/settings/profile'
-      },
       {
         icon: 'StoreIcon',
-        label: 'Store Information',
-        href: '/dashboard/settings/store-information'
-      },
-      {
-        icon: 'UsersIcon',
-        label: 'Members',
-        href: '/dashboard/settings/members'
-      },
-      {
-        icon: 'ShieldCheckIcon',
-        label: 'Roles & Permissions',
-        href: '/dashboard/settings/roles-permissions'
-      },
-      {
-        icon: 'MailIcon',
-        label: 'Email Templates',
-        href: '/dashboard/settings/email-templates'
-      },
-      {
-        icon: 'StarIcon',
-        label: 'Reviews & Ratings',
-        href: '/dashboard/settings/reviews-ratings'
+        label: 'Merchants',
+        childItems: [
+          { label: 'All merchants', href: '/dashboard/merchants', activePath: /^\/dashboard\/merchants$/ },
+          { label: 'Onboard a merchant', href: '/dashboard/merchants/onboard' }
+        ]
       }
     ]
   },
   {
-    groupLabel: 'Miscellaneous',
+    groupLabel: 'Insights',
     items: [
       {
-        icon: 'MenuIcon',
-        label: 'Menu Level',
-        childItems: [
-          {
-            label: 'Menu Item ',
-            href: '#'
-          },
-          {
-            label: 'Menu Level 1',
-            childItems: [{ label: 'Menu Level 2', href: '#' }]
-          }
-        ]
+        icon: 'TrendingUpIcon',
+        label: 'Revenue simulator',
+        href: '/dashboard/simulator'
+      }
+    ]
+  },
+  {
+    groupLabel: 'Developers',
+    items: [
+      {
+        icon: 'TerminalIcon',
+        label: 'Agent API',
+        href: '/dashboard/agent-api'
       },
       {
-        icon: 'BookOpenTextIcon',
-        label: 'Documentation',
-        href: 'https://shadcnstudio.com/docs/documentation-admin/getting-started',
+        icon: 'FileJson2Icon',
+        label: 'Discovery document',
+        href: '/.well-known/agent-commerce.json',
         target: '_blank'
       }
     ]
