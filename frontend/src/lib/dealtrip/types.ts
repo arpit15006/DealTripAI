@@ -8,6 +8,10 @@
  */
 import { z } from 'zod'
 
+import { ATTRIBUTES } from './vocabulary'
+
+import type { Actor, Attribute } from './vocabulary'
+
 /* ------------------------------------------------------------------ *
  * Attribute vocabulary
  *
@@ -15,64 +19,14 @@ import { z } from 'zod'
  * requirement and a room/add-on capability are the same kind of token, so
  * "does this offer satisfy the requirement" is a set operation — not a
  * similarity score, not an LLM judgement.
+ *
+ * Defined in `vocabulary.ts` (dependency-free) and re-exported here so server
+ * code can keep importing everything from one place.
  * ------------------------------------------------------------------ */
-export const ATTRIBUTES = [
-  'beachfront',
-  'sea_view',
-  'pool',
-  'breakfast',
-  'all_meals',
-  'airport_transfer',
-  'private_transfer',
-  'spa',
-  'gym',
-  'wifi',
-  'air_conditioning',
-  'balcony',
-  'romantic',
-  'family_friendly',
-  'pet_friendly',
-  'quiet',
-  'city_center',
-  'nightlife_nearby',
-  'water_sports',
-  'late_checkout',
-  'early_checkin',
-  'free_cancellation',
-  'kitchenette',
-  'workspace'
-] as const
+export { ATTRIBUTES, ATTRIBUTE_LABELS, ACTORS, ACTOR_LABELS } from './vocabulary'
+export type { Attribute, Actor } from './vocabulary'
 
-export type Attribute = (typeof ATTRIBUTES)[number]
 export const AttributeSchema = z.enum(ATTRIBUTES)
-
-/** Human labels, used in UI and in prompts so the model sees real words. */
-export const ATTRIBUTE_LABELS: Record<Attribute, string> = {
-  beachfront: 'Beachfront',
-  sea_view: 'Sea view',
-  pool: 'Pool',
-  breakfast: 'Breakfast included',
-  all_meals: 'All meals included',
-  airport_transfer: 'Airport transfer',
-  private_transfer: 'Private transfer',
-  spa: 'Spa access',
-  gym: 'Gym',
-  wifi: 'Wi-Fi',
-  air_conditioning: 'Air conditioning',
-  balcony: 'Balcony',
-  romantic: 'Romantic / couples',
-  family_friendly: 'Family friendly',
-  pet_friendly: 'Pet friendly',
-  quiet: 'Quiet location',
-  city_center: 'City centre',
-  nightlife_nearby: 'Nightlife nearby',
-  water_sports: 'Water sports',
-  late_checkout: 'Late checkout',
-  early_checkin: 'Early check-in',
-  free_cancellation: 'Free cancellation',
-  kitchenette: 'Kitchenette',
-  workspace: 'Workspace'
-}
 
 /* ------------------------------------------------------------------ *
  * Travel intent
@@ -342,16 +296,6 @@ export interface DealScore {
 /* ------------------------------------------------------------------ *
  * Audit / Trust Timeline
  * ------------------------------------------------------------------ */
-export const ACTORS = [
-  'user',
-  'orchestrator',
-  'merchant_agent',
-  'commerce_guard',
-  'razorpay',
-  'system'
-] as const
-export type Actor = (typeof ACTORS)[number]
-
 export interface AuditEvent {
   id: string
   negotiation_id: string
