@@ -11,6 +11,7 @@ import GuardChecklist from './guard-checklist'
 
 // Util Imports
 import { cn } from '@/lib/utils'
+import { formatStay, weekdayName } from '@/lib/dealtrip/dates'
 import { formatINR } from '@/lib/dealtrip/pricing'
 import { ATTRIBUTE_LABELS } from '@/lib/dealtrip/vocabulary'
 
@@ -75,9 +76,14 @@ const OfferCard = ({ merchant, required, className }: Props) => {
                   </p>
                 )}
               </div>
-              <Badge variant='outline' className='h-5 px-1.5 text-[11px] font-normal'>
-                round {offer.round}
-              </Badge>
+              <div className='flex flex-col items-end gap-1'>
+                <Badge variant='outline' className='h-5 px-1.5 text-[11px] font-normal'>
+                  round {offer.round}
+                </Badge>
+                <span className='text-muted-foreground text-[11px]'>
+                  {formatStay(offer.quote.check_in, offer.quote.nights)} · {weekdayName(offer.quote.check_in)} in
+                </span>
+              </div>
             </div>
 
             <ul className='text-muted-foreground flex flex-col gap-0.5 text-xs'>

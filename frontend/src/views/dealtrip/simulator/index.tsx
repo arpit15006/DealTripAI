@@ -138,7 +138,7 @@ const RevenueSimulator = ({ destinations }: { destinations: string[] }) => {
       {result && (
         <>
           {/* ── Headline deltas ────────────────────────────────────── */}
-          <div className='grid gap-3 sm:grid-cols-2 xl:grid-cols-4'>
+          <div className='grid gap-3 sm:grid-cols-2 xl:grid-cols-3'>
             <Delta
               label='Revenue'
               from={formatINR(result.static_selling.revenue)}
@@ -161,6 +161,20 @@ const RevenueSimulator = ({ destinations }: { destinations: string[] }) => {
               positive={result.delta.aov > 0}
             />
             <Delta
+              label='Revenue per traveller'
+              from={formatINR(result.static_selling.revenue_per_intent)}
+              to={formatINR(result.agentic.revenue_per_intent)}
+              change={`${result.agentic.revenue_per_intent - result.static_selling.revenue_per_intent > 0 ? '+' : ''}${formatINR(result.agentic.revenue_per_intent - result.static_selling.revenue_per_intent)}`}
+              positive={result.agentic.revenue_per_intent > result.static_selling.revenue_per_intent}
+            />
+            <Delta
+              label='Deal fit score'
+              from={String(result.static_selling.mean_score)}
+              to={String(result.agentic.mean_score)}
+              change={`${result.agentic.mean_score - result.static_selling.mean_score > 0 ? '+' : ''}${(result.agentic.mean_score - result.static_selling.mean_score).toFixed(1)}`}
+              positive={result.agentic.mean_score > result.static_selling.mean_score}
+            />
+            <Delta
               label='Margin retained'
               from={`${result.static_selling.margin_pct}%`}
               to={`${result.agentic.margin_pct}%`}
@@ -175,7 +189,9 @@ const RevenueSimulator = ({ destinations }: { destinations: string[] }) => {
             <AlertDescription>
               Negotiation recovered {result.negotiation.sales_recovered_from_no_deal} sale
               {result.negotiation.sales_recovered_from_no_deal === 1 ? '' : 's'} that the static shelf lost entirely,
-              across {result.negotiation.total_counters} counter-requests. The Commerce Guard blocked{' '}
+              across {result.negotiation.total_counters} counter-requests. Mean deal-fit score rose from{' '}
+              {result.static_selling.mean_score} to {result.agentic.mean_score} — travellers got better-matched
+              packages, not merely cheaper ones. The Commerce Guard blocked{' '}
               {result.negotiation.offers_blocked_by_guard} offer
               {result.negotiation.offers_blocked_by_guard === 1 ? '' : 's'} that breached a merchant limit or the
               traveller&apos;s budget — and merchants still retained {result.agentic.margin_pct}% margin, against{' '}

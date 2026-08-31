@@ -7,7 +7,17 @@ import { useMemo, useState } from 'react'
 import Link from 'next/link'
 
 // Third-party Imports
-import { ArrowLeftIcon, Loader2Icon, RotateCcwIcon, SaveIcon, ShieldCheckIcon } from 'lucide-react'
+import {
+  ArrowLeftIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  Loader2Icon,
+  PlusIcon,
+  RotateCcwIcon,
+  SaveIcon,
+  ShieldCheckIcon,
+  XIcon
+} from 'lucide-react'
 import { toast } from 'sonner'
 
 // Component Imports
@@ -91,6 +101,24 @@ const PolicyStudio = ({ merchant: initial }: { merchant: Merchant }) => {
   }
 
   const set = (patch: Partial<MerchantPolicy>) => setPolicy(current => ({ ...current, ...patch }))
+
+  /** Reorder priorities. Position is weight, so this genuinely changes behaviour. */
+  const move = (index: number, direction: -1 | 1) => {
+    const next = [...policy.objectives]
+    const target = index + direction
+
+    if (target < 0 || target >= next.length) return
+
+    ;[next[index], next[target]] = [next[target], next[index]]
+    set({ objectives: next })
+  }
+
+  const removeObjective = (objective: Objective) =>
+    policy.objectives.length > 1 && set({ objectives: policy.objectives.filter(o => o !== objective) })
+
+  const unusedObjectives = (Object.keys(OBJECTIVE_LABELS) as Objective[]).filter(
+    o => !policy.objectives.includes(o)
+  )
 
   return (
     <div className='flex flex-col gap-6'>
@@ -223,16 +251,71 @@ const PolicyStudio = ({ merchant: initial }: { merchant: Merchant }) => {
             <CardHeader>
               <CardTitle className='text-base'>Business objectives</CardTitle>
               <p className='text-muted-foreground text-sm'>
-                In priority order. Your agent optimises for the first, then the second.
+                In priority order — the first is weighted three times the third. This is not a label: it is what your
+                agent optimises for when it chooses between two packages that are both within policy.
               </p>
             </CardHeader>
-            <CardContent className='flex flex-wrap gap-1.5'>
-              {policy.objectives.map((objective, index) => (
-                <Badge key={objective} variant='outline' className='h-6 gap-1.5 px-2 font-normal'>
-                  <span className='text-muted-foreground font-mono text-[11px]'>{index + 1}</span>
-                  {OBJECTIVE_LABELS[objective]}
-                </Badge>
-              ))}
+            <CardContent className='flex flex-col gap-3'>
+              <ul className='flex flex-col gap-2'>
+                {policy.objectives.map((objective, index) => (
+                  <li
+                    key={objective}
+                    className='bg-muted/40 flex items-center gap-2 rounded-lg border px-2.5 py-1.5'
+                  >
+                    <span className='text-muted-foreground w-5 shrink-0 text-center font-mono text-xs'>
+                      {index + 1}
+                    </span>
+                    <span className='flex-1 text-sm font-medium'>{OBJECTIVE_LABELS[objective]}</span>
+                    <span className='text-muted-foreground hidden shrink-0 text-[11px] sm:inline'>
+                      weight {[3, 2, 1, 1, 1][index] ?? 1}
+                    </span>
+                    <Button
+                      variant='ghost'
+                      size='icon-xs'
+                      disabled={index === 0}
+                      onClick={() => move(index, -1)}
+                      aria-label={`Move ${OBJECTIVE_LABELS[objective]} up`}
+                    >
+                      <ChevronUpIcon />
+                    </Button>
+                    <Button
+                      variant='ghost'
+                      size='icon-xs'
+                      disabled={index === policy.objectives.length - 1}
+                      onClick={() => move(index, 1)}
+                      aria-label={`Move ${OBJECTIVE_LABELS[objective]} down`}
+                    >
+                      <ChevronDownIcon />
+                    </Button>
+                    <Button
+                      variant='ghost'
+                      size='icon-xs'
+                      disabled={policy.objectives.length === 1}
+                      onClick={() => removeObjective(objective)}
+                      aria-label={`Remove ${OBJECTIVE_LABELS[objective]}`}
+                    >
+                      <XIcon />
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+
+              {unusedObjectives.length > 0 && (
+                <div className='flex flex-wrap gap-1.5'>
+                  {unusedObjectives.map(objective => (
+                    <Button
+                      key={objective}
+                      variant='outline'
+                      size='xs'
+                      className='font-normal'
+                      onClick={() => set({ objectives: [...policy.objectives, objective] })}
+                    >
+                      <PlusIcon />
+                      {OBJECTIVE_LABELS[objective]}
+                    </Button>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

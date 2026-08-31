@@ -24,6 +24,7 @@ import RequirementEditor from './requirement-editor'
 
 // Lib Imports
 import { ApiError, extractIntent, openNegotiation } from '@/lib/dealtrip/client'
+import { formatStay, resolveCheckIns, weekdayName } from '@/lib/dealtrip/dates'
 import { formatINR } from '@/lib/dealtrip/pricing'
 
 import type { IntentResponse } from '@/lib/dealtrip/client'
@@ -53,7 +54,14 @@ const IntentComposer = () => {
       const response = await extractIntent(text)
 
       setParsed(response)
-      setIntent(response.intent)
+
+      // Resolve the check-in now and show it. A stay has to happen on actual
+      // dates, and the traveller should see which ones before agents start
+      // pricing against them — not discover them on the confirmation screen.
+      setIntent({
+        ...response.intent,
+        check_in: response.intent.check_in ?? resolveCheckIns(null, 0)[0] ?? null
+      })
     } catch (error) {
       toast.error(error instanceof ApiError ? error.message : 'Could not read that request.')
     } finally {
@@ -273,7 +281,7 @@ const IntentComposer = () => {
             <Separator />
 
             {/* Preferences */}
-            <div className='grid gap-4 sm:grid-cols-2'>
+            <div className='grid gap-4 sm:grid-cols-3'>
               <div className='flex flex-col gap-1.5'>
                 <Label htmlFor='priority'>When there is a trade-off, favour</Label>
                 <Select
@@ -292,6 +300,21 @@ const IntentComposer = () => {
               </div>
 
               <div className='flex flex-col gap-1.5'>
+                <Label htmlFor='check-in'>Check-in</Label>
+                <Input
+                  id='check-in'
+                  type='date'
+                  value={intent.check_in ?? ''}
+                  onChange={event => patch({ check_in: event.target.value || null })}
+                />
+                {intent.check_in && (
+                  <span className='text-muted-foreground text-xs'>
+                    {formatStay(intent.check_in, intent.duration_nights)} · {weekdayName(intent.check_in)} check-in
+                  </span>
+                )}
+              </div>
+
+              <div className='flex flex-col gap-1.5'>
                 <Label htmlFor='flexibility'>Date flexibility (days)</Label>
                 <Input
                   id='flexibility'
@@ -303,6 +326,11 @@ const IntentComposer = () => {
                     patch({ date_flexibility_days: Math.min(14, Math.max(0, Number(event.target.value) || 0)) })
                   }
                 />
+                <span className='text-muted-foreground text-xs'>
+                  {intent.date_flexibility_days === 0
+                    ? 'Fixed dates — merchants cannot move your stay to a cheaper night.'
+                    : `${resolveCheckIns(intent.check_in, intent.date_flexibility_days).length} check-in dates are on the table. Weekend nights cost more, so flexibility is worth real money.`}
+                </span>
               </div>
             </div>
 

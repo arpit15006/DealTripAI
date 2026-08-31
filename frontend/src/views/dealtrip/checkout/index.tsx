@@ -22,6 +22,7 @@ import Stepper from '@/views/dealtrip/shared/checkout-stepper'
 
 // Lib Imports
 import { ApiError, approveOffer, reportPaymentFailure, verifyPayment } from '@/lib/dealtrip/client'
+import { formatStay, weekdayName } from '@/lib/dealtrip/dates'
 import { formatINR } from '@/lib/dealtrip/pricing'
 import { ATTRIBUTE_LABELS } from '@/lib/dealtrip/vocabulary'
 
@@ -234,9 +235,15 @@ const Checkout = ({ state, negotiationId, offerId }: Props) => {
             <CardTitle className='text-base'>{merchant.name}</CardTitle>
             <p className='text-muted-foreground text-xs'>{merchant.tagline}</p>
           </div>
-          <Badge variant='outline' className='h-5 px-1.5 text-[11px] font-normal'>
-            negotiated over {offer.round} round{offer.round === 1 ? '' : 's'}
-          </Badge>
+          <div className='flex flex-col items-end gap-1'>
+            <Badge variant='outline' className='h-5 px-1.5 text-[11px] font-normal'>
+              negotiated over {offer.round} round{offer.round === 1 ? '' : 's'}
+            </Badge>
+            <span className='text-muted-foreground text-xs'>
+              {formatStay(offer.quote.check_in, offer.quote.nights)} · checking in{' '}
+              {weekdayName(offer.quote.check_in)}
+            </span>
+          </div>
         </CardHeader>
 
         <CardContent className='flex flex-col gap-4'>

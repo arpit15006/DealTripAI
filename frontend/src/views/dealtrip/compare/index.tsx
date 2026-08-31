@@ -21,6 +21,7 @@ import ScoreBreakdown from '@/views/dealtrip/shared/score-breakdown'
 
 // Lib Imports
 import { ApiError, getNegotiation } from '@/lib/dealtrip/client'
+import { formatStay } from '@/lib/dealtrip/dates'
 import { formatINR } from '@/lib/dealtrip/pricing'
 import { ATTRIBUTE_LABELS } from '@/lib/dealtrip/vocabulary'
 
@@ -135,6 +136,7 @@ const DealComparison = ({ negotiationId, initialState }: Props) => {
             <TableHeader>
               <TableRow>
                 <TableHead className='min-w-40'>Merchant</TableHead>
+                <TableHead className='whitespace-nowrap'>Stay</TableHead>
                 <TableHead className='text-right'>Price</TableHead>
                 {required.map(a => (
                   <TableHead key={a} className='text-center whitespace-nowrap'>
@@ -161,6 +163,12 @@ const DealComparison = ({ negotiationId, initialState }: Props) => {
                         <p className='text-muted-foreground truncate text-xs'>{row.merchant.tagline}</p>
                       </div>
                     </div>
+                  </TableCell>
+                  <TableCell className='text-muted-foreground text-xs whitespace-nowrap'>
+                    {formatStay(row.offer.quote.check_in, row.offer.quote.nights)}
+                    {row.offer.quote.weekend_nights > 0 && (
+                      <span className='ml-1'>· {row.offer.quote.weekend_nights} wknd</span>
+                    )}
                   </TableCell>
                   <TableCell className='text-right font-medium tabular-nums'>
                     {formatINR(row.offer.quote.total_price)}
@@ -236,7 +244,10 @@ const DealComparison = ({ negotiationId, initialState }: Props) => {
                     <span className='text-muted-foreground'>
                       — opened at {formatINR(opening.quote.total_price)}, settled at{' '}
                       {formatINR(row.offer.quote.total_price)} after {row.offer.round} round
-                      {row.offer.round === 1 ? '' : 's'}.
+                      {row.offer.round === 1 ? '' : 's'}
+                      {opening.quote.check_in !== row.offer.quote.check_in
+                        ? `, moving the stay from ${formatStay(opening.quote.check_in, opening.quote.nights)} to ${formatStay(row.offer.quote.check_in, row.offer.quote.nights)}.`
+                        : '.'}
                     </span>
                   </div>
                 )}
