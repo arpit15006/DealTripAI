@@ -153,11 +153,18 @@ const Checkout = ({ state, negotiationId, offerId }: Props) => {
     })
 
     checkout.on('payment.failed', async payload => {
-      await reportPaymentFailure(
-        approval.order.id,
-        payload.error?.description ?? 'Payment failed at the gateway.'
-      ).catch(() => undefined)
-      setMessage(payload.error?.description ?? 'The payment failed. Nothing was charged.')
+      const description = payload.error?.description ?? 'The payment failed.'
+
+      await reportPaymentFailure(approval.order.id, description).catch(() => undefined)
+
+      // A card the gateway will not take is a dead end unless we say what will.
+      const unsupportedCard = /international|not supported|not enabled/i.test(description)
+
+      setMessage(
+        unsupportedCard
+          ? `${description} In Razorpay test mode, Netbanking or a domestic test card completes successfully.`
+          : description
+      )
       setStage('failed')
     })
 
@@ -223,7 +230,8 @@ const Checkout = ({ state, negotiationId, offerId }: Props) => {
           <CircleAlertIcon />
           <AlertTitle>Nothing was charged and nothing was booked</AlertTitle>
           <AlertDescription>
-            {message} Your negotiated price is held until{' '}
+            {message ? `${message.replace(/\s*$/, '').replace(/([^.!?])$/, '$1.')} ` : ''}
+            Your negotiated price is held until{' '}
             {new Date(offer.expires_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })} — you can
             retry without negotiating again.
           </AlertDescription>
