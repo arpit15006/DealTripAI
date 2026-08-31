@@ -81,7 +81,7 @@ const Proof = () => {
               <span className='type-caption text-muted-foreground font-mono text-xs'>response</span>
               <Badge
                 variant='outline'
-                className='border-destructive/40 text-destructive h-5 px-1.5 font-mono text-[11px]'
+                className='border-destructive/40 text-destructive h-5 px-1.5 font-mono text-xs'
               >
                 409
               </Badge>

@@ -276,7 +276,7 @@ const PolicyStudio = ({ merchant: initial }: { merchant: Merchant }) => {
                       {index + 1}
                     </span>
                     <span className='flex-1 text-sm font-medium'>{OBJECTIVE_LABELS[objective]}</span>
-                    <span className='text-muted-foreground hidden shrink-0 text-[11px] sm:inline'>
+                    <span className='text-muted-foreground hidden shrink-0 text-xs sm:inline'>
                       weight {[3, 2, 1, 1, 1][index] ?? 1}
                     </span>
                     <Button

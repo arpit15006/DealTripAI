@@ -79,7 +79,7 @@ const TrustTimeline = ({ state, negotiationId }: { state: NegotiationView; negot
             <ShieldCheckIcon className='size-4' />
             Append-only record
           </CardTitle>
-          <Badge variant='outline' className='h-5 px-1.5 text-[11px] font-normal'>
+          <Badge variant='outline' className='h-5.5 px-2 text-xs font-normal'>
             negotiation {negotiationId}
           </Badge>
         </CardHeader>
@@ -101,7 +101,7 @@ const TrustTimeline = ({ state, negotiationId }: { state: NegotiationView; negot
                   className={
                     payment.status === 'paid'
                       ? 'h-5 border-green-600/40 px-1.5 text-[11px] text-green-600 dark:border-green-400/40 dark:text-green-400'
-                      : 'border-destructive/40 text-destructive h-5 px-1.5 text-[11px]'
+                      : 'border-destructive/40 text-destructive h-5.5 px-2 text-xs'
                   }
                 >
                   {payment.status}

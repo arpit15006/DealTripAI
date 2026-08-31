@@ -99,7 +99,7 @@ const MerchantList = ({ merchants, baseUrl }: { merchants: MerchantListItem[]; b
                       <CardTitle className='truncate text-sm'>{merchant.name}</CardTitle>
                       <p className='text-muted-foreground truncate text-xs'>{merchant.tagline}</p>
                     </div>
-                    <Badge variant='outline' className='h-5 shrink-0 gap-1 px-1.5 text-[11px] font-normal'>
+                    <Badge variant='outline' className='h-5.5 shrink-0 gap-1 px-2 text-xs font-normal'>
                       <StarIcon className='size-3 fill-current' />
                       {merchant.rating.toFixed(1)}
                     </Badge>
@@ -118,25 +118,25 @@ const MerchantList = ({ merchants, baseUrl }: { merchants: MerchantListItem[]; b
                       {merchant.published.negotiable ? (
                         <Badge
                           variant='outline'
-                          className='h-5 border-green-600/40 px-1.5 text-[11px] font-normal text-green-600 dark:border-green-400/40 dark:text-green-400'
+                          className='h-5 border-green-600/40 px-1.5 text-xs font-normal text-green-600 dark:border-green-400/40 dark:text-green-400'
                         >
                           negotiates · {merchant.published.max_counter_rounds} round
                           {merchant.published.max_counter_rounds === 1 ? '' : 's'}
                         </Badge>
                       ) : (
-                        <Badge variant='outline' className='h-5 px-1.5 text-[11px] font-normal'>
+                        <Badge variant='outline' className='h-5.5 px-2 text-xs font-normal'>
                           fixed price
                         </Badge>
                       )}
                       {merchant.policy.objectives.slice(0, 2).map(objective => (
-                        <Badge key={objective} variant='outline' className='h-5 px-1.5 text-[11px] font-normal'>
+                        <Badge key={objective} variant='outline' className='h-5.5 px-2 text-xs font-normal'>
                           {objective.replace(/_/g, ' ')}
                         </Badge>
                       ))}
                     </div>
 
                     <div className='flex items-center gap-1'>
-                      <code className='bg-muted text-muted-foreground min-w-0 flex-1 truncate rounded px-2 py-1 text-[11px]'>
+                      <code className='bg-muted text-muted-foreground min-w-0 flex-1 truncate rounded px-2 py-1 text-xs'>
                         /api/agent/{merchant.slug}/profile
                       </code>
                       <Button
@@ -182,7 +182,7 @@ const MerchantList = ({ merchants, baseUrl }: { merchants: MerchantListItem[]; b
 const Metric = ({ label, value }: { label: string; value: string }) => (
   <div>
     <p className='text-foreground text-sm font-medium'>{value}</p>
-    <p className='text-[11px]'>{label}</p>
+    <p className='text-xs'>{label}</p>
   </div>
 )
 

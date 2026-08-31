@@ -51,7 +51,7 @@ const GuardChecklist = ({ verdict, defaultOpen = false, className }: Props) => {
         <Badge
           variant='outline'
           className={cn(
-            'h-5 shrink-0 px-1.5 font-mono text-[11px]',
+            'h-5 shrink-0 px-1.5 font-mono text-xs',
             verdict.authorized
               ? 'border-green-600/40 text-green-600 dark:border-green-400/40 dark:text-green-400'
               : 'border-destructive/40 text-destructive'
@@ -88,9 +88,9 @@ const GuardChecklist = ({ verdict, defaultOpen = false, className }: Props) => {
                     <span className='text-muted-foreground ml-1.5 font-normal'>(advisory)</span>
                   )}
                 </p>
-                <p className='text-muted-foreground text-xs'>{check.detail}</p>
+                <p className='text-muted-foreground text-xs leading-relaxed'>{check.detail}</p>
                 {check.expected && check.actual && (
-                  <p className='text-muted-foreground/80 mt-0.5 font-mono text-[11px]'>
+                  <p className='meta mt-0.5 font-mono'>
                     expected {check.expected} · actual {check.actual}
                   </p>
                 )}

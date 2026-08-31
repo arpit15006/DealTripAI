@@ -93,27 +93,27 @@ const EventRow = ({
 
       <TimelineHeading className='flex w-full items-start justify-between gap-3 pb-0.5 pl-3 text-sm font-normal text-wrap'>
         <span className={cn('flex-1', event.decision === 'fail' && 'text-destructive')}>{event.summary}</span>
-        <span className='text-muted-foreground shrink-0 font-mono text-[11px] whitespace-nowrap'>{time(event.ts)}</span>
+        <span className='text-muted-foreground shrink-0 font-mono text-xs whitespace-nowrap'>{time(event.ts)}</span>
       </TimelineHeading>
 
       <TimelineContent className={cn('pl-3', isLast ? 'pb-1' : 'pb-4')}>
         <div className='flex flex-wrap items-center gap-1.5'>
           <Badge
             variant='outline'
-            className={cn('h-5 px-1.5 text-[11px] font-normal', ACTOR_STYLE[event.actor] ?? 'border-border')}
+            className={cn('h-5.5 px-2 text-xs font-normal', ACTOR_STYLE[event.actor] ?? 'border-border')}
           >
             {ACTOR_LABELS[event.actor] ?? event.actor}
           </Badge>
-          <span className='text-muted-foreground/70 font-mono text-[11px]'>{event.action}</span>
+          <span className='text-muted-foreground/70 font-mono text-xs'>{event.action}</span>
 
           {hasDetail && (
             <Collapsible open={open} onOpenChange={setOpen}>
-              <CollapsibleTrigger className='text-muted-foreground hover:text-foreground flex items-center gap-0.5 text-[11px] transition-colors'>
+              <CollapsibleTrigger className='text-muted-foreground hover:text-foreground flex items-center gap-0.5 text-xs transition-colors'>
                 <ChevronRightIcon className={cn('size-3 transition-transform', open && 'rotate-90')} />
                 {open ? 'hide' : 'detail'}
               </CollapsibleTrigger>
               <CollapsibleContent>
-                <pre className='bg-muted/60 text-muted-foreground mt-1.5 max-h-64 overflow-auto rounded-md border p-2 text-[11px] leading-relaxed'>
+                <pre className='bg-muted/60 text-muted-foreground mt-1.5 max-h-64 overflow-auto rounded-md border p-2 text-xs leading-relaxed'>
                   {JSON.stringify(event.detail, null, 2)}
                 </pre>
               </CollapsibleContent>

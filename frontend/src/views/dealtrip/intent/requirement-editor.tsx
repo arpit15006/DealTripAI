@@ -153,7 +153,7 @@ const RequirementEditor = ({ value, onChange }: Props) => {
       </Popover>
 
       <p className='text-muted-foreground text-xs'>
-        A <Badge variant='outline' className='mx-0.5 h-5 px-1.5 text-[11px]'>must have</Badge> is a hard gate — an
+        A <Badge variant='outline' className='mx-0.5 h-5.5 px-2 text-xs'>must have</Badge> is a hard gate — an
         offer missing it is rejected at any price. A nice-to-have only affects the score.
       </p>
     </div>

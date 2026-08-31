@@ -213,7 +213,7 @@ const DealComparison = ({ negotiationId, initialState }: Props) => {
                     {row.score.eligible ? (
                       <span className='font-mono text-sm font-medium tabular-nums'>{row.score.total}</span>
                     ) : (
-                      <Badge variant='outline' className='border-destructive/40 text-destructive h-5 px-1.5 text-[11px]'>
+                      <Badge variant='outline' className='border-destructive/40 text-destructive h-5.5 px-2 text-xs'>
                         out
                       </Badge>
                     )}
@@ -255,7 +255,7 @@ const DealComparison = ({ negotiationId, initialState }: Props) => {
                   <CardTitle className='flex items-center gap-2 text-base'>
                     {row.merchant.name}
                     {row.rank === 1 && (
-                      <Badge className='h-5 gap-1 px-1.5 text-[11px]'>
+                      <Badge className='h-5.5 gap-1 px-2 text-xs'>
                         <TrophyIcon className='size-3' />
                         Recommended
                       </Badge>
@@ -264,9 +264,9 @@ const DealComparison = ({ negotiationId, initialState }: Props) => {
                   <p className='text-muted-foreground text-xs'>{row.merchant.tagline}</p>
                 </div>
                 <div className='text-right'>
-                  <p className='text-lg font-semibold tabular-nums'>{formatINR(row.offer.quote.total_price)}</p>
-                  <p className='text-muted-foreground flex items-center justify-end gap-1 text-xs'>
-                    <StarIcon className='size-3 fill-current' />
+                  <p className='price'>{formatINR(row.offer.quote.total_price)}</p>
+                  <p className='meta flex items-center justify-end gap-1'>
+                    <StarIcon className='size-3 fill-current' aria-hidden />
                     {row.merchant.rating.toFixed(1)} · score {row.score.total}
                   </p>
                 </div>
@@ -274,7 +274,7 @@ const DealComparison = ({ negotiationId, initialState }: Props) => {
 
               <CardContent className='flex flex-col gap-4 pb-6'>
                 {negotiated && (
-                  <div className='bg-muted/50 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-md border px-3 py-2 text-xs'>
+                  <div className='inset flex flex-wrap items-center gap-x-2 gap-y-1 text-xs'>
                     <span className='font-medium'>Negotiation won you</span>
                     <span className='font-mono tabular-nums'>
                       {formatINR(opening.quote.total_price - row.offer.quote.total_price)}
@@ -293,34 +293,31 @@ const DealComparison = ({ negotiationId, initialState }: Props) => {
                 <div className='grid gap-4 sm:grid-cols-2'>
                   <div className='flex flex-col gap-2'>
                     <p className='text-xs font-medium'>What you get</p>
-                    <ul className='text-muted-foreground flex flex-col gap-0.5 text-xs'>
+                    <ul className='text-muted-foreground'>
                       {row.offer.quote.lines.map(line => (
-                        <li key={line.ref_id} className='flex justify-between gap-3'>
+                        <li key={line.ref_id} className='line-item'>
                           <span>{line.label}</span>
-                          <span className='shrink-0 tabular-nums'>{formatINR(line.amount)}</span>
+                          <span>{formatINR(line.amount)}</span>
                         </li>
                       ))}
                       {row.offer.quote.discount_amount > 0 && (
-                        <li className='text-foreground flex justify-between gap-3 border-t pt-1 font-medium'>
+                        <li className='line-item text-foreground mt-1 font-medium'>
                           <span>Negotiated discount ({row.offer.quote.discount_pct}%)</span>
-                          <span className='shrink-0 tabular-nums'>
-                            −{formatINR(row.offer.quote.discount_amount)}
-                          </span>
+                          <span>−{formatINR(row.offer.quote.discount_amount)}</span>
                         </li>
                       )}
                     </ul>
-                    <div className='flex flex-wrap gap-1'>
-                      {row.offer.quote.attributes.slice(0, 6).map(a => (
-                        <Badge key={a} variant='outline' className='h-5 px-1.5 text-[11px] font-normal'>
+                    <p className='text-muted-foreground text-xs leading-relaxed'>
+                      {row.offer.quote.attributes.slice(0, 8).map((a, i) => (
+                        <span key={a}>
+                          {i > 0 && <span className='opacity-50'> · </span>}
                           {ATTRIBUTE_LABELS[a]}
-                        </Badge>
+                        </span>
                       ))}
-                      {row.offer.quote.attributes.length > 6 && (
-                        <Badge variant='outline' className='text-muted-foreground h-5 px-1.5 text-[11px] font-normal'>
-                          +{row.offer.quote.attributes.length - 6} more
-                        </Badge>
+                      {row.offer.quote.attributes.length > 8 && (
+                        <span className='opacity-70'> +{row.offer.quote.attributes.length - 8} more</span>
                       )}
-                    </div>
+                    </p>
                   </div>
 
                   <ScoreBreakdown score={row.score} />

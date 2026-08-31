@@ -239,7 +239,7 @@ const RevenueSimulator = ({ destinations }: { destinations: string[] }) => {
 
           {/* One line per traveller, as their outcome is decided. */}
           <ScrollArea className='h-56 border-t'>
-            <ul aria-hidden className='divide-border/50 divide-y font-mono text-[11px]'>
+            <ul aria-hidden className='divide-border/50 divide-y font-mono text-xs'>
               {ticks.map(tick => (
                 <li key={tick.index} className='flex flex-wrap items-center gap-x-2 gap-y-0.5 px-4 py-1.5'>
                   <span className='text-muted-foreground w-10 shrink-0 tabular-nums'>#{tick.index}</span>
@@ -285,7 +285,7 @@ const RevenueSimulator = ({ destinations }: { destinations: string[] }) => {
             </ul>
           </ScrollArea>
 
-          <p className='text-muted-foreground border-t px-4 py-2 text-[11px]'>
+          <p className='text-muted-foreground border-t px-4 py-2 text-xs'>
             <span className='inline-flex items-center gap-0.5'>
               <XIcon className='size-3' />n
             </span>{' '}
@@ -410,7 +410,7 @@ const RevenueSimulator = ({ destinations }: { destinations: string[] }) => {
                           {row.agentic_bookings !== row.static_bookings && (
                             <Badge
                               variant='outline'
-                              className='ml-2 h-5 px-1.5 text-[11px] font-normal'
+                              className='ml-2 h-5.5 px-2 text-xs font-normal'
                             >
                               {row.agentic_bookings > row.static_bookings ? '+' : ''}
                               {row.agentic_bookings - row.static_bookings}
@@ -434,7 +434,7 @@ const RevenueSimulator = ({ destinations }: { destinations: string[] }) => {
 
 const Live = ({ label, value, accent }: { label: string; value: string; accent?: boolean }) => (
   <div>
-    <p className='text-muted-foreground text-[11px]'>{label}</p>
+    <p className='text-muted-foreground text-xs'>{label}</p>
     <p className={cn('text-sm font-semibold tabular-nums', accent && 'text-primary')}>{value}</p>
   </div>
 )

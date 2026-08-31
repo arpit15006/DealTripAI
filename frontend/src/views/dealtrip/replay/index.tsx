@@ -200,7 +200,7 @@ const NegotiationReplay = ({ state, negotiationId }: { state: NegotiationView; n
 
           {current ? (
             <div className='bg-muted/50 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-md border px-3 py-2'>
-              <Badge variant='outline' className='h-5 px-1.5 text-[11px] font-normal'>
+              <Badge variant='outline' className='h-5.5 px-2 text-xs font-normal'>
                 {ACTOR_LABELS[current.actor] ?? current.actor}
               </Badge>
               <span
@@ -238,14 +238,14 @@ const NegotiationReplay = ({ state, negotiationId }: { state: NegotiationView; n
                     <Badge
                       variant='outline'
                       className={cn(
-                        'h-5 px-1.5 text-[11px] font-normal',
+                        'h-5.5 px-2 text-xs font-normal',
                         position.blocked && 'border-destructive/40 text-destructive'
                       )}
                     >
                       {position.blocked ? 'blocked' : `round ${position.offer.round}`}
                     </Badge>
                   </div>
-                  <p className='text-muted-foreground text-[11px]'>
+                  <p className='text-muted-foreground text-xs'>
                     {formatStay(position.offer.quote.check_in, position.offer.quote.nights)}
                   </p>
                   {verdictById.get(position.offer.id) && step >= audit.length && (

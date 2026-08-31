@@ -12,7 +12,6 @@ import { ArrowLeftIcon, CircleAlertIcon, Loader2Icon, LockIcon, PartyPopperIcon,
 
 // Component Imports
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Confetti, type ConfettiRef } from '@/components/ui/confetti'
@@ -253,47 +252,44 @@ const Checkout = ({ state, negotiationId, offerId }: Props) => {
             <CardTitle className='text-base'>{merchant.name}</CardTitle>
             <p className='text-muted-foreground text-xs'>{merchant.tagline}</p>
           </div>
-          <div className='flex flex-col items-end gap-1'>
-            <Badge variant='outline' className='h-5 px-1.5 text-[11px] font-normal'>
-              negotiated over {offer.round} round{offer.round === 1 ? '' : 's'}
-            </Badge>
-            <span className='text-muted-foreground text-xs'>
-              {formatStay(offer.quote.check_in, offer.quote.nights)} · checking in{' '}
-              {weekdayName(offer.quote.check_in)}
-            </span>
-          </div>
+          <p className='meta shrink-0 text-right'>
+            negotiated over {offer.round} round{offer.round === 1 ? '' : 's'}
+            <br />
+            {formatStay(offer.quote.check_in, offer.quote.nights)} · {weekdayName(offer.quote.check_in)} in
+          </p>
         </CardHeader>
 
         <CardContent className='flex flex-col gap-4 pb-6'>
-          <ul className='flex flex-col gap-1 text-sm'>
+          <ul className='text-muted-foreground'>
             {offer.quote.lines.map(line => (
-              <li key={line.ref_id} className='text-muted-foreground flex justify-between gap-3'>
+              <li key={line.ref_id} className='line-item'>
                 <span>{line.label}</span>
-                <span className='shrink-0 tabular-nums'>{formatINR(line.amount)}</span>
+                <span>{formatINR(line.amount)}</span>
               </li>
             ))}
             {offer.quote.discount_amount > 0 && (
-              <li className='flex justify-between gap-3 text-green-600 dark:text-green-400'>
+              <li className='line-item text-green-600 dark:text-green-400'>
                 <span>Negotiated discount ({offer.quote.discount_pct}%)</span>
-                <span className='shrink-0 tabular-nums'>−{formatINR(offer.quote.discount_amount)}</span>
+                <span>−{formatINR(offer.quote.discount_amount)}</span>
               </li>
             )}
           </ul>
 
           <Separator />
 
-          <div className='flex items-baseline justify-between'>
+          <div className='flex items-baseline justify-between gap-3'>
             <span className='text-sm font-medium'>Total</span>
-            <span className='text-2xl font-semibold tabular-nums'>{formatINR(offer.quote.total_price)}</span>
+            <span className='price'>{formatINR(offer.quote.total_price)}</span>
           </div>
 
-          <div className='flex flex-wrap gap-1'>
-            {offer.quote.attributes.map(a => (
-              <Badge key={a} variant='outline' className='h-5 px-1.5 text-[11px] font-normal'>
+          <p className='text-muted-foreground text-xs leading-relaxed'>
+            {offer.quote.attributes.map((a, i) => (
+              <span key={a}>
+                {i > 0 && <span className='opacity-50'> · </span>}
                 {ATTRIBUTE_LABELS[a]}
-              </Badge>
+              </span>
             ))}
-          </div>
+          </p>
 
           <GuardChecklist verdict={verdict} />
 

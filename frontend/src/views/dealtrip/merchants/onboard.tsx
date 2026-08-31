@@ -152,7 +152,7 @@ const MerchantOnboarding = () => {
                       {merchant.tagline} · {merchant.destination}
                     </p>
                   </div>
-                  <Badge variant='outline' className='h-5 px-1.5 text-[11px] font-normal'>
+                  <Badge variant='outline' className='h-5.5 px-2 text-xs font-normal'>
                     {result.extraction.source === 'model' ? result.extraction.model : 'deterministic'} ·{' '}
                     {result.extraction.latency_ms}ms
                   </Badge>
@@ -163,7 +163,7 @@ const MerchantOnboarding = () => {
                 <CardContent className='flex flex-col gap-4 px-4 py-4'>
                   <div className='flex flex-wrap gap-1'>
                     {merchant.attributes.map(a => (
-                      <Badge key={a} variant='outline' className='h-5 px-1.5 text-[11px] font-normal'>
+                      <Badge key={a} variant='outline' className='h-5.5 px-2 text-xs font-normal'>
                         {ATTRIBUTE_LABELS[a]}
                       </Badge>
                     ))}
@@ -212,7 +212,7 @@ const MerchantOnboarding = () => {
 
                   {result.saved ? (
                     <div className='flex flex-col gap-2'>
-                      <code className='bg-muted text-muted-foreground truncate rounded px-2 py-1.5 text-[11px]'>
+                      <code className='bg-muted text-muted-foreground truncate rounded px-2 py-1.5 text-xs'>
                         {result.profile_url}
                       </code>
                       <div className='flex gap-2'>

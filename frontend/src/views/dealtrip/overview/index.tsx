@@ -93,7 +93,7 @@ const Overview = ({ health, negotiations }: { health: HealthResponse; negotiatio
     <Card className='gap-0 py-0'>
       <CardHeader className='flex flex-row items-center justify-between gap-2 px-4 py-3'>
         <CardTitle className='text-sm'>Recent negotiations</CardTitle>
-        <Badge variant='outline' className='h-5 px-1.5 text-[11px] font-normal'>
+        <Badge variant='outline' className='h-5.5 px-2 text-xs font-normal'>
           {negotiations.length}
         </Badge>
       </CardHeader>
@@ -137,7 +137,7 @@ const Overview = ({ health, negotiations }: { health: HealthResponse; negotiatio
                   </span>
                   <Badge
                     variant='outline'
-                    className={`h-5 shrink-0 px-1.5 text-[11px] font-normal ${STATUS_TONE[negotiation.status] ?? ''}`}
+                    className={`h-5.5 shrink-0 px-2 text-xs font-normal ${STATUS_TONE[negotiation.status] ?? ''}`}
                   >
                     {negotiation.status.replace(/_/g, ' ')}
                   </Badge>

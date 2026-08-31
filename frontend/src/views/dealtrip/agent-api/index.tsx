@@ -160,15 +160,15 @@ const AgentApiReference = ({ baseUrl }: { baseUrl: string }) => {
                   <p className='text-muted-foreground mt-1 text-xs'>{endpoint.description}</p>
                 </div>
                 <div className='flex shrink-0 items-center gap-1.5'>
-                  <Badge variant='outline' className='h-5 px-1.5 font-mono text-[11px]'>
+                  <Badge variant='outline' className='h-5 px-1.5 font-mono text-xs'>
                     {endpoint.method}
                   </Badge>
-                  <code className='text-muted-foreground text-[11px]'>{endpoint.path}</code>
+                  <code className='text-muted-foreground text-xs'>{endpoint.path}</code>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className='relative'>
-                  <pre className='bg-muted text-muted-foreground overflow-x-auto rounded-md border p-3 pr-12 text-[11px] leading-relaxed'>
+                  <pre className='bg-muted text-muted-foreground overflow-x-auto rounded-md border p-3 pr-12 text-xs leading-relaxed'>
                     {command}
                   </pre>
                   <Button

@@ -60,10 +60,10 @@ const OfferCard = ({ merchant, required, image, originEvent, className }: Props)
           <p className='truncate text-sm font-semibold'>{merchant.name}</p>
           <p className='text-muted-foreground truncate text-xs'>{merchant.tagline}</p>
         </div>
-        <Badge variant='outline' className='h-5 shrink-0 gap-1 px-1.5 text-[11px] font-normal'>
-          <StarIcon className='size-3 fill-current' />
+        <span className='meta flex shrink-0 items-center gap-1 pt-0.5'>
+          <StarIcon className='size-3 fill-current' aria-hidden />
           {merchant.rating.toFixed(1)}
-        </Badge>
+        </span>
       </CardHeader>
 
       <Separator />
@@ -94,51 +94,47 @@ const OfferCard = ({ merchant, required, image, originEvent, className }: Props)
                 )}
               </div>
               <div className='flex flex-col items-end gap-1'>
-                <Badge variant='outline' className='h-5 px-1.5 text-[11px] font-normal'>
+                <Badge variant='outline' className='h-5.5 px-2 text-xs font-normal'>
                   round {offer.round}
                 </Badge>
-                <span className='text-muted-foreground text-[11px]'>
+                <span className='text-muted-foreground text-xs'>
                   {formatStay(offer.quote.check_in, offer.quote.nights)} · {weekdayName(offer.quote.check_in)} in
                 </span>
               </div>
             </div>
 
-            <ul className='text-muted-foreground flex flex-col gap-0.5 text-xs'>
+            <ul className='text-muted-foreground'>
               {offer.quote.lines.map(line => (
-                <li key={line.ref_id} className='flex justify-between gap-3'>
+                <li key={line.ref_id} className='line-item'>
                   <span className='truncate'>{line.label}</span>
-                  <span className='shrink-0 tabular-nums'>{formatINR(line.amount)}</span>
+                  <span>{formatINR(line.amount)}</span>
                 </li>
               ))}
             </ul>
 
-            <div className='flex flex-wrap gap-1'>
-              {offer.quote.attributes.slice(0, 5).map(attribute => (
-                <Badge
-                  key={attribute}
-                  variant='outline'
-                  className={cn(
-                    'h-5 px-1.5 text-[11px] font-normal',
-                    required.includes(attribute) && 'border-primary/40 bg-primary/10 text-primary'
-                  )}
-                >
-                  {ATTRIBUTE_LABELS[attribute]}
-                </Badge>
+            {/* Only the traveller's own must-haves are marked. Chipping every
+                inclusion made the one that mattered impossible to find. */}
+            <p className='text-xs leading-relaxed'>
+              {offer.quote.attributes.slice(0, 6).map((attribute, index) => (
+                <span key={attribute}>
+                  {index > 0 && <span className='text-muted-foreground/50'> · </span>}
+                  <span className={cn(required.includes(attribute) ? 'text-primary font-medium' : 'text-muted-foreground')}>
+                    {ATTRIBUTE_LABELS[attribute]}
+                  </span>
+                </span>
               ))}
-              {offer.quote.attributes.length > 5 && (
-                <Badge variant='outline' className='text-muted-foreground h-5 px-1.5 text-[11px] font-normal'>
-                  +{offer.quote.attributes.length - 5}
-                </Badge>
+              {offer.quote.attributes.length > 6 && (
+                <span className='text-muted-foreground/70'> +{offer.quote.attributes.length - 6} more</span>
               )}
-            </div>
+            </p>
 
             {offer.rationale && <p className='text-muted-foreground text-xs italic'>“{offer.rationale}”</p>}
 
             {offer.changes_from_previous.length > 0 && (
-              <div className='bg-muted/50 flex flex-col gap-1 rounded-md border px-2.5 py-2'>
-                <p className='text-[11px] font-medium'>What changed this round</p>
+              <div className='inset flex flex-col gap-1'>
+                <p className='text-xs font-medium'>What changed this round</p>
                 {offer.changes_from_previous.map((change, index) => (
-                  <p key={index} className='text-muted-foreground flex items-start gap-1.5 text-[11px]'>
+                  <p key={index} className='text-muted-foreground flex items-start gap-1.5 text-xs'>
                     <ArrowDownIcon className='mt-0.5 size-3 shrink-0' />
                     {change}
                   </p>
@@ -148,13 +144,13 @@ const OfferCard = ({ merchant, required, image, originEvent, className }: Props)
 
             {merchant.counters.length > 0 && (
               <details className='group'>
-                <summary className='text-muted-foreground hover:text-foreground cursor-pointer text-[11px]'>
+                <summary className='text-muted-foreground hover:text-foreground cursor-pointer text-xs'>
                   {merchant.counters.length} counter-request
                   {merchant.counters.length === 1 ? '' : 's'} sent by the desk
                 </summary>
                 <div className='mt-1.5 flex flex-col gap-1.5'>
                   {merchant.counters.map(({ round, counter }) => (
-                    <p key={round} className='text-muted-foreground border-l-2 pl-2 text-[11px]'>
+                    <p key={round} className='text-muted-foreground border-l-2 pl-2 text-xs'>
                       <span className='font-medium'>Round {round}, cap {formatINR(counter.max_price)}:</span>{' '}
                       {counter.message}
                     </p>
