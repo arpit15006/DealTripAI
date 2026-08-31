@@ -392,13 +392,36 @@ const rowToNegotiation = (r: any): Negotiation => ({
   updated_at: iso(r.updated_at)
 })
 
+/**
+ * Offers written before bundles carried dates.
+ *
+ * Backfilled with a Monday check-in, chosen because a stay starting Monday has
+ * no Friday or Saturday nights — so the weekend uplift does not apply and the
+ * guard's independent recomputation still agrees with the stored total to the
+ * rupee. A backfill that silently changed a recorded price would turn an audit
+ * record into a guess.
+ */
+const MONDAY_BACKFILL = '2026-01-05'
+
+const hydrateOffer = (bundle: any, quote: any) => {
+  if (bundle?.check_in && quote?.check_in) return { bundle, quote }
+
+  const checkIn = bundle?.check_in ?? MONDAY_BACKFILL
+  const nights = Number(quote?.nights ?? 1)
+  const checkOut = new Date(Date.parse(`${checkIn}T00:00:00Z`) + nights * 86_400_000).toISOString().slice(0, 10)
+
+  return {
+    bundle: { ...bundle, check_in: checkIn },
+    quote: { ...quote, check_in: checkIn, check_out: checkOut, weekend_nights: quote?.weekend_nights ?? 0 }
+  }
+}
+
 const rowToOffer = (r: any): Offer => ({
   id: r.id,
   negotiation_id: r.negotiation_id,
   merchant_id: r.merchant_id,
   round: Number(r.round),
-  bundle: r.bundle,
-  quote: r.quote,
+  ...hydrateOffer(r.bundle, r.quote),
   rationale: r.rationale ?? '',
   changes_from_previous: r.changes ?? [],
   status: r.status as OfferStatus,

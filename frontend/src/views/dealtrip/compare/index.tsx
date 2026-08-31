@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 
 // Third-party Imports
-import { ArrowRightIcon, BanIcon, CircleAlertIcon, Loader2Icon, ScrollTextIcon, StarIcon, TrophyIcon } from 'lucide-react'
+import { ArrowRightIcon, BanIcon, CircleAlertIcon, Loader2Icon, PlayIcon, ScrollTextIcon, StarIcon, TrophyIcon } from 'lucide-react'
 
 // Component Imports
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -98,6 +98,10 @@ const DealComparison = ({ negotiationId, initialState }: Props) => {
           </p>
         </div>
         <div className='flex gap-2'>
+          <Button variant='outline' size='sm' render={<Link href={`/deal/${negotiationId}/replay`} />}>
+            <PlayIcon />
+            Replay
+          </Button>
           <Button variant='outline' size='sm' render={<Link href={`/deal/${negotiationId}/timeline`} />}>
             <ScrollTextIcon />
             Trust Timeline

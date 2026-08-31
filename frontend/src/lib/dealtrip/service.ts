@@ -7,14 +7,36 @@ import { getStore } from './store'
 import type { DealTripStore } from './store'
 import type { Merchant } from './types'
 
-/** Seeds the marketplace on first use so a fresh database needs no setup step. */
+/**
+ * Seeds the marketplace on first use so a fresh database needs no setup step.
+ *
+ * Also re-seeds when a stored merchant predates a field the catalog now
+ * requires. Merchants are stored as JSONB, so an older row does not fail to
+ * load — it loads with holes, and a missing number propagates into pricing.
+ * Detecting that here is cheaper than defending against it everywhere.
+ */
 export const ensureSeeded = async (): Promise<DealTripStore> => {
   const store = await getStore()
   const existing = await store.listMerchants()
 
+  const stale = existing.filter(m => !Number.isFinite(m.weekend_uplift_pct)).map(m => m.slug)
+  const seeded = new Set(SEED_MERCHANTS.map(m => m.slug))
+
   if (existing.length === 0) {
     for (const merchant of SEED_MERCHANTS) await store.upsertMerchant(merchant)
     console.info(`[dealtrip] seeded ${SEED_MERCHANTS.length} merchants`)
+  } else if (stale.length > 0) {
+    // Refresh only the seeded properties; a merchant someone onboarded is
+    // theirs, so it is repaired in place rather than overwritten.
+    for (const merchant of SEED_MERCHANTS) await store.upsertMerchant(merchant)
+
+    for (const slug of stale.filter(s => !seeded.has(s))) {
+      const merchant = existing.find(m => m.slug === slug)
+
+      if (merchant) await store.upsertMerchant({ ...merchant, weekend_uplift_pct: 20 })
+    }
+
+    console.info(`[dealtrip] refreshed ${stale.length} merchant(s) missing weekend_uplift_pct`)
   }
 
   return store

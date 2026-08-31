@@ -2,7 +2,7 @@
 import Link from 'next/link'
 
 // Third-party Imports
-import { ArrowLeftIcon, ShieldCheckIcon } from 'lucide-react'
+import { ArrowLeftIcon, PlayIcon, ShieldCheckIcon } from 'lucide-react'
 
 // Component Imports
 import { Badge } from '@/components/ui/badge'
@@ -50,10 +50,16 @@ const TrustTimeline = ({ state, negotiationId }: { state: NegotiationView; negot
             Every decision taken on your behalf, in the order it happened.
           </p>
         </div>
-        <Button variant='outline' size='sm' render={<Link href={`/deal/${negotiationId}`} />}>
-          <ArrowLeftIcon />
-          Back to the deals
-        </Button>
+        <div className='flex gap-2'>
+          <Button variant='outline' size='sm' render={<Link href={`/deal/${negotiationId}/replay`} />}>
+            <PlayIcon />
+            Replay it
+          </Button>
+          <Button variant='outline' size='sm' render={<Link href={`/deal/${negotiationId}`} />}>
+            <ArrowLeftIcon />
+            Back to the deals
+          </Button>
+        </div>
       </div>
 
       <div className='mt-5 grid gap-3 sm:grid-cols-4'>

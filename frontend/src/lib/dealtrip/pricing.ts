@@ -17,11 +17,22 @@ export class CatalogError extends Error {
   }
 }
 
-/** A room's rate for one specific night, after any weekend uplift. */
-export const nightlyRate = (room: Room, weekendUpliftPct: number, night: string): number =>
-  isWeekendNight(night)
-    ? Math.round(room.base_price_per_night * (1 + weekendUpliftPct / 100))
+/**
+ * A room's rate for one specific night, after any weekend uplift.
+ *
+ * The uplift is coerced rather than trusted: a merchant record written before
+ * this field existed yields `undefined`, and `undefined / 100` would quietly
+ * turn every price into NaN. The Commerce Guard does catch that — it compares
+ * a recomputation and NaN never equals NaN — but money should not be able to
+ * become NaN in the first place.
+ */
+export const nightlyRate = (room: Room, weekendUpliftPct: number, night: string): number => {
+  const uplift = Number.isFinite(weekendUpliftPct) ? weekendUpliftPct : 0
+
+  return isWeekendNight(night)
+    ? Math.round(room.base_price_per_night * (1 + uplift / 100))
     : room.base_price_per_night
+}
 
 export const findRoom = (merchant: Merchant, roomId: string): Room | undefined =>
   merchant.rooms.find(r => r.id === roomId)
