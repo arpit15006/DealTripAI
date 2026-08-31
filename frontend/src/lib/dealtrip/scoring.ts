@@ -201,8 +201,13 @@ export const rankOffers = (candidates: Omit<RankedOffer, 'rank'>[]): RankedOffer
       if (b.score.total !== a.score.total) return b.score.total - a.score.total
       if (a.offer.quote.total_price !== b.offer.quote.total_price)
         return a.offer.quote.total_price - b.offer.quote.total_price
+      if (a.merchant.rating !== b.merchant.rating) return b.merchant.rating - a.merchant.rating
 
-      return b.merchant.rating - a.merchant.rating
+      // Final tie-break on a stable identifier. Without it two offers alike on
+      // every criterion would sort by whatever order they arrived in, and the
+      // same shortlist could be ranked two different ways — which is exactly
+      // the arbitrariness a deterministic scorer exists to avoid.
+      return a.offer.id.localeCompare(b.offer.id)
     })
     .map((c, i) => ({ ...c, rank: i + 1 }))
 
