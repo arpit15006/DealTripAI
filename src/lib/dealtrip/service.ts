@@ -63,9 +63,29 @@ const seedOnce = async (): Promise<DealTripStore> => {
     return store
   }
 
-  // Compare everything except the policy, which belongs to the operator.
+  /*
+   * Compare everything except the policy, which belongs to the operator.
+   *
+   * Key order has to be normalised first. These documents come back out of a
+   * jsonb column, and Postgres stores object keys in its own canonical order
+   * rather than the order they were written in, while JSON.stringify is order
+   * sensitive. So the comparison was never equal, every cold boot rewrote all
+   * fifteen catalogs, and the "refreshed" line in the log meant nothing at all:
+   * a genuine drift was indistinguishable from the noise.
+   */
+  const stable = (value: unknown): unknown =>
+    Array.isArray(value)
+      ? value.map(stable)
+      : value && typeof value === 'object'
+        ? Object.fromEntries(
+            Object.entries(value as Record<string, unknown>)
+              .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+              .map(([key, v]) => [key, stable(v)])
+          )
+        : value
+
   const catalogOf = (merchant: Merchant) =>
-    JSON.stringify(Object.fromEntries(Object.entries(merchant).filter(([key]) => key !== 'policy')))
+    JSON.stringify(stable(Object.fromEntries(Object.entries(merchant).filter(([key]) => key !== 'policy'))))
 
   const drifted: string[] = []
 
