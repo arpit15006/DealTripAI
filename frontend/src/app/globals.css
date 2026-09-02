@@ -248,7 +248,7 @@ input[type='number']::-webkit-outer-spin-button {
 
 
 /* ═══════════════════════════════════════════════════════════════════════
-   DealTrip — interaction and accessibility foundations
+   DealTrip. Interaction and accessibility foundations
    ═══════════════════════════════════════════════════════════════════════ */
 
 /* ── Response: feedback on press, not on release ──────────────────────
@@ -398,7 +398,7 @@ input[type='number']::-webkit-outer-spin-button {
    Rhythm and hierarchy
    
    The interface had drifted into whispering: nearly everything sat at 11–12px
-   inside its own bordered box. That reads as minimal but is not simple —
+   inside its own bordered box. That reads as minimal but is not simple -
    hierarchy comes from order, spacing and contrast, and if every element has
    the same weight then none of them is the most important one.
    
@@ -436,7 +436,7 @@ input[type='number']::-webkit-outer-spin-button {
 
 /* ── The number that matters ──────────────────────────────────────────
    A price is the single most consequential value on an offer. It gets size,
-   weight and tight tracking together — hierarchy is built from the set, not
+   weight and tight tracking together. Hierarchy is built from the set, not
    from size alone. */
 .price {
   font-size: 1.75rem;

@@ -7,7 +7,7 @@ import TrustTimeline from '@/views/dealtrip/timeline'
 // Lib Imports
 import { loadNegotiationState } from '@/lib/dealtrip/negotiation-state'
 
-export const metadata = { title: 'Trust Timeline — DealTrip' }
+export const metadata = { title: 'Trust Timeline · DealTrip' }
 export const dynamic = 'force-dynamic'
 
 const TimelinePage = async ({ params }: { params: Promise<{ id: string }> }) => {

@@ -1,7 +1,7 @@
 /**
  * Travel intent extraction.
  *
- * Natural language in, a structured intent out — bound to the closed attribute
+ * Natural language in, a structured intent out. Bound to the closed attribute
  * vocabulary so that "beachfront" means the same token to the traveller, the
  * merchant catalog, the guard and the scorer.
  *
@@ -34,6 +34,7 @@ Return ONLY a JSON object with exactly these keys:
 }
 
 Rules that matter:
+- Write plainly: never use em dashes or en dashes. Use commas or full stops.
 - "requirements" keys MUST come from this list and nothing else: ${VOCAB}
 - Use "required" only for things the traveller stated as essential, non-negotiable,
   a must, or a deal-breaker. Use "preferred" for things framed as nice, ideally,
@@ -96,7 +97,7 @@ const PREFERRED_CUES = /\b(prefer|prefera|nice|ideally|hopefully|would like|woul
 const CLAUSE_DELIMITERS = ['.', ',', ';', ':', '!', '?', '\u2014', '\n']
 
 /**
- * The clause the cue sits in — not a fixed character window.
+ * The clause the cue sits in, not a fixed character window.
  *
  * "Beachfront is essential, breakfast would be nice" is one string and two
  * completely different commitments. A 60-character window straddles the comma
@@ -164,14 +165,14 @@ export const heuristicIntent = (raw: string, knownDestinations: string[]): Inten
   const text = raw.trim()
   const ambiguities: string[] = []
 
-  /* destination — prefer a marketplace we actually have inventory for */
+  /* destination. Prefer a marketplace we actually have inventory for */
   let destination = knownDestinations.find(d => new RegExp(`\\b${d}\\b`, 'i').test(text)) ?? ''
 
   if (!destination) {
     const proper = text.match(/\b(?:in|to|at|for)\s+([A-Z][a-zA-Z]+(?:\s[A-Z][a-zA-Z]+)?)/)
 
     destination = proper ? proper[1] : ''
-    if (!destination) ambiguities.push('No destination was recognised — please set it.')
+    if (!destination) ambiguities.push('No destination was recognised. Please set it.')
   }
 
   const travelers = parseCount(text, '(?:people|persons?|adults?|travell?ers?|guests?|pax)') ??
@@ -186,7 +187,7 @@ export const heuristicIntent = (raw: string, knownDestinations: string[]): Inten
 
   const budgetMax = parseBudget(text)
 
-  if (budgetMax === null) ambiguities.push('No budget was found — set one before negotiating.')
+  if (budgetMax === null) ambiguities.push('No budget was found. Set one before negotiating.')
 
   const hard = /\b(hard (limit|budget|cap)|max(imum)?|no more than|not (more|over)|cannot go over|can'?t go over|strict|absolute|firm|ceiling|all[- ]in)\b/i.test(text)
 

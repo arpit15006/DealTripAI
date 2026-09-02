@@ -45,8 +45,8 @@ We include daily housekeeping in every stay and cannot remove it.`
  * Merchant onboarding.
  *
  * The track's own framing is "make merchants sellable to AI buyers", and this
- * is the shortest honest path to it: paste whatever you already have — a rate
- * card, a website blurb — and get back a machine-readable Agent Commerce
+ * is the shortest honest path to it: paste whatever you already have, a rate
+ * card, a website blurb, and get back a machine-readable Agent Commerce
  * Profile that an AI buyer can discover, quote against and negotiate with.
  *
  * The result is shown for review before anything is published, because a
@@ -131,7 +131,7 @@ const MerchantOnboarding = () => {
               {result.saved ? (
                 <Alert variant='success'>
                   <CheckCircle2Icon />
-                  <AlertTitle>Published — {merchant.name} is now AI-transactable</AlertTitle>
+                  <AlertTitle>Published - {merchant.name} is now AI-transactable</AlertTitle>
                   <AlertDescription>
                     Any agent can now discover it, request a quote and negotiate against it.
                   </AlertDescription>
@@ -239,7 +239,7 @@ const MerchantOnboarding = () => {
                   ) : (
                     <Button onClick={() => generate(true)} disabled={publishing}>
                       {publishing ? <Loader2Icon className='animate-spin' /> : <UploadIcon />}
-                      Publish — make this merchant AI-transactable
+                      Publish. Make this merchant AI-transactable
                     </Button>
                   )}
                 </CardContent>

@@ -3,7 +3,7 @@
  *
  * Run it against a live marketplace to watch an external client be refused by
  * the Commerce Guard for exceeding a hard budget, then negotiate its way to a
- * legal offer — without any privileged access, and without touching DealTrip's
+ * legal offer, without any privileged access, and without touching DealTrip's
  * own orchestrator.
  *
  *   pnpm dev                       # in one terminal

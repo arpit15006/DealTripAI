@@ -43,8 +43,8 @@ type Props = {
  * Editor for the traveller's constraints.
  *
  * The distinction between "must have" and "nice to have" is the single most
- * consequential thing the parse can get wrong — a must-have is a hard gate that
- * disqualifies an offer at any price — so it is surfaced as an explicit,
+ * consequential thing the parse can get wrong, a must-have is a hard gate that
+ * disqualifies an offer at any price, so it is surfaced as an explicit,
  * editable control rather than buried in prose the traveller has to re-read.
  */
 const RequirementEditor = ({ value, onChange }: Props) => {
@@ -123,7 +123,7 @@ const RequirementEditor = ({ value, onChange }: Props) => {
             {/*
               The scrollbar is deliberately restored here. The list holds two
               dozen options behind a 288px window, and the template hides
-              scrollbars by default — leaving no hint that anything follows the
+              scrollbars by default. Leaving no hint that anything follows the
               last visible row.
             */}
             <CommandList className='[&::-webkit-scrollbar-thumb]:bg-border max-h-64 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar]:w-1.5'>
@@ -153,7 +153,7 @@ const RequirementEditor = ({ value, onChange }: Props) => {
       </Popover>
 
       <p className='text-muted-foreground text-xs'>
-        A <Badge variant='outline' className='mx-0.5 h-5.5 px-2 text-xs'>must have</Badge> is a hard gate — an
+        A <Badge variant='outline' className='mx-0.5 h-5.5 px-2 text-xs'>must have</Badge> is a hard gate, an
         offer missing it is rejected at any price. A nice-to-have only affects the score.
       </p>
     </div>

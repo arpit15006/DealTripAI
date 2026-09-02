@@ -29,7 +29,7 @@ export interface DeskState {
   ranked: RankedOffer[]
   explanation: string
   error: string | null
-  /** True once the stream has closed — the run is over, successfully or not. */
+  /** True once the stream has closed, the run is over, successfully or not. */
   finished: boolean
 }
 
@@ -47,7 +47,7 @@ const INITIAL: DeskState = {
  * Consumes the negotiation's server-sent event stream.
  *
  * Opening the stream is what runs the negotiation, and the server only runs it
- * once — a refresh or a second tab replays from the audit log — so this hook is
+ * once (a refresh or a second tab replays from the audit log) so this hook is
  * deliberately careful to open exactly one EventSource per negotiation id and
  * to close it on unmount. Under React strict mode the effect fires twice in
  * development; the ref guard means the second pass reuses the first connection

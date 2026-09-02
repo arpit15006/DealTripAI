@@ -83,7 +83,7 @@ const GuardChecklist = ({ verdict, defaultOpen = false, className }: Props) => {
                 >
                   {check.label}
                   {/* Colour alone must not carry the verdict. */}
-                  <span className='sr-only'>{check.passed ? ' — passed' : ' — failed'}</span>
+                  <span className='sr-only'>{check.passed ? ' (passed' : ') failed'}</span>
                   {check.advisory && !check.passed && (
                     <span className='text-muted-foreground ml-1.5 font-normal'>(advisory)</span>
                   )}

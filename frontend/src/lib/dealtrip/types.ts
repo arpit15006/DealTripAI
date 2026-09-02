@@ -1,5 +1,5 @@
 /**
- * DealTrip — core domain types.
+ * DealTrip. Core domain types.
  *
  * Design rule that everything else depends on:
  *   Every commercially meaningful value is drawn from a CLOSED vocabulary or
@@ -17,7 +17,7 @@ import type { Actor, Attribute } from './vocabulary'
  *
  * Both sides of the market speak this list and only this list. A traveller
  * requirement and a room/add-on capability are the same kind of token, so
- * "does this offer satisfy the requirement" is a set operation — not a
+ * "does this offer satisfy the requirement" is a set operation, not a
  * similarity score, not an LLM judgement.
  *
  * Defined in `vocabulary.ts` (dependency-free) and re-exported here so server
@@ -57,7 +57,7 @@ export const TravelIntentSchema = z.object({
   requirements: z.partialRecord(AttributeSchema, RequirementStrengthSchema),
   date_flexibility_days: z.number().int().min(0).max(14),
 
-  /** ISO date, optional — absent means "merchant may propose". */
+  /** ISO date, optional. Absent means "merchant may propose". */
   check_in: z.string().nullable().default(null),
 
   /** What the traveller optimises for when trade-offs are unavoidable. */
@@ -143,7 +143,7 @@ export const MerchantPolicySchema = z.object({
   /** Add-ons the agent may never remove once offered (brand promises). */
   locked_addons: z.array(z.string()),
 
-  /** Ordered — first is the primary business goal. */
+  /** Ordered. First is the primary business goal. */
   objectives: z.array(ObjectiveSchema).min(1),
 
   /** Minutes an authorized offer stays purchasable. */
@@ -164,7 +164,7 @@ export const MerchantSchema = z.object({
    * Hero photograph of the property.
    *
    * Property-level only. These are destination photographs, not room
-   * photography, so they set the character of a place — they are never
+   * photography, so they set the character of a place, they are never
    * presented as a picture of the specific room being sold.
    */
   image: z.string().default(''),
@@ -198,7 +198,7 @@ export const BundleSchema = z.object({
   room_id: z.string(),
   addon_ids: z.array(z.string()),
 
-  /** The one number the agent may propose — and the guard checks it. */
+  /** The one number the agent may propose, and the guard checks it. */
   discount_pct: z.number().min(0).max(100),
 
   /**

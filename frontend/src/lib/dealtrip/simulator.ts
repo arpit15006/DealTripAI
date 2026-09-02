@@ -11,7 +11,7 @@
  * a competent booking site already does: the traveller sees every room, ticks
  * the add-ons that satisfy their must-haves, pays the published price, and
  * books the best package that fits their budget. No discount, no substitution,
- * no negotiation. If nothing fits, the sale is simply lost — which is the
+ * no negotiation. If nothing fits, the sale is simply lost, which is the
  * baseline's real cost, and the thing negotiation is supposed to recover.
  *
  * Runs entirely on the deterministic planner (use_llm: false), so a run is
@@ -27,7 +27,7 @@ import { createMemoryStore } from './store'
 import type { Attribute, Bundle, Merchant, Negotiation, Quote, RequirementStrength, TravelIntent } from './types'
 
 /* ------------------------------------------------------------------ *
- * Seeded RNG — a run is reproducible from its seed.
+ * Seeded RNG, a run is reproducible from its seed.
  * ------------------------------------------------------------------ */
 const mulberry32 = (seed: number) => () => {
   seed |= 0
@@ -131,7 +131,7 @@ const staticSale = (merchants: Merchant[], intent: TravelIntent): Sale | null =>
       const usedGroups = new Set<string>()
 
       // Tick the cheapest add-on that supplies each unmet must-have, then each
-      // unmet nice-to-have — exactly what a person does on a booking page.
+      // unmet nice-to-have. Exactly what a person does on a booking page.
       for (const wanted of [...required, ...preferred]) {
         if (delivered.has(wanted)) continue
 
@@ -157,7 +157,7 @@ const staticSale = (merchants: Merchant[], intent: TravelIntent): Sale | null =>
       if (!required.every(a => delivered.has(a))) continue
       if ([...avoid].some(a => delivered.has(a))) continue
 
-      // The static shelf shows one published date — a booking page does not
+      // The static shelf shows one published date, a booking page does not
       // shop the calendar for you. That difference is part of what negotiation
       // is being measured against, so it must not be quietly equalised.
       const bundle: Bundle = {
@@ -344,7 +344,7 @@ export const runSimulation = async (
   for (const merchant of merchants) perMerchant.set(merchant.name, { static_bookings: 0, agentic_bookings: 0, agentic_revenue: 0 })
 
   // Both arms must shop the same shelf. The orchestrator filters by destination
-  // during discovery, so the baseline has to as well — otherwise the static arm
+  // during discovery, so the baseline has to as well. Otherwise the static arm
   // "books" a Manali lodge for a Goa trip and the comparison is meaningless.
   const inDestination = merchants.filter(
     m => m.destination.toLowerCase() === config.destination.toLowerCase()

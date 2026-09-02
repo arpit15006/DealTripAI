@@ -4,7 +4,7 @@
  * This module is the ONLY place a rupee figure is produced. Agents choose a
  * bundle; this turns a bundle into money. Because no model output ever reaches
  * a price field, "the AI hallucinated a price" is not a failure mode the system
- * has — the guard re-runs these same functions to verify.
+ * has, the guard re-runs these same functions to verify.
  */
 import { addDays, countWeekendNights, isWeekendNight, nightsOf } from './dates'
 
@@ -22,8 +22,8 @@ export class CatalogError extends Error {
  *
  * The uplift is coerced rather than trusted: a merchant record written before
  * this field existed yields `undefined`, and `undefined / 100` would quietly
- * turn every price into NaN. The Commerce Guard does catch that — it compares
- * a recomputation and NaN never equals NaN — but money should not be able to
+ * turn every price into NaN. The Commerce Guard does catch that, it compares
+ * a recomputation and NaN never equals NaN, but money should not be able to
  * become NaN in the first place.
  */
 export const nightlyRate = (room: Room, weekendUpliftPct: number, night: string): number => {
@@ -51,7 +51,7 @@ export const addOnAmount = (addon: AddOn, nights: number, travelers: number, fie
 
 /**
  * Turn a bundle into a fully itemised quote.
- * Throws CatalogError if the bundle references anything not in the catalog —
+ * Throws CatalogError if the bundle references anything not in the catalog -
  * which is exactly how an agent that invents a room id gets caught.
  */
 export const computeQuote = (
@@ -155,7 +155,7 @@ export const collectAttributes = (
 }
 
 /**
- * The lowest price this merchant may legally sell this bundle for — the binding
+ * The lowest price this merchant may legally sell this bundle for, the binding
  * one of two independent floors:
  *   1. the discount ceiling  (list × (1 − max_discount))
  *   2. the margin floor      (cost ÷ (1 − min_margin))

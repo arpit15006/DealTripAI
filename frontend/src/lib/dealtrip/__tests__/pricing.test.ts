@@ -23,7 +23,7 @@ const WEEKDAY = '2026-01-05'
 /** A Friday, so the first two nights do. */
 const WEEKEND = '2026-01-09'
 
-describe('pricing — money is derived, never asserted', () => {
+describe('pricing. Money is derived, never asserted', () => {
   it('prices a room night by night, not as a flat multiple', () => {
     const room = oceanvista.rooms.find(r => r.id === 'ov-premium-beach')!
     const bundle = { room_id: room.id, addon_ids: [], discount_pct: 0, check_in: WEEKDAY }
@@ -132,7 +132,7 @@ describe('pricing — money is derived, never asserted', () => {
   })
 })
 
-describe('policy floors — two independent limits, the higher one binds', () => {
+describe('policy floors, two independent limits, the higher one binds', () => {
   const bundle = { room_id: 'ov-premium-beach', addon_ids: ['ov-breakfast'], discount_pct: 0, check_in: WEEKDAY }
 
   it('reports which of the two floors is binding', () => {
@@ -178,7 +178,7 @@ describe('policy floors — two independent limits, the higher one binds', () =>
 })
 
 describe('date resolution', () => {
-  // Pinned, because resolveCheckIns filters out dates already past — a test
+  // Pinned, because resolveCheckIns filters out dates already past, a test
   // anchored on a real calendar date silently empties as the clock moves.
   const TODAY = new Date('2026-03-01T00:00:00Z')
 

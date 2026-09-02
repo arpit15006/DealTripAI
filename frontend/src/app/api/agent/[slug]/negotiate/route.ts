@@ -15,14 +15,14 @@ export const dynamic = 'force-dynamic'
 const RequestSchema = z.object({
   intent: TravelIntentSchema,
 
-  /** The package you are countering — normally the one a quote returned. */
+  /** The package you are countering. Normally the one a quote returned. */
   previous_bundle: BundleSchema.partial({ check_in: true }),
   counter: CounterRequestSchema,
   round: z.number().int().min(1).max(5).default(1)
 })
 
 /**
- * Negotiate endpoint — the same structured exchange DealTrip's own orchestrator
+ * Negotiate endpoint, the same structured exchange DealTrip's own orchestrator
  * uses, exposed so an external AI buyer can run it directly.
  *
  * Send a COUNTER_REQUEST naming a target price, the attributes that must

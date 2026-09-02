@@ -12,7 +12,7 @@ const STEPS = [
   {
     icon: UploadIcon,
     title: 'Paste what you already have',
-    body: 'A rate card, a website blurb, a list of rooms. DealTrip turns it into a structured catalog for review — nothing is published until you say so.'
+    body: 'A rate card, a website blurb, a list of rooms. DealTrip turns it into a structured catalog for review. Nothing is published until you say so.'
   },
   {
     icon: SlidersHorizontalIcon,
@@ -22,7 +22,7 @@ const STEPS = [
   {
     icon: StoreIcon,
     title: 'Your agent negotiates; the guard holds the line',
-    body: 'Buyers see your catalog and what you will negotiate over. They never see your limits — those are enforced server-side, so nobody opens by demanding them.'
+    body: 'Buyers see your catalog and what you will negotiate over. They never see your limits, those are enforced server-side, so nobody opens by demanding them.'
   }
 ]
 
@@ -30,8 +30,8 @@ const STEPS = [
  * The merchant's side of the market.
  *
  * The track's framing is "make merchants sellable to AI buyers", so the offer
- * to a merchant is stated in their terms — what they control and what they
- * never have to expose — rather than in the buyer's.
+ * to a merchant is stated in their terms. What they control and what they
+ * never have to expose, rather than in the buyer's.
  */
 const ForMerchants = () => (
   <section aria-labelledby='merchants-heading' className='mx-auto w-full max-w-5xl px-4 py-12 sm:px-6 sm:py-16'>
@@ -41,7 +41,7 @@ const ForMerchants = () => (
       </h2>
       <p className='type-body text-muted-foreground max-w-xl'>
         Traditional listings can&apos;t negotiate, and can&apos;t be read by an agent. Three steps to a storefront that
-        can do both — without handing anyone your pricing floor.
+        can do both, without handing anyone your pricing floor.
       </p>
     </div>
 

@@ -38,7 +38,7 @@ const chartConfig = {
  * Deliberately unglamorous about what this is: synthetic demand against
  * synthetic catalogs. It is evidence about a *mechanism*, not a measurement of
  * anyone's business, and the page says so above the numbers rather than in a
- * footnote — a chart that looks like real merchant performance and isn't would
+ * footnote, a chart that looks like real merchant performance and isn't would
  * be the least defensible thing in this whole product.
  */
 const RevenueSimulator = ({ destinations }: { destinations: string[] }) => {
@@ -139,7 +139,7 @@ const RevenueSimulator = ({ destinations }: { destinations: string[] }) => {
         <AlertTitle>These are synthetic evaluation results</AlertTitle>
         <AlertDescription>
           Synthetic travellers against synthetic catalogs. This is not a measurement of real merchant performance and
-          must not be presented as one. Both arms use the same catalogs and the same ranking function — the only
+          must not be presented as one. Both arms use the same catalogs and the same ranking function, the only
           difference is whether structured negotiation is allowed. Runs are deterministic from the seed.
         </AlertDescription>
       </Alert>
@@ -349,11 +349,11 @@ const RevenueSimulator = ({ destinations }: { destinations: string[] }) => {
               Negotiation recovered {result.negotiation.sales_recovered_from_no_deal} sale
               {result.negotiation.sales_recovered_from_no_deal === 1 ? '' : 's'} that the static shelf lost entirely,
               across {result.negotiation.total_counters} counter-requests. Mean deal-fit score rose from{' '}
-              {result.static_selling.mean_score} to {result.agentic.mean_score} — travellers got better-matched
+              {result.static_selling.mean_score} to {result.agentic.mean_score}. Travellers got better-matched
               packages, not merely cheaper ones. The Commerce Guard blocked{' '}
               {result.negotiation.offers_blocked_by_guard} offer
               {result.negotiation.offers_blocked_by_guard === 1 ? '' : 's'} that breached a merchant limit or the
-              traveller&apos;s budget — and merchants still retained {result.agentic.margin_pct}% margin, against{' '}
+              traveller&apos;s budget, and merchants still retained {result.agentic.margin_pct}% margin, against{' '}
               {result.static_selling.margin_pct}% on the static shelf.
             </AlertDescription>
           </Alert>

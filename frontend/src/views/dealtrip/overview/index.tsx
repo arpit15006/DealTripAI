@@ -178,7 +178,7 @@ const StatusCard = ({
           <CircleXIcon className='size-4 shrink-0 text-amber-600 dark:text-amber-400' aria-hidden />
         )}
         <span className='price-sm'>{value}</span>
-        <span className='sr-only'>{ok ? '— live' : '— degraded'}</span>
+        <span className='sr-only'>{ok ? '- live' : '- degraded'}</span>
       </div>
       <p className='meta truncate'>{detail}</p>
     </CardContent>

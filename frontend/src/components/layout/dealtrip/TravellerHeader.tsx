@@ -12,7 +12,7 @@ const TravellerHeader = () => {
   return (
     <header className='material-chrome sticky top-0 z-50 w-full border-b'>
       <div className='mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6'>
-        <Link href='/' className='flex items-center gap-2.5 rounded-md' aria-label='DealTrip — home'>
+        <Link href='/' className='flex items-center gap-2.5 rounded-md' aria-label='DealTrip. Home'>
           <Logo className='size-8' aria-hidden />
           <span className='text-base font-semibold tracking-tight'>
             DealTrip

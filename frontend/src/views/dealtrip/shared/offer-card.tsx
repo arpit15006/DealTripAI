@@ -39,7 +39,7 @@ type Props = {
  * One merchant's position in the negotiation, as it stands right now.
  *
  * Shows the live offer, what the last round changed, and the guard's ruling. A
- * merchant that withdrew gets a card too — an absent competitor tells the
+ * merchant that withdrew gets a card too, an absent competitor tells the
  * traveller nothing, whereas "its only beachfront room cannot legally reach
  * your budget" tells them something real about the market.
  */

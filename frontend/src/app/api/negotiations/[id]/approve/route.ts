@@ -14,7 +14,7 @@ export const dynamic = 'force-dynamic'
  * This route re-runs the Commerce Guard from scratch. Passing at ranking time is
  * not passing at payment time: inventory moves, offers expire, and the approval
  * arrives from a browser that could be sending anything. The amount handed to
- * Razorpay is recomputed here from the catalog — not read from the request, not
+ * Razorpay is recomputed here from the catalog, not read from the request, not
  * read from the stored quote, and never from a model.
  */
 export const POST = async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
@@ -97,7 +97,7 @@ export const POST = async (request: Request, { params }: { params: Promise<{ id:
         verdict,
         remediation: verdict.violations.some(v => v.id === 'offer_not_expired')
           ? 'The held price has lapsed. Re-run the negotiation to get a fresh quote.'
-          : 'Re-run the negotiation — the catalog or the traveller’s constraints have moved.'
+          : 'Re-run the negotiation, the catalog or the traveller’s constraints have moved.'
       },
       { status: 409 }
     )
@@ -136,7 +136,7 @@ export const POST = async (request: Request, { params }: { params: Promise<{ id:
     return json(
       {
         error: `The last ${room.name} at ${merchant.name} has just been taken.`,
-        remediation: 'Re-run the negotiation — the desk will find what is still available.'
+        remediation: 'Re-run the negotiation, the desk will find what is still available.'
       },
       { status: 409 }
     )
@@ -183,7 +183,7 @@ export const POST = async (request: Request, { params }: { params: Promise<{ id:
 
   await audit(
     'razorpay_order_created',
-    `Razorpay order ${order.id} created for ${formatINR(authoritative.total_price)}${order.simulated ? ' (simulated — no API keys configured)' : ' in test mode'}.`,
+    `Razorpay order ${order.id} created for ${formatINR(authoritative.total_price)}${order.simulated ? ' (simulated, no API keys configured)' : ' in test mode'}.`,
     'pass',
     {
       order_id: order.id,

@@ -47,7 +47,7 @@ export const loadNegotiationState = async (id: string): Promise<NegotiationView 
    * The offer each merchant currently has on the table.
    *
    * The orchestrator marks an offer 'superseded' the moment it stops being the
-   * one it holds — whether a better revision arrived, or a revision was
+   * one it holds. Whether a better revision arrived, or a revision was
    * declined for being worse. So "not superseded" is exactly the live offer.
    */
   const current = new Map<string, Offer>()

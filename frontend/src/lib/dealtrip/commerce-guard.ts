@@ -6,7 +6,7 @@
  * Nothing in this file calls a model, reads a prompt, or trusts a field that an
  * agent filled in. Every number it compares against is either re-derived from
  * the catalog or read from merchant policy. An offer that has not passed
- * `guardOffer` cannot be ranked, shown as purchasable, or paid for — the API
+ * `guardOffer` cannot be ranked, shown as purchasable, or paid for, the API
  * layer re-runs it immediately before creating a Razorpay order, so a stale or
  * tampered offer cannot reach checkout.
  */
@@ -49,7 +49,7 @@ export const guardOffer = ({ merchant, offer, intent, rounds_used, allowed_check
   const { policy } = merchant
   const { bundle, quote } = offer
 
-  /* 1. Catalog integrity — does every id in the bundle actually exist? ---- */
+  /* 1. Catalog integrity. Does every id in the bundle actually exist? ---- */
   const room = findRoom(merchant, bundle.room_id)
   const unknownAddOns = bundle.addon_ids.filter(id => !findAddOn(merchant, id))
   const catalogOk = Boolean(room) && unknownAddOns.length === 0
@@ -120,7 +120,7 @@ export const guardOffer = ({ merchant, offer, intent, rounds_used, allowed_check
 
     priceOk = mismatches.length === 0
     priceDetail = priceOk
-      ? `Independently recomputed from catalog: ${formatINR(recomputed.total_price)} — matches to the rupee.`
+      ? `Independently recomputed from catalog: ${formatINR(recomputed.total_price)}. Matches to the rupee.`
       : `Recomputation disagrees on ${mismatches.map(([field]) => field).join(', ')}.`
   } catch (error) {
     priceOk = false
@@ -240,7 +240,7 @@ export const guardOffer = ({ merchant, offer, intent, rounds_used, allowed_check
   )
 
   /* 12. Check-in inside the window the traveller agreed to ----------------- */
-  // A merchant may move a flexible traveller to a cheaper weekday — but only
+  // A merchant may move a flexible traveller to a cheaper weekday, but only
   // within the dates they actually said they would accept. Shifting a stay
   // outside that window is a different trip, not a better deal.
   const dateOk = allowed_check_ins.length === 0 || allowed_check_ins.includes(offer.quote.check_in)
@@ -321,7 +321,7 @@ const safeFloor = (merchant: Merchant, offer: Offer) => {
 /**
  * Re-validation immediately before money moves. Same checks, plus the two that
  * only matter at the point of purchase: the offer must be the one the user
- * approved, and it must still be authorized right now — not when it was ranked.
+ * approved, and it must still be authorized right now, not when it was ranked.
  */
 export const guardPayment = (input: GuardInput & { approved_offer_id: string }): GuardVerdict => {
   const verdict = guardOffer(input)

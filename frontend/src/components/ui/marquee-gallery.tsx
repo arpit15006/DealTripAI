@@ -18,7 +18,7 @@ type MarqueeGalleryProps = {
   fadeOpacity?: number
 }
 
-// Country folders under public/images/countries — reused so the auth marquee matches the rest of the app
+// Country folders under public/images/countries. Reused so the auth marquee matches the rest of the app
 const GALLERY_COUNTRIES = [
   'indonesia',
   'switzerland',
@@ -44,7 +44,7 @@ const GALLERY_IMAGES = GALLERY_COUNTRIES.flatMap(country =>
   }))
 )
 
-// A decorative, non-interactive image wall for auth-page backgrounds — built from stacked Marquee rows
+// A decorative, non-interactive image wall for auth-page backgrounds. Built from stacked Marquee rows
 const MarqueeGallery = ({
   className,
   rows = 5,

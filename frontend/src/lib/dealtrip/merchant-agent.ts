@@ -7,8 +7,8 @@
  * agreeable counterparties would prove nothing.
  *
  * What it may decide: which room, which add-ons, how far to discount, and how
- * to explain the trade. What it may not decide: any rupee figure — those come
- * from `pricing.ts` — and whether its own proposal is permissible, which is the
+ * to explain the trade. What it may not decide: any rupee figure, those come
+ * from `pricing.ts`, and whether its own proposal is permissible, which is the
  * Commerce Guard's call.
  *
  * The merchant's cost base never enters a prompt. The agent is told the
@@ -30,7 +30,7 @@ import type { Attribute, Bundle, CounterRequest, GuardVerdict, Merchant, Offer, 
 export const MerchantProposalSchema = z.object({
   /**
    * ISO check-in date. The agent picks from the dates the traveller said they
-   * would accept — shifting a flexible traveller off a weekend is a concession
+   * would accept. Shifting a flexible traveller off a weekend is a concession
    * it can make without touching the headline rate.
    */
   check_in: z.string().nullable().default(null),
@@ -56,7 +56,7 @@ export type MerchantProposal = z.infer<typeof MerchantProposalSchema>
 export interface AgentTurn {
   proposal: MerchantProposal
 
-  /** What the deterministic planner would have chosen — kept for comparison. */
+  /** What the deterministic planner would have chosen. Kept for comparison. */
   planner_choice: PlanCandidate | null
   llm: Omit<LlmResult<MerchantProposal>, 'data'>
 }
@@ -85,7 +85,7 @@ const dateBrief = (merchant: Merchant, dates: string[], nights: number) => {
     })
     .join('\n')
 
-  return `CHECK-IN DATES THE TRAVELLER WILL ACCEPT — you choose one (check_in):
+  return `CHECK-IN DATES THE TRAVELLER WILL ACCEPT, you choose one (check_in):
 ${rows}
 Friday and Saturday nights carry a ${merchant.weekend_uplift_pct}% uplift. Moving a flexible
 traveller onto weekdays costs you less than discounting and may still win the booking.`
@@ -107,18 +107,18 @@ const catalogBrief = (merchant: Merchant, nights: number, travelers: number) => 
     .join('\n')
 
   // Terse on purpose. Every merchant agent carries this block, and the whole
-  // marketplace negotiates inside one rate-limit budget — verbose prompts cost
+  // marketplace negotiates inside one rate-limit budget. Verbose prompts cost
   // wall-clock time that the traveller watches tick by.
-  return `PROPERTY: ${merchant.name} — ${merchant.tagline}
+  return `PROPERTY: ${merchant.name} - ${merchant.tagline}
 ${merchant.description}
 Included with every room: ${merchant.attributes.join(', ') || '-'}
 All figures are rupees for the WHOLE stay (${nights} nights, ${travelers} guests).
 
-ROOMS — pick exactly one room_id:
+ROOMS. Pick exactly one room_id:
 id | name | tier | stay price | sleeps | units left | delivers
 ${rooms}
 
-ADD-ONS — pick any number of addon_ids:
+ADD-ONS. Pick any number of addon_ids:
 id | name | stay price | group | delivers
 ${addons}
 Add-ons sharing a group are mutually exclusive: never select two from one group.`
@@ -136,7 +136,7 @@ const policyBrief = (merchant: Merchant) => {
 
 A validator recomputes every price from the catalog and rejects anything that
 breaches these boundaries or the property's confidential margin floor. Proposing
-something impermissible wastes one of your revisions — it does not get through.`
+something impermissible wastes one of your revisions, it does not get through.`
 }
 
 const intentBrief = (intent: TravelIntent, nights: number, travelers: number) => {
@@ -147,7 +147,7 @@ const intentBrief = (intent: TravelIntent, nights: number, travelers: number) =>
 
   return `THE TRAVELLER:
   - ${travelers} guest(s), ${nights} night(s) in ${intent.destination}
-  - Budget: ${formatINR(intent.budget.max)} ${intent.budget.type === 'hard_constraint' ? '— a HARD limit they will not exceed' : '(a target, some flex)'}
+  - Budget: ${formatINR(intent.budget.max)} ${intent.budget.type === 'hard_constraint' ? '- a HARD limit they will not exceed' : '(a target, some flex)'}
   - Must have: ${byStrength('required').join(', ') || 'nothing specified'}
   - Would like: ${byStrength('preferred').join(', ') || 'nothing specified'}
   - Ruled out: ${byStrength('avoid').join(', ') || 'nothing'}
@@ -186,12 +186,13 @@ Return ONLY a JSON object:
 }
 
 Hard rules:
+- Write plainly: never use em dashes or en dashes. Use commas or full stops.
 - room_id and every addon_ids entry MUST be ids that appear in the catalog above. Never invent one.
 - Never select two add-ons from the same group.
 - Always include every add-on listed as must-always-be-included.
 - You quote packages, not prices: a validator computes the money from your selection.
   discount_pct is the only number you set, and it must respect your ceiling.
-- You are the seller. Protect the property's revenue — do not discount further than
+- You are the seller. Protect the property's revenue. Do not discount further than
   you need to, and prefer restructuring the package over cutting the headline rate.
 - If nothing you can legally offer meets the request, set can_meet_request to false
   and say plainly why. Withdrawing honestly is better than proposing something that
@@ -273,18 +274,18 @@ ${policyBrief(merchant)}
 ${intentBrief(intent, nights, travelers)}
 
 PACKAGES YOUR PRICING SYSTEM HAS ALREADY VERIFIED AS LEGAL (you may propose one of
-these, or any other legal combination — these are shown so you know what is possible
+these, or any other legal combination, these are shown so you know what is possible
 and at what price):
 ${candidateBrief(candidates, merchant)}
 
 Make your opening offer. This is your first impression: lead with what this property
 does better than a generic booking site, and satisfy every must-have. You do not have
-to fit their budget on the opening offer if your best package is genuinely worth more —
+to fit their budget on the opening offer if your best package is genuinely worth more -
 they can come back to you.
 
 Do NOT decline because their budget looks tight. A price gap is what the negotiation is
 for, and their deal desk will come back to you with a target. Set can_meet_request to
-false ONLY if you cannot deliver one of their must-haves from any available room — that
+false ONLY if you cannot deliver one of their must-haves from any available room, that
 is a capability you lack, not a price you disagree on.`,
     fallback: () =>
       fallbackFrom(
@@ -310,7 +311,7 @@ export const reviseOffer = async (args: {
   counter: CounterRequest
   previous: Offer
 
-  /** Present when the previous attempt was blocked — the agent must react to it. */
+  /** Present when the previous attempt was blocked, the agent must react to it. */
   rejection: GuardVerdict | null
   round: number
   allowed_check_ins: string[]
@@ -336,7 +337,7 @@ export const reviseOffer = async (args: {
   const rejectionBrief = rejection
     ? `\nYOUR PREVIOUS PROPOSAL WAS BLOCKED BY THE VALIDATOR:
 ${rejection.violations.map(v => `  ✗ ${v.label}: ${v.detail}`).join('\n')}
-That revision is spent. Do not propose the same package again — change the package
+That revision is spent. Do not propose the same package again. Change the package
 itself, or withdraw honestly.\n`
     : ''
 
@@ -367,7 +368,7 @@ PACKAGES YOUR PRICING SYSTEM HAS VERIFIED AS LEGAL AT THIS TARGET:
 ${candidateBrief(candidates, merchant)}
 
 Revise your offer. Keep as much of the value as you can while landing at or under the
-target — a substitution the traveller will barely notice beats a discount that costs
+target, a substitution the traveller will barely notice beats a discount that costs
 you margin. If the target is simply not reachable within your boundaries, set
 can_meet_request to false and explain why in one sentence.`,
     fallback: () =>

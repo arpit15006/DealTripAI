@@ -42,7 +42,7 @@ type Props = {
  * The Trust Timeline.
  *
  * Append-only, one row per audit event, colour-coded by the guard's ruling. The
- * raw detail behind each row is available rather than summarised away — an
+ * raw detail behind each row is available rather than summarised away, an
  * audit trail nobody can inspect is decoration, so every row can be opened to
  * show exactly what was recorded.
  */

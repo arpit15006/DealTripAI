@@ -8,17 +8,17 @@ const GUARANTEES = [
   {
     icon: CalculatorIcon,
     title: 'Agents choose packages. Code computes money.',
-    body: 'A merchant agent picks a room, add-ons and dates. It never emits a rupee figure — one module does, and the Commerce Guard re-derives every quote from the catalog to check it. An invented price is caught, not trusted.'
+    body: 'A merchant agent picks a room, add-ons and dates. It never emits a rupee figure, one module does, and the Commerce Guard re-derives every quote from the catalog to check it. An invented price is caught, not trusted.'
   },
   {
     icon: ShieldXIcon,
     title: 'Two floors, and the higher one binds.',
-    body: 'Each merchant sets a discount ceiling and a margin floor, enforced server-side and never published. An agent that asks for more is refused outright — not quietly repriced to something it can have.'
+    body: 'Each merchant sets a discount ceiling and a margin floor, enforced server-side and never published. An agent that asks for more is refused outright, not quietly repriced to something it can have.'
   },
   {
     icon: ScrollTextIcon,
     title: 'Nothing happens off the record.',
-    body: 'Every offer, counter, ruling and payment lands in an append-only trail you can open to its raw payload — and replay, event by event, after the fact.'
+    body: 'Every offer, counter, ruling and payment lands in an append-only trail you can open to its raw payload, and replay, event by event, after the fact.'
   }
 ]
 

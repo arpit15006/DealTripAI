@@ -3,7 +3,7 @@
  *
  * Thin and typed. Every call returns parsed JSON or throws an Error carrying
  * the server's own message, so screens can surface the real reason a thing
- * failed — "₹65,998 exceeds the traveller's hard limit" — instead of a generic
+ * failed ("₹65,998 exceeds the traveller's hard limit") instead of a generic
  * "something went wrong".
  */
 import type { DeskEvent } from './orchestrator'

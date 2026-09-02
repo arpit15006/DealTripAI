@@ -4,7 +4,7 @@ import { headers } from 'next/headers'
 // Component Imports
 import AgentApiReference from '@/views/dealtrip/agent-api'
 
-export const metadata = { title: 'Agent API — DealTrip' }
+export const metadata = { title: 'Agent API · DealTrip' }
 export const dynamic = 'force-dynamic'
 
 const AgentApiPage = async () => {

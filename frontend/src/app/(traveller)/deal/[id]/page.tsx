@@ -7,7 +7,7 @@ import DealComparison from '@/views/dealtrip/compare'
 // Lib Imports
 import { loadNegotiationState } from '@/lib/dealtrip/negotiation-state'
 
-export const metadata = { title: 'Compare deals — DealTrip' }
+export const metadata = { title: 'Compare deals · DealTrip' }
 export const dynamic = 'force-dynamic'
 
 const DealPage = async ({ params }: { params: Promise<{ id: string }> }) => {

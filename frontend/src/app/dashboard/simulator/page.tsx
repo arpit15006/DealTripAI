@@ -4,7 +4,7 @@ import RevenueSimulator from '@/views/dealtrip/simulator'
 // Lib Imports
 import { allMerchants } from '@/lib/dealtrip/service'
 
-export const metadata = { title: 'Revenue simulator — DealTrip' }
+export const metadata = { title: 'Revenue simulator · DealTrip' }
 export const dynamic = 'force-dynamic'
 
 const SimulatorPage = async () => {

@@ -8,7 +8,7 @@ import MerchantList from '@/views/dealtrip/merchants/list'
 import { toAgentCommerceProfile } from '@/lib/dealtrip/profile'
 import { allMerchants } from '@/lib/dealtrip/service'
 
-export const metadata = { title: 'Merchants — DealTrip' }
+export const metadata = { title: 'Merchants · DealTrip' }
 export const dynamic = 'force-dynamic'
 
 const MerchantsPage = async () => {

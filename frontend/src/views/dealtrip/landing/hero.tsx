@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge'
 /**
  * The opening statement.
  *
- * Entrance motion is a plain cross-fade with a short rise — no overshoot,
+ * Entrance motion is a plain cross-fade with a short rise, no overshoot,
  * because nothing here was thrown by the user. Bounce belongs to gestures that
  * carried momentum, not to text arriving on load.
  */
@@ -51,7 +51,7 @@ const Hero = () => {
 
         <motion.p {...rise(0.12)} className='type-body text-muted-foreground max-w-xl text-lg'>
           Describe the trip you want. DealTrip turns it into hard constraints, negotiates with merchant agents that
-          each defend their own margin, and settles through Razorpay — refusing anything that falls outside policy.
+          each defend their own margin, and settles through Razorpay. Refusing anything that falls outside policy.
         </motion.p>
 
         <motion.p

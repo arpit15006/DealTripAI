@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 /**
  * A failed or abandoned payment.
  *
- * Nothing is marked booked, and — importantly — the negotiated offer is left
+ * Nothing is marked booked, and (importantly) the negotiated offer is left
  * intact and still authorized. A card declining is not a reason to make the
  * traveller negotiate again from scratch; they retry against the same held
  * price until it expires on its own.
@@ -59,6 +59,6 @@ export const POST = async (request: Request) => {
     retryable: true,
     offer_id: payment.offer_id,
     offer_held_until: offer?.expires_at ?? null,
-    message: 'Nothing was charged and nothing was booked. The negotiated price is still held — you can retry.'
+    message: 'Nothing was charged and nothing was booked. The negotiated price is still held, you can retry.'
   })
 }

@@ -2,7 +2,7 @@
 /**
  * DealTrip MCP server.
  *
- * Lets any MCP-capable agent — Claude Desktop, or anything else — discover
+ * Lets any MCP-capable agent (Claude Desktop, or anything else) discover
  * DealTrip's merchants, request quotes and negotiate, over exactly the same
  * public endpoints DealTrip's own Deal Orchestrator calls.
  *
@@ -12,7 +12,7 @@
  * refused by the same Commerce Guard when it asks for something out of policy.
  *
  * Transport is stdio, so it runs under any MCP client without a network listener
- * of its own. It holds no credentials and has no privileged access — everything
+ * of its own. It holds no credentials and has no privileged access. Everything
  * it can do, anyone with the base URL can do.
  */
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
@@ -62,7 +62,7 @@ const IntentShape = {
   check_in: z.string().nullable().default(null).describe('ISO date (YYYY-MM-DD), or null to let the merchant propose.'),
   date_flexibility_days: z.number().int().min(0).max(14).default(0),
   priority: z.enum(['lowest_price', 'best_value', 'best_experience']).default('best_value'),
-  notes: z.string().default('').describe('Anything else in the traveller\'s own words — merchants read this.')
+  notes: z.string().default('').describe('Anything else in the traveller\'s own words. Merchants read this.')
 }
 
 type IntentArgs = { [K in keyof typeof IntentShape]: z.infer<(typeof IntentShape)[K]> }
@@ -109,7 +109,7 @@ server.registerTool(
   {
     title: 'Read a merchant catalog',
     description:
-      "A merchant's machine-readable storefront: rooms, add-ons, what it will negotiate over. Its discount ceiling and margin floor are deliberately not published — they are enforced server-side.",
+      "A merchant's machine-readable storefront: rooms, add-ons, what it will negotiate over. Its discount ceiling and margin floor are deliberately not published, they are enforced server-side.",
     inputSchema: { slug: z.string().describe('Merchant slug, e.g. "oceanvista", from discover_merchants.') }
   },
   async ({ slug }) => call(`/api/agent/${encodeURIComponent(slug)}/profile`)
@@ -120,7 +120,7 @@ server.registerTool(
   {
     title: 'Request a quote',
     description:
-      "Ask a merchant to compose a package for a traveller's constraints. Optionally propose your own bundle instead — including a deliberately illegal one, to see the Commerce Guard refuse it. Every response carries the guard's full verdict, pass or fail.",
+      "Ask a merchant to compose a package for a traveller's constraints. Optionally propose your own bundle instead, including a deliberately illegal one, to see the Commerce Guard refuse it. Every response carries the guard's full verdict, pass or fail.",
     inputSchema: {
       slug: z.string(),
       ...IntentShape,

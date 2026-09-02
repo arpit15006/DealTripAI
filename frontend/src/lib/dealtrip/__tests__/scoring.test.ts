@@ -50,7 +50,7 @@ const scoreOf = (offer: Offer, band = priceBandOf([offer.quote.total_price])) =>
 const withBreakfast: Bundle = { room_id: 'ov-standard-beach', addon_ids: ['ov-breakfast'], discount_pct: 0, check_in: CHECK_IN }
 const withoutBreakfast: Bundle = { room_id: 'ov-standard-beach', addon_ids: [], discount_pct: 0, check_in: CHECK_IN }
 
-describe('deal scoring — hard constraints gate, they do not merely subtract', () => {
+describe('deal scoring. Hard constraints gate, they do not merely subtract', () => {
   it('marks an offer ineligible when a must-have is missing, at any price', () => {
     const strict: TravelIntent = { ...intent, requirements: { kitchenette: 'required' } }
     const offer = offerFor(withBreakfast)
@@ -112,7 +112,7 @@ describe('deal scoring — hard constraints gate, they do not merely subtract', 
 
     assert.ok(gainAt(5) > gainAt(1))
 
-    // A merchant whose opening needed no fixing still banks partial credit —
+    // A merchant whose opening needed no fixing still banks partial credit -
     // getting it right first time is not a failure to negotiate.
     const clean = scoreOf(opening).components.find(c => c.id === 'negotiation_gain')!
 

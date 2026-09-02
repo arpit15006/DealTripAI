@@ -7,7 +7,7 @@ import Hero from '@/views/dealtrip/landing/hero'
 import Proof from '@/views/dealtrip/landing/proof'
 
 export const metadata = {
-  title: 'DealTrip — the agentic deal desk for travel',
+  title: 'DealTrip, the agentic deal desk for travel',
   description:
     'Describe the trip you want. DealTrip turns it into hard constraints, negotiates with merchant agents inside their own commercial policy, and settles through Razorpay.'
 }
@@ -24,7 +24,7 @@ const HOW_IT_WORKS = [
     id: '01',
     title: 'Describe the trip',
     content:
-      'Say what you want in your own words. DealTrip turns it into explicit constraints — and shows you the parse before anything is negotiated, so a misread must-have never becomes a hard gate you did not set.'
+      'Say what you want in your own words. DealTrip turns it into explicit constraints, and shows you the parse before anything is negotiated, so a misread must-have never becomes a hard gate you did not set.'
   },
   {
     id: '02',
@@ -36,13 +36,13 @@ const HOW_IT_WORKS = [
     id: '03',
     title: 'Agents negotiate',
     content:
-      'Each merchant agent composes a package and defends its own margin. When one is not winning, the desk tells it exactly what it would have to beat — and a merchant that cannot reach your target says so rather than pretending.'
+      'Each merchant agent composes a package and defends its own margin. When one is not winning, the desk tells it exactly what it would have to beat, and a merchant that cannot reach your target says so rather than pretending.'
   },
   {
     id: '04',
     title: 'The Commerce Guard rules',
     content:
-      'Thirteen deterministic checks on every offer, including recomputing the price from the merchant catalog. An agent cannot invent a price, breach a discount ceiling or cross a margin floor — those are refused, not repriced.'
+      'Thirteen deterministic checks on every offer, including recomputing the price from the merchant catalog. An agent cannot invent a price, breach a discount ceiling or cross a margin floor, those are refused, not repriced.'
   },
   {
     id: '05',
@@ -73,7 +73,7 @@ const LandingPage = () => (
         data={HOW_IT_WORKS}
         eyebrow='How it works'
         title='Intent in, a defensible deal out'
-        description='Five steps between what you asked for and what you paid for — each one recorded, and each one checkable afterwards.'
+        description='Five steps between what you asked for and what you paid for, each one recorded, and each one checkable afterwards.'
       />
     </div>
 

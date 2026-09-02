@@ -2,8 +2,8 @@
  * Persistence.
  *
  * Two implementations behind one interface:
- *   • PostgresStore — Neon. The real one. Audit events are append-only.
- *   • MemoryStore   — used when DATABASE_URL is unset, and as an automatic
+ *   • PostgresStore (Neon). The real one. Audit events are append-only.
+ *   • MemoryStore, used when DATABASE_URL is unset, and as an automatic
  *     fallback if Postgres is unreachable at boot. A hackathon demo that dies
  *     because a database had a bad thirty seconds is a demo that dies, so the
  *     product degrades to in-process state instead of erroring out. Which mode
@@ -105,7 +105,7 @@ export interface DealTripStore {
    * Take a hold, but only if one is actually available.
    *
    * Returns null when the room is already fully held or booked. The check and
-   * the write must happen together — reading a count and then writing it back
+   * the write must happen together. Reading a count and then writing it back
    * is precisely the race this exists to close.
    */
   reserveRoom(r: Reservation, capacity: number): Promise<Reservation | null>
@@ -224,6 +224,15 @@ const SCHEMA: string[] = [
      result     JSONB NOT NULL
    )`
 ]
+
+/**
+ * Normalise dashes in model-authored prose on the way out.
+ *
+ * New rows are cleaned when they are written, but rows stored before that was
+ * true would keep rendering em dashes forever. Applied only to fields a model
+ * wrote: the traveller's own request is echoed back exactly as they typed it.
+ */
+const plainProse = (v: string) => v.replace(/\s+[—–]\s+/g, ', ').replace(/[—–]/g, '-')
 
 const iso = (v: unknown): string =>
   v instanceof Date ? v.toISOString() : typeof v === 'string' ? new Date(v).toISOString() : new Date().toISOString()
@@ -497,7 +506,7 @@ const rowToNegotiation = (r: any): Negotiation => ({
  * Offers written before bundles carried dates.
  *
  * Backfilled with a Monday check-in, chosen because a stay starting Monday has
- * no Friday or Saturday nights — so the weekend uplift does not apply and the
+ * no Friday or Saturday nights, so the weekend uplift does not apply and the
  * guard's independent recomputation still agrees with the stored total to the
  * rupee. A backfill that silently changed a recorded price would turn an audit
  * record into a guess.
@@ -523,8 +532,8 @@ const rowToOffer = (r: any): Offer => ({
   merchant_id: r.merchant_id,
   round: Number(r.round),
   ...hydrateOffer(r.bundle, r.quote),
-  rationale: r.rationale ?? '',
-  changes_from_previous: r.changes ?? [],
+  rationale: plainProse(r.rationale ?? ''),
+  changes_from_previous: (r.changes ?? []).map(plainProse),
   status: r.status as OfferStatus,
   created_at: iso(r.created_at),
   expires_at: iso(r.expires_at)
@@ -737,7 +746,7 @@ const build = async (): Promise<DealTripStore> => {
   const url = process.env.DATABASE_URL
 
   if (!url) {
-    console.warn('[dealtrip] DATABASE_URL unset — running on the in-memory store.')
+    console.warn('[dealtrip] DATABASE_URL unset. Running on the in-memory store.')
     const mem = new MemoryStore()
 
     await mem.init()

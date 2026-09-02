@@ -1,7 +1,7 @@
 /**
  * The buyer-side Deal Orchestrator.
  *
- * Not a chatbot and not a persona — a control loop that represents the
+ * Not a chatbot and not a persona, a control loop that represents the
  * traveller's constraints. It discovers eligible merchants, evaluates what comes
  * back, decides where a counter is worth making, and stops.
  *
@@ -63,7 +63,7 @@ interface RunArgs {
   store: DealTripStore
   onEvent?: EventSink
 
-  /** false runs the deterministic planner only — used by the simulator. */
+  /** false runs the deterministic planner only. Used by the simulator. */
   use_llm?: boolean
 }
 
@@ -88,7 +88,7 @@ export const runNegotiation = async ({
   /*
    * The dates this whole run is bound to.
    *
-   * Resolved once, up front, and handed to every agent and to the guard — so
+   * Resolved once, up front, and handed to every agent and to the guard, so
    * "flexible by two days" means the same set of dates to the merchant
    * proposing a stay and to the check that authorises it.
    */
@@ -183,7 +183,7 @@ export const runNegotiation = async ({
   /**
    * Per-merchant state. `offers` is the full history for the timeline;
    * `accepted` is the single offer currently on the table for that merchant.
-   * They are not the same thing — see `supersedes` below.
+   * They are not the same thing. See `supersedes` below.
    */
   const state = new Map<
     string,
@@ -268,7 +268,7 @@ export const runNegotiation = async ({
         merchant_id: merchant.id,
         action: 'catalog_integrity_failed',
         decision: 'fail',
-        summary: `${merchant.name}'s agent referenced inventory that does not exist — proposal discarded.`,
+        summary: `${merchant.name}'s agent referenced inventory that does not exist. Proposal discarded.`,
         detail: { round, error: message, proposal: turn.proposal }
       })
 
@@ -300,7 +300,7 @@ export const runNegotiation = async ({
         /*
          * What the deterministic planner would have picked, alongside what the
          * agent actually did. Recording both is the only way to answer "what is
-         * the model adding?" with evidence rather than assertion — the planner
+         * the model adding?" with evidence rather than assertion, the planner
          * optimises a scalar objective; the model reads words the vocabulary
          * cannot express.
          */
@@ -364,7 +364,7 @@ export const runNegotiation = async ({
       action: verdict.authorized ? 'offer_authorized' : 'offer_rejected',
       decision: verdict.authorized ? 'pass' : 'fail',
       summary: verdict.authorized
-        ? `Offer authorized — ${verdict.checks.filter(c => c.passed).length}/${verdict.checks.length} checks passed.`
+        ? `Offer authorized - ${verdict.checks.filter(c => c.passed).length}/${verdict.checks.length} checks passed.`
         : `Offer blocked. ${verdict.violations.map(v => v.detail).join(' ')}`,
       detail: {
         offer_id: offer.id,
@@ -380,7 +380,7 @@ export const runNegotiation = async ({
         merchant_id: merchant.id,
         action: 'revision_declined',
         decision: 'info',
-        summary: `Kept ${merchant.name}'s earlier ${formatINR(previous.quote.total_price)} offer — the revision was not better for the traveller.`,
+        summary: `Kept ${merchant.name}'s earlier ${formatINR(previous.quote.total_price)} offer, the revision was not better for the traveller.`,
         detail: {
           kept_offer_id: previous.id,
           discarded_offer_id: offer.id,
@@ -481,7 +481,7 @@ export const runNegotiation = async ({
   const maxRounds = Math.max(...eligible.map(m => m.policy.max_counter_rounds), 0)
 
   for (let round = 1; round <= maxRounds; round++) {
-    // Who is actually winning right now — by SCORE, not by price. Chasing the
+    // Who is actually winning right now, by SCORE, not by price. Chasing the
     // cheapest offer on the table would have the desk demanding that a merchant
     // undercut a package the traveller likes less, which is not the same thing
     // as getting them a better deal.
@@ -510,7 +510,7 @@ export const runNegotiation = async ({
        *
        * A previous version only countered merchants priced ABOVE the leader,
        * which meant a shortlist where every agent happened to open under
-       * budget produced no negotiation at all — the single most important
+       * budget produced no negotiation at all, the single most important
        * thing this product does, silently skipped. Being cheaper than the
        * leader is not the same as winning: an offer can lose on preferences
        * or package value and still have room to improve.
@@ -655,7 +655,7 @@ export const runNegotiation = async ({
 /**
  * Can this merchant legally improve on what it has already offered?
  *
- * Compares the offer against the binding floor for that exact package — the
+ * Compares the offer against the binding floor for that exact package, the
  * higher of its discount ceiling and its margin floor. A merchant already
  * sitting on its floor is left alone rather than sent a request it can only
  * refuse.
@@ -676,7 +676,7 @@ const hasRoomToMove = (merchant: Merchant, offer: Offer): boolean => {
  *
  * The desk states a target, what must survive, what it would like kept, and
  * what it will let the merchant change. It never proposes a price for the
- * merchant to accept — that would be the buyer setting the seller's price.
+ * merchant to accept, that would be the buyer setting the seller's price.
  * ------------------------------------------------------------------ */
 const buildCounterRequest = ({
   intent,
@@ -704,15 +704,15 @@ const buildCounterRequest = ({
   /*
    * Two kinds of counter, and conflating them was actively harmful.
    *
-   *   compliance  — this offer cannot be bought at all. The only thing being
+   *   compliance , this offer cannot be bought at all. The only thing being
    *                 asked for is a package that clears the traveller's hard
    *                 constraints. The target is the BUDGET.
-   *   competitive — this offer is already purchasable but is not winning. Now,
+   *   competitive, this offer is already purchasable but is not winning. Now,
    *                 and only now, does it make sense to name a rival's price.
    *
    * Sending a compliance case a competitive target tells a merchant whose
    * problem is "you are ₹9,000 over budget" to come back ₹15,000 lower than it
-   * needed to — which either destroys the package or makes the merchant walk
+   * needed to, which either destroys the package or makes the merchant walk
    * away from a deal it could have won.
    */
   const needsCompliance = blocked || overBudget || missingRequired.length > 0
@@ -730,7 +730,7 @@ const buildCounterRequest = ({
   } else if (blocked) {
     message = `Your last proposal was blocked by policy validation, so it never reached the traveller. Come back with a package you can actually sell at or under ${formatINR(target)}.`
   } else if (overBudget) {
-    message = `${formatINR(current.quote.total_price)} is over a hard ceiling of ${formatINR(budgetCap)}. Restructure the package rather than simply discounting — the traveller cares about what is included, not the headline rate.`
+    message = `${formatINR(current.quote.total_price)} is over a hard ceiling of ${formatINR(budgetCap)}. Restructure the package rather than simply discounting, the traveller cares about what is included, not the headline rate.`
   } else {
     message = `You are in contention but not in front. ${formatINR(priceToBeat ?? budgetCap)} is currently the best compliant offer. Beat ${formatINR(target)} while keeping the must-haves and this booking is yours.`
   }

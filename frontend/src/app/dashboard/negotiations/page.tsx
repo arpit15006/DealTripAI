@@ -7,10 +7,10 @@ import { razorpayConfigured } from '@/lib/dealtrip/razorpay'
 import { allMerchants } from '@/lib/dealtrip/service'
 import { getStore } from '@/lib/dealtrip/store'
 
-export const metadata = { title: 'Negotiations — DealTrip' }
+export const metadata = { title: 'Negotiations · DealTrip' }
 export const dynamic = 'force-dynamic'
 
-/** The full negotiation history — the overview shows only the most recent. */
+/** The full negotiation history, the overview shows only the most recent. */
 const NegotiationsPage = async () => {
   const store = await getStore()
   const [merchants, negotiations] = await Promise.all([allMerchants(), store.listNegotiations(50)])

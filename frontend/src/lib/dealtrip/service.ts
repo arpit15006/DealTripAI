@@ -12,14 +12,14 @@ import type { Merchant } from './types'
  *
  * Also re-seeds when a stored merchant predates a field the catalog now
  * requires. Merchants are stored as JSONB, so an older row does not fail to
- * load — it loads with holes, and a missing number propagates into pricing.
+ * load, it loads with holes, and a missing number propagates into pricing.
  * Detecting that here is cheaper than defending against it everywhere.
  */
 /**
  * Seeds the marketplace on first use, and keeps the seeded catalog current.
  *
  * Merchants live in JSONB, so a stored row never fails to load when the catalog
- * changes — it just loads with holes, or with fields that no longer mean
+ * changes, it just loads with holes, or with fields that no longer mean
  * anything. Detecting drift by comparing the stored document against the seed
  * catches both directions: a field added since it was written, and a field
  * since removed.
@@ -83,7 +83,7 @@ export const allMerchants = async (): Promise<Merchant[]> => {
 /**
  * Prefer the host the request actually arrived on, so published profile URLs are
  * always reachable from wherever the caller is. NEXT_PUBLIC_APP_URL is only a
- * fallback — hard-coding it ahead of the real host means a profile fetched on
+ * fallback. Hard-coding it ahead of the real host means a profile fetched on
  * one port advertises endpoints on another.
  */
 export const baseUrlFrom = (request: Request): string => {
@@ -120,7 +120,7 @@ export const CORS = {
  *
  * Minified for machines, indented for people. The distinction is drawn from the
  * caller's own Accept header: a browser asks for text/html first, an agent does
- * not. Same bytes of meaning either way — but these endpoints are the evidence
+ * not. Same bytes of meaning either way, but these endpoints are the evidence
  * that the catalog really is machine-readable, so the one time a human opens
  * one it should be legible without them having to find a checkbox.
  */

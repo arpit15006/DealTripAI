@@ -8,8 +8,8 @@ export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 
 /**
- * Onboarding: a merchant pastes what it has — a rate card, a website blurb, a
- * list of rooms — and gets back an Agent Commerce Profile it can transact on.
+ * Onboarding: a merchant pastes what it has, a rate card, a website blurb, a
+ * list of rooms, and gets back an Agent Commerce Profile it can transact on.
  *
  * The result is returned for review, and only persisted when `save` is set.
  * A generated catalog is a draft, not a fact about someone's business.
@@ -22,7 +22,7 @@ export const POST = async (request: Request) => {
   const text = body?.text?.trim()
 
   if (!text) return fail(400, 'Paste a description of the property, its rooms and its extras.')
-  if (text.length < 40) return fail(400, 'That is too short to build a catalog from — give it a few sentences.')
+  if (text.length < 40) return fail(400, 'That is too short to build a catalog from. Give it a few sentences.')
 
   const result = await onboardMerchant(text)
 
@@ -59,7 +59,7 @@ export const POST = async (request: Request) => {
       latency_ms: result.latency_ms,
       note:
         result.source === 'fallback'
-          ? 'Built by the deterministic fallback — review every field before publishing.'
+          ? 'Built by the deterministic fallback. Review every field before publishing.'
           : 'Generated from your text. Review prices and inclusions before publishing.'
     }
   })

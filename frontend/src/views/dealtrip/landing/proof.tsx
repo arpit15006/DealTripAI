@@ -20,7 +20,7 @@ const COMMAND = `curl -sX POST localhost:3000/api/agent/oceanvista/quote \\
 const RESPONSE = [
   { ok: false, label: 'Discount within merchant ceiling', detail: '40% breaches the 5% ceiling set by OceanVista Resort.' },
   { ok: false, label: 'Merchant margin protected', detail: 'Margin would fall to 17.4%, below the 30% floor.' },
-  { ok: true, label: 'Price recomputed from catalog', detail: 'Independently recomputed — matches to the rupee.' }
+  { ok: true, label: 'Price recomputed from catalog', detail: 'Independently recomputed. Matches to the rupee.' }
 ]
 
 /**
@@ -57,7 +57,7 @@ const Proof = () => {
           </h2>
           <p className='type-body text-muted-foreground max-w-xl'>
             Every merchant publishes a machine-readable catalog and accepts structured negotiation. These are the same
-            endpoints DealTrip&apos;s own desk calls — so you can put a deliberately illegal offer to one and read the
+            endpoints DealTrip&apos;s own desk calls, so you can put a deliberately illegal offer to one and read the
             refusal.
           </p>
         </div>
@@ -102,7 +102,7 @@ const Proof = () => {
                   <span className='min-w-0'>
                     <span className='block text-xs font-medium'>
                       {check.label}
-                      <span className='sr-only'>{check.ok ? ' — passed' : ' — failed'}</span>
+                      <span className='sr-only'>{check.ok ? ' (passed' : ') failed'}</span>
                     </span>
                     <span className='type-caption text-muted-foreground block text-xs'>{check.detail}</span>
                   </span>

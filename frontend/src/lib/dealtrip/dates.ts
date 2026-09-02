@@ -2,7 +2,7 @@
  * Date helpers for stay pricing.
  *
  * All dates are ISO calendar days ('YYYY-MM-DD') handled in UTC. A stay is
- * priced night by night, and a night is identified by the day it begins — so a
+ * priced night by night, and a night is identified by the day it begins, so a
  * three-night stay from Friday covers the Friday, Saturday and Sunday nights.
  */
 
@@ -68,7 +68,7 @@ export const DEFAULT_LEAD_DAYS = 21
  *
  * When they gave a date, it is that date plus or minus their stated
  * flexibility. When they gave none, we anchor a stay three weeks out and let
- * the flexibility apply around it — and the composer shows that resolved date,
+ * the flexibility apply around it, and the composer shows that resolved date,
  * so a stay is never quietly booked on a day nobody chose.
  */
 export const resolveCheckIns = (

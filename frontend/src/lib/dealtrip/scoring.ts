@@ -1,5 +1,5 @@
 /**
- * Deal Utility Score — deterministic, weighted, and fully itemised.
+ * Deal Utility Score. Deterministic, weighted, and fully itemised.
  *
  * The cheapest deal is usually not the best deal, so ranking has to be explicit
  * about the trade it is making. Nothing here is learned or model-generated: the
@@ -34,12 +34,12 @@ const FULL_CREDIT_EXTRAS = 10
  * Price band the budget term is scored against.
  *
  * Absolute savings-against-budget cannot separate a shortlist where every offer
- * lands within a few percent of the cap — and that is the normal case, because
+ * lands within a few percent of the cap, and that is the normal case, because
  * revenue-seeking merchants all price toward the traveller's ceiling. So the
  * budget term is scored across the spread of the shortlist itself: the cheapest
  * eligible offer takes the term in full, the dearest takes none, the rest sit
- * pro-rata. Still deterministic — the same shortlist always yields the same
- * ranking — and it states its comparison out loud rather than hiding a constant.
+ * pro-rata. Still deterministic, the same shortlist always yields the same
+ * ranking, and it states its comparison out loud rather than hiding a constant.
  */
 export interface PriceBand {
   min: number
@@ -114,9 +114,9 @@ export const scoreOffer = ({ merchant, offer, intent, opening_offer, verdict, pr
     budgetDetail =
       `${formatINR(quote.total_price)} against a shortlist spanning ${formatINR(price_band.min)}–${formatINR(price_band.max)}` +
       (quote.total_price === price_band.min
-        ? ' — the cheapest offer that clears every hard constraint.'
+        ? ', the cheapest offer that clears every hard constraint.'
         : quote.total_price === price_band.max
-          ? ' — the dearest of the eligible offers.'
+          ? ', the dearest of the eligible offers.'
           : `, i.e. ${formatINR(price_band.max - quote.total_price)} below the dearest eligible offer.`)
   }
 
@@ -197,7 +197,7 @@ export const scoreOffer = ({ merchant, offer, intent, opening_offer, verdict, pr
 /**
  * Rank eligible offers first (by score), then ineligible ones so the user can
  * still see what was rejected and why. Ties break toward the lower price, then
- * the higher merchant rating — both deterministic, so ranking is reproducible.
+ * the higher merchant rating, both deterministic, so ranking is reproducible.
  */
 export const rankOffers = (candidates: Omit<RankedOffer, 'rank'>[]): RankedOffer[] =>
   [...candidates]
@@ -210,7 +210,7 @@ export const rankOffers = (candidates: Omit<RankedOffer, 'rank'>[]): RankedOffer
 
       // Final tie-break on a stable identifier. Without it two offers alike on
       // every criterion would sort by whatever order they arrived in, and the
-      // same shortlist could be ranked two different ways — which is exactly
+      // same shortlist could be ranked two different ways, which is exactly
       // the arbitrariness a deterministic scorer exists to avoid.
       return a.offer.id.localeCompare(b.offer.id)
     })

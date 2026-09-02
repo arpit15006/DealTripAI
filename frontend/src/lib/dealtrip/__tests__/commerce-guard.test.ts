@@ -55,7 +55,7 @@ const check = (offer: Offer, id: string) =>
     c => c.id === id
   )!
 
-describe('Commerce Guard — authorizes what is legal', () => {
+describe('Commerce Guard. Authorizes what is legal', () => {
   it('passes every check on a compliant offer', () => {
     const verdict = guardOffer({
       merchant: oceanvista,
@@ -71,7 +71,7 @@ describe('Commerce Guard — authorizes what is legal', () => {
   })
 })
 
-describe('Commerce Guard — refuses what is not', () => {
+describe('Commerce Guard. Refuses what is not', () => {
   it('blocks a discount beyond the merchant ceiling', () => {
     const offer = offerFor({ ...legal, discount_pct: 40 })
     const verdict = guardOffer({ merchant: oceanvista, offer, intent, rounds_used: 0, allowed_check_ins: WINDOW })
@@ -89,7 +89,7 @@ describe('Commerce Guard — refuses what is not', () => {
   /*
    * The load-bearing test.
    *
-   * An agent — or anything downstream of one — hands over a quote claiming a
+   * An agent (or anything downstream of one) hands over a quote claiming a
    * price the catalog does not support. The guard recomputes independently and
    * must notice, because "the model cannot invent a price" is only true if
    * something actually checks.
@@ -165,7 +165,7 @@ describe('Commerce Guard — refuses what is not', () => {
   })
 })
 
-describe('Commerce Guard — hard versus soft budget', () => {
+describe('Commerce Guard. Hard versus soft budget', () => {
   const dear: Bundle = {
     room_id: 'ov-premium-beach',
     addon_ids: ['ov-half-board', 'ov-private-transfer', 'ov-spa'],
@@ -203,7 +203,7 @@ describe('Commerce Guard — hard versus soft budget', () => {
   })
 })
 
-describe('guardPayment — the last gate before money moves', () => {
+describe('guardPayment, the last gate before money moves', () => {
   it('refuses to charge for an offer the traveller did not approve', () => {
     const verdict = guardPayment({
       merchant: oceanvista,

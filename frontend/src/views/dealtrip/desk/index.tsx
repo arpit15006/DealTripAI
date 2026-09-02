@@ -161,7 +161,7 @@ const DealDesk = ({ negotiationId }: { negotiationId: string }) => {
       {/*
         A negotiation is a stream of things happening off-screen for a screen
         reader. One polite live region narrates the state rather than letting
-        every arriving card interrupt — announcements are summarised, not
+        every arriving card interrupt. Announcements are summarised, not
         fired per DOM insertion.
       */}
       <p aria-live='polite' aria-atomic='true' className='sr-only'>

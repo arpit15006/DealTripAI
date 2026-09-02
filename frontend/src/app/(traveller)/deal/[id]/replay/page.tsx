@@ -7,7 +7,7 @@ import NegotiationReplay from '@/views/dealtrip/replay'
 // Lib Imports
 import { loadNegotiationState } from '@/lib/dealtrip/negotiation-state'
 
-export const metadata = { title: 'Negotiation replay — DealTrip' }
+export const metadata = { title: 'Negotiation replay · DealTrip' }
 export const dynamic = 'force-dynamic'
 
 const ReplayPage = async ({ params }: { params: Promise<{ id: string }> }) => {

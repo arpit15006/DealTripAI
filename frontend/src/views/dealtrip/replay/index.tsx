@@ -40,7 +40,7 @@ import type { GuardVerdict, Offer } from '@/lib/dealtrip/types'
  *
  * Steps through the recorded audit trail one event at a time and reconstructs
  * what each merchant had on the table at that moment. Nothing is re-run and
- * nothing is re-derived from a model — the state at step N is a fold over the
+ * nothing is re-derived from a model, the state at step N is a fold over the
  * first N audit events, so what you see is what was actually recorded. If the
  * replay and the Trust Timeline ever disagreed, the replay would be wrong.
  */
@@ -211,7 +211,7 @@ const NegotiationReplay = ({ state, negotiationId }: { state: NegotiationView; n
             </div>
           ) : (
             <p className='text-muted-foreground px-1 text-sm'>
-              Before the first event — {negotiation.intent.duration_nights} nights in{' '}
+              Before the first event - {negotiation.intent.duration_nights} nights in{' '}
               {negotiation.intent.destination}, up to {formatINR(negotiation.intent.budget.max)}.
             </p>
           )}

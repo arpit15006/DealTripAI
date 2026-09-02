@@ -17,7 +17,7 @@ const RequestSchema = z.object({
 
   /**
    * Optional. Omit it and the merchant's own agent composes a package for you.
-   * Supply it and you are proposing a specific package — which is the honest way
+   * Supply it and you are proposing a specific package, which is the honest way
    * to test the Commerce Guard, because you can propose an illegal one.
    */
   bundle: BundleSchema.partial({ check_in: true }).optional()

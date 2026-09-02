@@ -4,7 +4,7 @@
  * Three rules hold everywhere in this file:
  *
  *  1. Every call is schema-bound. A response that does not parse against its
- *     Zod schema is not "mostly fine" — it is discarded.
+ *     Zod schema is not "mostly fine", it is discarded.
  *  2. Every call has a deterministic fallback. If the key is missing, the API
  *     is down, or two attempts fail validation, the caller's own code produces
  *     the answer instead. DealTrip therefore has no single point of failure at
@@ -27,7 +27,7 @@ const TIMEOUT_MS = Number(process.env.LLM_TIMEOUT_MS ?? 30_000)
  * Concurrency cap.
  *
  * A negotiation fans out to every merchant at once, and five simultaneous
- * requests is enough to trip a rate limit — at which point every agent quietly
+ * requests is enough to trip a rate limit, at which point every agent quietly
  * falls back to the planner and the demo shows nothing agentic at all. Failing
  * softly made the failure invisible, which is worse than failing loudly.
  * Capping in-flight calls keeps the model actually in the loop.
@@ -46,7 +46,7 @@ const MAX_TRANSPORT_ATTEMPTS = Number(process.env.LLM_MAX_RETRIES ?? 3)
  * max_completion_tokens against the per-minute token budget rather than
  * metering what is actually produced. Measured usage on a merchant turn is
  * ~175 completion tokens at low effort, so the ceilings below sit at roughly
- * 4x headroom rather than 10x — which is the difference between four and six
+ * 4x headroom rather than 10x, which is the difference between four and six
  * agents negotiating per minute.
  */
 const REASONING_EFFORT = process.env.LLM_REASONING_EFFORT ?? 'low'
@@ -111,8 +111,30 @@ interface StructuredArgs<T> {
   temperature?: number
   max_tokens?: number
 
-  /** Set false to force the deterministic path — used by the revenue simulator. */
+  /** Set false to force the deterministic path. Used by the revenue simulator. */
   enabled?: boolean
+}
+
+/**
+ * Strip typographic dashes from anything a model wrote.
+ *
+ * Merchant rationale and intent restatements are model prose that lands
+ * directly in the interface, and models reach for em dashes constantly. Asking
+ * them not to in the prompt is unreliable; rewriting at the boundary is not.
+ * Applied to every string in a validated response, however deeply nested.
+ */
+const deDash = <T,>(value: T): T => {
+  if (typeof value === 'string')
+    return value
+      .replace(/\s+[—–]\s+/g, ', ')
+      .replace(/[—–]/g, '-') as unknown as T
+
+  if (Array.isArray(value)) return value.map(deDash) as unknown as T
+
+  if (value && typeof value === 'object')
+    return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, deDash(v)])) as unknown as T
+
+  return value
 }
 
 /** Models like to wrap JSON in prose or fences. Recover the object. */
@@ -168,7 +190,7 @@ const callOnce = async (system: string, user: string, temperature: number, maxTo
       const retryAfterMs = header ? Math.min(6_000, Math.ceil(parseFloat(header) * 1000)) : null
 
       throw new TransportError(
-        `${res.status} ${res.statusText}${body ? ` — ${body.slice(0, 300)}` : ''}`,
+        `${res.status} ${res.statusText}${body ? ` - ${body.slice(0, 300)}` : ''}`,
         res.status,
         Number.isFinite(retryAfterMs as number) ? retryAfterMs : null
       )
@@ -245,7 +267,7 @@ export const structured = async <T>({
 
   if (!enabled) {
     return {
-      data: fallback(),
+      data: deDash(fallback()),
       source: 'fallback',
       model: 'deterministic',
       latency_ms: Date.now() - started,
@@ -256,7 +278,7 @@ export const structured = async <T>({
 
   if (!llmConfigured()) {
     return {
-      data: fallback(),
+      data: deDash(fallback()),
       source: 'fallback',
       model: 'deterministic',
       latency_ms: Date.now() - started,
@@ -300,11 +322,11 @@ export const structured = async <T>({
       correction = `\n\nYour previous reply could not be read as JSON (${lastError}). Return a single JSON object only.`
     }
 
-    console.warn(`[dealtrip:llm] ${label} attempt ${attempt} failed — ${lastError}`)
+    console.warn(`[dealtrip:llm] ${label} attempt ${attempt} failed - ${lastError}`)
   }
 
   return {
-    data: fallback(),
+    data: deDash(fallback()),
     source: 'fallback',
     model: DEFAULT_MODEL,
     latency_ms: Date.now() - started,

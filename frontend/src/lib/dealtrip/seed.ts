@@ -3,7 +3,7 @@
  *
  * Every property charges more for Friday and Saturday nights (weekend_uplift_pct)
  * while its costs stay flat, so shifting a flexible traveller onto weekdays is a
- * real concession a merchant can make instead of discounting — and a real saving
+ * real concession a merchant can make instead of discounting, and a real saving
  * a traveller can win by being flexible.
  *
  * Five Goa merchants plus two elsewhere. The numbers are deliberate: each
@@ -11,7 +11,7 @@
  * ("Goa, 2 people, 3 nights, ₹60,000 hard, beachfront required, breakfast
  * preferred"), and the roles fall out of arithmetic rather than luck.
  *
- *   OceanVista   opens ~₹64,800 — over budget. Its 5% discount ceiling cannot
+ *   OceanVista   opens ~₹64,800. Over budget. Its 5% discount ceiling cannot
  *                close the gap alone, so the agent MUST restructure the bundle.
  *                This is the negotiation showcase.
  *   PalmStay     its only beachfront room cannot reach ₹60,000 with the full
@@ -22,7 +22,7 @@
  *   Sunset Bay   opens already compliant and already carrying breakfast.
  *   Casa Aurora  cheapest beachfront inventory, but self-catering: it has no
  *                breakfast product at all, so it forfeits the preference.
- *   Kokum Cliffs beautiful, well-rated, cliff-top — and therefore NOT
+ *   Kokum Cliffs beautiful, well-rated, cliff-top, and therefore NOT
  *                beachfront. Fails the hard requirement no matter the price.
  *
  * Everything here is synthetic sample inventory for demonstration. It is not
@@ -219,7 +219,7 @@ export const SEED_MERCHANTS: Merchant[] = [
     destination: 'Goa',
     tagline: 'Anjuna · self-catering boutique',
     description:
-      'A nine-key boutique house in Anjuna. Self-catering by design — there is no kitchen service, so no breakfast product exists to sell. Cheapest beachfront inventory in the set.',
+      'A nine-key boutique house in Anjuna. Self-catering by design. There is no kitchen service, so no breakfast product exists to sell. Cheapest beachfront inventory in the set.',
     rating: 4.3,
     image: '/images/countries/indonesia/indonesia-2.webp',
     attributes: ['wifi', 'air_conditioning', 'nightlife_nearby'],
@@ -271,7 +271,7 @@ export const SEED_MERCHANTS: Merchant[] = [
     destination: 'Goa',
     tagline: 'Vagator · cliff-top adults-only',
     description:
-      'The highest-rated property in the set and the most photogenic — perched on the Vagator cliff with an infinity pool over the water. It is not, however, on the sand.',
+      'The highest-rated property in the set and the most photogenic, perched on the Vagator cliff with an infinity pool over the water. It is not, however, on the sand.',
     rating: 4.7,
     image: '/images/countries/greece/greece-1.webp',
     attributes: ['pool', 'wifi', 'air_conditioning', 'spa', 'quiet', 'romantic'],
@@ -317,7 +317,7 @@ export const SEED_MERCHANTS: Merchant[] = [
   },
 
   /* Non-Goa inventory. Present so that discovery visibly filters rather than
-     appearing to filter — a judge can watch these sit out the Goa run. */
+     appearing to filter, a judge can watch these sit out the Goa run. */
   {
     id: 'mch_alpine_rowan',
     slug: 'alpine-rowan',
@@ -385,4 +385,4 @@ export const SEED_MERCHANTS: Merchant[] = [
 
 /** The request the demo opens with. */
 export const DEMO_REQUEST =
-  'Goa for two people, 3 nights. Budget ₹60,000 all-in — that is a hard limit. Beachfront is essential, breakfast would be nice. My dates are flexible by a couple of days.'
+  'Goa for two people, 3 nights. Budget ₹60,000 all-in, that is a hard limit. Beachfront is essential, breakfast would be nice. My dates are flexible by a couple of days.'

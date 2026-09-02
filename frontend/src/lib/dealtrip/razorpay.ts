@@ -109,7 +109,7 @@ export const verifyPaymentSignature = (args: {
  * Verify a webhook delivery.
  *
  * Webhooks are signed with a separate secret over the raw request body, so the
- * body must be read as text and checked byte for byte — parsing it first and
+ * body must be read as text and checked byte for byte. Parsing it first and
  * re-serialising would change the bytes and break the signature.
  */
 export const verifyWebhookSignature = (rawBody: string, signature: string): boolean => {

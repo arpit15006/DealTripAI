@@ -7,7 +7,7 @@ export type MenuLeafSubItem = {
   label: string
   href: string
 
-  /** String = prefix match (`pathname.startsWith`). RegExp = exact pattern match — use when a
+  /** String = prefix match (`pathname.startsWith`). RegExp = exact pattern match. Use when a
    * prefix would also match sibling routes (e.g. `/bookings/create`, `/bookings/{id}/edit`). */
   activePath?: string | RegExp
   badge?: string

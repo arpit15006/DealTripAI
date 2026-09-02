@@ -1,5 +1,5 @@
 /**
- * Deterministic bundle planner — the merchant's own optimizer.
+ * Deterministic bundle planner, the merchant's own optimizer.
  *
  * Given a catalog, a policy and a target, this enumerates every legal package
  * and picks the one that best serves the merchant's stated objectives. It is
@@ -13,7 +13,7 @@
  *   3. It makes the division of labour honest. Price is arithmetic and belongs
  *      here. What the planner CANNOT do is read "our anniversary" and know that
  *      the spa ritual should survive the cut while the water-sports package
- *      should not — that judgement is not in the attribute vocabulary, and it is
+ *      should not, that judgement is not in the attribute vocabulary, and it is
  *      the part the model is actually for.
  */
 import { computeQuote, discountToReach, maxAllowedDiscountPct, minimumAllowedPrice } from './pricing'
@@ -192,8 +192,8 @@ export const enumerateCandidates = ({
   const stretch = Math.max(...merchant.policy.objectives.map(o => OPENING_STRETCH[o] ?? 1))
 
   // Two different numbers that were previously conflated:
-  //   ceiling   — the highest price a package may carry at all
-  //   reference — what the buyer will actually pay, which is what the
+  //   ceiling  , the highest price a package may carry at all
+  //   reference. What the buyer will actually pay, which is what the
   //               merchant's objectives are measured against
   // Scoring against the stretched ceiling made every merchant behave as though
   // the budget were 15% larger than the traveller ever said.
@@ -311,7 +311,7 @@ export const planBundle = (input: PlanInput): PlanCandidate | null =>
   enumerateCandidates(input)[0] ?? null
 
 /**
- * Why a merchant has nothing to offer — used to produce an honest withdrawal
+ * Why a merchant has nothing to offer. Used to produce an honest withdrawal
  * rather than a silent absence.
  */
 export const explainNoCandidate = (input: PlanInput): string => {
@@ -339,7 +339,7 @@ export const explainNoCandidate = (input: PlanInput): string => {
 
   const cheapest = Math.min(
     ...canDeliver.map(room => {
-      // Price the cheapest acceptable date — the merchant's best possible case.
+      // Price the cheapest acceptable date, the merchant's best possible case.
       const floors = (allowed_check_ins.length > 0 ? allowed_check_ins : ['']).filter(Boolean).map(checkIn => {
         const bundle: Bundle = {
           room_id: room.id,

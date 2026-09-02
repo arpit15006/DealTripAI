@@ -4,13 +4,13 @@
  * A merchant's machine-readable storefront: what it sells, in what shape, what
  * it will negotiate over, and how to transact with it. Served over HTTP at a
  * stable path so an AI buyer that has never heard of DealTrip can discover a
- * merchant, read its catalog, request a quote and negotiate — the same surface
+ * merchant, read its catalog, request a quote and negotiate, the same surface
  * DealTrip's own orchestrator uses, not a private side channel.
  *
  * What a profile deliberately does NOT publish:
- *   • cost_per_night / add-on cost — the merchant's cost base
- *   • min_margin_pct — its margin floor
- *   • max_discount_pct — how far it will actually go
+ *   • cost_per_night / add-on cost, the merchant's cost base
+ *   • min_margin_pct, its margin floor
+ *   • max_discount_pct. How far it will actually go
  *
  * Publishing the discount ceiling would simply mean every buyer opens by
  * demanding it. The profile says a merchant negotiates and over what; how much
@@ -246,7 +246,7 @@ const draftFallback = (text: string): MerchantDraft => {
   return {
     name: firstLine,
     destination: 'Goa',
-    tagline: 'Imported catalog — please review',
+    tagline: 'Imported catalog. Please review',
     description: text.slice(0, 500),
     rating: 4,
     attributes,

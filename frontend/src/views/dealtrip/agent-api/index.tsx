@@ -41,13 +41,13 @@ const ENDPOINTS: Endpoint[] = [
     path: '/api/agent/{slug}/profile',
     title: 'Agent Commerce Profile',
     description:
-      "A merchant's machine-readable storefront: rooms, add-ons, what it will negotiate over. Its discount ceiling, margin floor and cost base are deliberately absent — publishing them would just mean every buyer opens by demanding the limit.",
+      "A merchant's machine-readable storefront: rooms, add-ons, what it will negotiate over. Its discount ceiling, margin floor and cost base are deliberately absent. Publishing them would just mean every buyer opens by demanding the limit.",
     curl: base => `curl -s ${base}/api/agent/oceanvista/profile | jq`
   },
   {
     method: 'POST',
     path: '/api/agent/{slug}/quote',
-    title: 'Quote — let the merchant compose',
+    title: 'Quote. Let the merchant compose',
     description:
       "Send an intent and the merchant's own agent builds a package for it. Every response carries the Commerce Guard's full verdict, pass or fail.",
     curl: base =>
@@ -58,7 +58,7 @@ const ENDPOINTS: Endpoint[] = [
   {
     method: 'POST',
     path: '/api/agent/{slug}/quote',
-    title: 'Quote — propose your own package (try to break it)',
+    title: 'Quote. Propose your own package (try to break it)',
     description:
       'Name a bundle yourself and ask for a 40% discount against a 5% ceiling. The guard refuses it, tells you which of the two floors bound, and never returns a price. This is the honest way to test that the limits are real.',
     destructive: true,
@@ -98,7 +98,7 @@ const ENDPOINTS: Endpoint[] = [
  * The agent-facing surface, documented as something to actually run.
  *
  * "Agent-readable catalog" is a claim; a curl command a judge can paste is
- * evidence. These are the same endpoints DealTrip's own orchestrator uses —
+ * evidence. These are the same endpoints DealTrip's own orchestrator uses -
  * there is no private side channel.
  */
 const AgentApiReference = ({ baseUrl }: { baseUrl: string }) => {
@@ -140,7 +140,7 @@ const AgentApiReference = ({ baseUrl }: { baseUrl: string }) => {
         <AlertTitle>No authentication, no private channel</AlertTitle>
         <AlertDescription>
           These are the same endpoints DealTrip&apos;s own Deal Orchestrator calls. Anything our buyer-side agent can
-          do, yours can too — and every response is subject to the same Commerce Guard.
+          do, yours can too, and every response is subject to the same Commerce Guard.
         </AlertDescription>
       </Alert>
 

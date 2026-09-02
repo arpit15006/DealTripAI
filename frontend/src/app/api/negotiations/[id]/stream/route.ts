@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic'
 /**
  * Server-sent events for the Live Deal Desk.
  *
- * Opening this stream is what actually runs the negotiation — but only once.
+ * Opening this stream is what actually runs the negotiation, but only once.
  * A reconnect, a refresh, or a second tab replays what already happened from
  * the audit log instead of re-running the whole thing, so a page reload cannot
  * quietly start a second negotiation against the same merchants.

@@ -1,7 +1,7 @@
 /**
  * The shared vocabulary, free of any runtime dependency.
  *
- * These constants are needed on both sides of the wire — the guard and the
+ * These constants are needed on both sides of the wire, the guard and the
  * scorer read them on the server, and every screen renders their labels in the
  * browser. They live apart from `types.ts` so that importing a label into a
  * client component does not also pull Zod and every schema into the bundle.

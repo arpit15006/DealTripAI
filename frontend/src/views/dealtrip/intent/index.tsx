@@ -31,7 +31,7 @@ import type { TravelIntent } from '@/lib/dealtrip/types'
 
 const EXAMPLES = [
   'Goa for two, 3 nights, hard budget of ₹60,000. Beachfront is essential, breakfast would be nice. Flexible by a couple of days.',
-  'Anniversary trip to Goa — 4 nights for 2. Up to ₹85,000. We want a sea view and a spa, and somewhere quiet. No nightlife please.',
+  'Anniversary trip to Goa · 4 nights for 2. Up to ₹85,000. We want a sea view and a spa, and somewhere quiet. No nightlife please.',
   'Family of 4 to Goa for 3 nights, ₹70,000 max. Needs a pool and breakfast. Beachfront if we can get it.'
 ]
 
@@ -56,7 +56,7 @@ const IntentComposer = () => {
 
       // Resolve the check-in now and show it. A stay has to happen on actual
       // dates, and the traveller should see which ones before agents start
-      // pricing against them — not discover them on the confirmation screen.
+      // pricing against them, not discover them on the confirmation screen.
       setIntent({
         ...response.intent,
         check_in: response.intent.check_in ?? resolveCheckIns(null, 0)[0] ?? null
@@ -137,7 +137,7 @@ const IntentComposer = () => {
           <CardHeader className='gap-1'>
             <CardTitle className='text-base'>Check we understood you</CardTitle>
             <p className='text-muted-foreground text-sm'>
-              Nothing is negotiated until you confirm this. Edit anything that is wrong — these constraints are what
+              Nothing is negotiated until you confirm this. Edit anything that is wrong, these constraints are what
               merchants are actually held to.
             </p>
           </CardHeader>
@@ -242,8 +242,8 @@ const IntentComposer = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value='hard_constraint'>Hard limit — never exceed it</SelectItem>
-                    <SelectItem value='soft_target'>A target — some flexibility</SelectItem>
+                    <SelectItem value='hard_constraint'>Hard limit, never exceed it</SelectItem>
+                    <SelectItem value='soft_target'>A target. Some flexibility</SelectItem>
                   </SelectContent>
                 </Select>
                 <span className='text-muted-foreground text-xs'>
@@ -312,7 +312,7 @@ const IntentComposer = () => {
                 />
                 <span className='text-muted-foreground text-xs'>
                   {intent.date_flexibility_days === 0
-                    ? 'Fixed dates — merchants cannot move your stay to a cheaper night.'
+                    ? 'Fixed dates. Merchants cannot move your stay to a cheaper night.'
                     : `${resolveCheckIns(intent.check_in, intent.date_flexibility_days).length} check-in dates are on the table. Weekend nights cost more, so flexibility is worth real money.`}
                 </span>
               </div>

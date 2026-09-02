@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic'
  *
  * Confirmation must not depend on the traveller's browser. If the tab closes
  * between the card being charged and the callback firing, the money has moved
- * and — without this — nothing would ever be booked. Razorpay retries a webhook
+ * and (without this) nothing would ever be booked. Razorpay retries a webhook
  * until it is acknowledged, so this is the path that actually guarantees the
  * ledger catches up with reality.
  *
@@ -84,7 +84,7 @@ export const POST = async (request: Request) => {
 
       await audit(
         'webhook_amount_mismatch',
-        `Webhook reported ${formatINR(Number(entity?.amount) / 100)} for an order approved at ${formatINR(payment.amount)} — booking withheld.`,
+        `Webhook reported ${formatINR(Number(entity?.amount) / 100)} for an order approved at ${formatINR(payment.amount)}. Booking withheld.`,
         'fail',
         { order_id: orderId, expected_paise: expectedPaise, actual_paise: entity?.amount }
       )

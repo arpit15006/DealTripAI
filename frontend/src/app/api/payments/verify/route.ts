@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic'
  *
  * The browser's word that a payment succeeded is not evidence. A booking is
  * confirmed only when the HMAC signature over `order_id|payment_id` verifies
- * against the key secret, and — when keys are live — Razorpay itself confirms
+ * against the key secret, and (when keys are live) Razorpay itself confirms
  * the payment is captured for the amount we asked for.
  */
 export const POST = async (request: Request) => {
@@ -66,7 +66,7 @@ export const POST = async (request: Request) => {
 
     await audit(
       'payment_verification_failed',
-      'Payment signature did not verify — the booking was NOT confirmed.',
+      'Payment signature did not verify, the booking was NOT confirmed.',
       'fail',
       { order_id: orderId, payment_id: paymentId }
     )
@@ -93,7 +93,7 @@ export const POST = async (request: Request) => {
 
         await audit(
           'payment_amount_mismatch',
-          `Signature verified but Razorpay reports ${formatINR(capturedPaise / 100)} with status "${remote.status}" — booking withheld.`,
+          `Signature verified but Razorpay reports ${formatINR(capturedPaise / 100)} with status "${remote.status}". Booking withheld.`,
           'fail',
           { order_id: orderId, payment_id: paymentId, expected_paise: expectedPaise, actual_paise: capturedPaise, remote_status: remote.status }
         )

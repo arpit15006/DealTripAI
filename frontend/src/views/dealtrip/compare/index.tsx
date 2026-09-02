@@ -205,7 +205,7 @@ const DealComparison = ({ negotiationId, initialState }: Props) => {
                       {row.offer.quote.attributes.includes(a) ? (
                         <span className='text-green-600 dark:text-green-400'>✓</span>
                       ) : (
-                        <span className='text-muted-foreground/50'>—</span>
+                        <span className='text-muted-foreground/50'>-</span>
                       )}
                     </TableCell>
                   ))}
@@ -225,7 +225,7 @@ const DealComparison = ({ negotiationId, initialState }: Props) => {
         </div>
         {required.length > 0 && (
           <p className='text-muted-foreground border-t px-4 py-2 text-xs'>
-            <span className='text-primary'>*</span> must-have — an offer missing it is disqualified at any price.
+            <span className='text-primary'>*</span> must-have, an offer missing it is disqualified at any price.
           </p>
         )}
       </Card>
@@ -244,7 +244,7 @@ const DealComparison = ({ negotiationId, initialState }: Props) => {
             >
               <PropertyImage
                 src={imageFor(row.merchant.id)}
-                alt={`${row.merchant.name} — ${row.offer.quote.lines[0]?.label ?? 'room'}`}
+                alt={`${row.merchant.name} - ${row.offer.quote.lines[0]?.label ?? 'room'}`}
                 fallbackLabel={row.merchant.name}
                 className='aspect-[21/9] w-full'
                 sizes='(max-width: 1024px) 100vw, 900px'
@@ -280,7 +280,7 @@ const DealComparison = ({ negotiationId, initialState }: Props) => {
                       {formatINR(opening.quote.total_price - row.offer.quote.total_price)}
                     </span>
                     <span className='text-muted-foreground'>
-                      — opened at {formatINR(opening.quote.total_price)}, settled at{' '}
+                     . Opened at {formatINR(opening.quote.total_price)}, settled at{' '}
                       {formatINR(row.offer.quote.total_price)} after {row.offer.round} round
                       {row.offer.round === 1 ? '' : 's'}
                       {opening.quote.check_in !== row.offer.quote.check_in

@@ -17,7 +17,7 @@ const hold = (overrides: Partial<Reservation> = {}): Reservation => ({
   ...overrides
 })
 
-describe('inventory reservations — the last room cannot be sold twice', () => {
+describe('inventory reservations, the last room cannot be sold twice', () => {
   it('grants holds up to capacity and refuses beyond it', async () => {
     const store = await createMemoryStore()
 

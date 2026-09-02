@@ -31,7 +31,7 @@ const STATUS_LABEL: Record<string, string> = {
  * The Trust Timeline.
  *
  * Every actor, action and ruling in the order it happened, with the raw record
- * behind each row. This is not a debugging view bolted on afterwards — it is
+ * behind each row. This is not a debugging view bolted on afterwards, it is
  * the artefact that makes an autonomous negotiation checkable, so it gets its
  * own page rather than a panel.
  */
@@ -118,7 +118,7 @@ const TrustTimeline = ({ state, negotiationId }: { state: NegotiationView; negot
       )}
 
       <p className='text-muted-foreground mt-4 text-xs'>
-        Audit rows are written append-only — nothing in this codebase issues an update or delete against them.
+        Audit rows are written append-only. Nothing in this codebase issues an update or delete against them.
       </p>
     </div>
   )

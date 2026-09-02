@@ -69,7 +69,7 @@ const MerchantList = ({ merchants, baseUrl }: { merchants: MerchantListItem[]; b
         <AlertTitle>Every profile is public; every limit is not</AlertTitle>
         <AlertDescription>
           Catalogs, prices and what a merchant will negotiate over are published. Its discount ceiling, margin floor and
-          cost base never leave the server — those are enforced by the Commerce Guard rather than advertised to buyers.
+          cost base never leave the server, those are enforced by the Commerce Guard rather than advertised to buyers.
         </AlertDescription>
       </Alert>
 

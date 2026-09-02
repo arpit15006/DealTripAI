@@ -26,13 +26,13 @@ import ScrollToTop from '@/components/layout/ScrollToTop'
 import themeConfig from '@/configs/themeConfig'
 
 export const metadata: Metadata = {
-  title: 'DealTrip — the agentic deal desk for travel',
+  title: 'DealTrip, the agentic deal desk for travel',
   description:
-    'Describe the trip you want. DealTrip turns it into hard constraints, negotiates with merchant agents inside their own commercial policy, and settles through Razorpay — with every money decision explainable and auditable.',
+    'Describe the trip you want. DealTrip turns it into hard constraints, negotiates with merchant agents inside their own commercial policy, and settles through Razorpay, with every money decision explainable and auditable.',
   openGraph: {
-    title: 'DealTrip — the agentic deal desk for travel',
+    title: 'DealTrip, the agentic deal desk for travel',
     description:
-      'Describe the trip you want. DealTrip turns it into hard constraints, negotiates with merchant agents inside their own commercial policy, and settles through Razorpay — with every money decision explainable and auditable.',
+      'Describe the trip you want. DealTrip turns it into hard constraints, negotiates with merchant agents inside their own commercial policy, and settles through Razorpay, with every money decision explainable and auditable.',
     type: 'website',
     siteName: 'DealTrip',
     url: process.env.NEXT_PUBLIC_APP_URL,
@@ -42,15 +42,15 @@ export const metadata: Metadata = {
         type: 'image/png',
         width: 1200,
         height: 630,
-        alt: 'DealTrip — the agentic deal desk for travel'
+        alt: 'DealTrip, the agentic deal desk for travel'
       }
     ]
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'DealTrip — the agentic deal desk for travel',
+    title: 'DealTrip, the agentic deal desk for travel',
     description:
-      'Describe the trip you want. DealTrip turns it into hard constraints, negotiates with merchant agents inside their own commercial policy, and settles through Razorpay — with every money decision explainable and auditable.'
+      'Describe the trip you want. DealTrip turns it into hard constraints, negotiates with merchant agents inside their own commercial policy, and settles through Razorpay, with every money decision explainable and auditable.'
   }
 }
 

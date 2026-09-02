@@ -122,7 +122,7 @@ const Checkout = ({ state, negotiationId, offerId }: Props) => {
       currency: approval.order.currency,
       order_id: approval.order.id,
       name: 'DealTrip',
-      description: `${approval.merchant_name} — ${offer.quote.nights} nights`,
+      description: `${approval.merchant_name} - ${offer.quote.nights} nights`,
       theme: { color: '#0b78bd' },
       notes: { negotiation_id: negotiationId, offer_id: offer.id },
       handler: async response => {
@@ -231,7 +231,7 @@ const Checkout = ({ state, negotiationId, offerId }: Props) => {
           <AlertDescription>
             {message ? `${message.replace(/\s*$/, '').replace(/([^.!?])$/, '$1.')} ` : ''}
             Your negotiated price is held until{' '}
-            {new Date(offer.expires_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })} — you can
+            {new Date(offer.expires_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}, you can
             retry without negotiating again.
           </AlertDescription>
         </Alert>
@@ -304,12 +304,12 @@ const Checkout = ({ state, negotiationId, offerId }: Props) => {
                     : stage === 'verifying'
                       ? 'Verifying the signature…'
                       : stage === 'failed' || stage === 'blocked'
-                        ? `Try again — ${formatINR(offer.quote.total_price)}`
+                        ? `Try again - ${formatINR(offer.quote.total_price)}`
                         : `Approve and pay ${formatINR(offer.quote.total_price)}`}
               </Button>
               <p className='text-muted-foreground text-center text-xs'>
                 The guard re-runs every check before an order is created, and the amount is recomputed from the
-                merchant&apos;s catalog — never taken from this page. Razorpay test mode.
+                merchant&apos;s catalog, never taken from this page. Razorpay test mode.
               </p>
             </>
           )}

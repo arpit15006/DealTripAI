@@ -50,7 +50,7 @@ const OBJECTIVE_LABELS: Record<Objective, string> = {
 /**
  * Policy Studio.
  *
- * These numbers are not preferences — they are the limits the Commerce Guard
+ * These numbers are not preferences, they are the limits the Commerce Guard
  * enforces on every offer this merchant's agent makes. So the screen shows,
  * live, what they actually mean in rupees: the lowest price the agent could
  * legally reach for a real package, and which of the two floors is binding.
@@ -67,7 +67,7 @@ const PolicyStudio = ({ merchant: initial }: { merchant: Merchant }) => {
   )
 
   // Preview against the merchant's best room over a representative 3-night stay
-  // for two — the same arithmetic the guard runs, not an approximation of it.
+  // for two, the same arithmetic the guard runs, not an approximation of it.
   const preview = useMemo(() => {
     const room = [...initial.rooms].sort((a, b) => b.tier - a.tier)[0]
 
@@ -93,7 +93,7 @@ const PolicyStudio = ({ merchant: initial }: { merchant: Merchant }) => {
 
     try {
       await updateMerchantPolicy(initial.id, policy)
-      toast.success('Policy saved — the Commerce Guard now enforces these limits.')
+      toast.success('Policy saved, the Commerce Guard now enforces these limits.')
     } catch (error) {
       toast.error(error instanceof ApiError ? error.message : 'Could not save the policy.')
     } finally {
@@ -261,7 +261,7 @@ const PolicyStudio = ({ merchant: initial }: { merchant: Merchant }) => {
             <CardHeader>
               <CardTitle className='text-base'>Business objectives</CardTitle>
               <p className='text-muted-foreground text-sm'>
-                In priority order — the first is weighted three times the third. This is not a label: it is what your
+                In priority order, the first is weighted three times the third. This is not a label: it is what your
                 agent optimises for when it chooses between two packages that are both within policy.
               </p>
             </CardHeader>
@@ -366,7 +366,7 @@ const PolicyStudio = ({ merchant: initial }: { merchant: Merchant }) => {
                   {/* The one number these sliders exist to move. */}
                   <p className='price'>{formatINR(preview.floors.floor)}</p>
                   <p className='meta'>
-                    The <span className='text-foreground font-medium'>{preview.floors.binding}</span> floor is binding —
+                    The <span className='text-foreground font-medium'>{preview.floors.binding}</span> floor is binding -
                     it is the higher of the two.
                   </p>
                 </div>

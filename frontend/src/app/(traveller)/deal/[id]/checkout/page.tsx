@@ -7,7 +7,7 @@ import Checkout from '@/views/dealtrip/checkout'
 // Lib Imports
 import { loadNegotiationState } from '@/lib/dealtrip/negotiation-state'
 
-export const metadata = { title: 'Approve and pay — DealTrip' }
+export const metadata = { title: 'Approve and pay · DealTrip' }
 export const dynamic = 'force-dynamic'
 
 const CheckoutPage = async ({

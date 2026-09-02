@@ -4,7 +4,7 @@ import { resolveCheckIns, weekdayName, countWeekendNights } from '../src/lib/dea
 
 const m = SEED_MERCHANTS.find(x => x.slug === 'oceanvista')!
 const room = m.rooms.find(r => r.id === 'ov-premium-beach')!
-console.log(`${m.name} — ${room.name}, base ${formatINR(room.base_price_per_night)}/night, weekend uplift ${m.weekend_uplift_pct}%\n`)
+console.log(`${m.name} - ${room.name}, base ${formatINR(room.base_price_per_night)}/night, weekend uplift ${m.weekend_uplift_pct}%\n`)
 
 const dates = resolveCheckIns(null, 3)
 let cheapest = { d: '', p: Infinity }, dearest = { d: '', p: 0 }

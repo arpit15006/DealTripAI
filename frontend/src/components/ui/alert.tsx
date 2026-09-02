@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils'
 /*
  * Tone variants beyond shadcn's default/destructive pair.
  *
- * This theme defines no success/warning/info tokens — only `destructive` — so
+ * This theme defines no success/warning/info tokens (only `destructive`) so
  * these use Tailwind's green/amber ramps directly, with a dark-mode step up in
  * lightness. That matches the convention already used elsewhere in the
  * codebase (see the "Order Verified" badge in the timeline block) rather than

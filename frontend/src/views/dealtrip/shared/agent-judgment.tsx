@@ -19,7 +19,7 @@ type Choice = { room: string | null; addons: string[]; total_price: number }
  *
  * Both sides of every merchant turn are recorded: the package the deterministic
  * planner would have chosen, and the one the agent actually proposed. When they
- * differ, the difference *is* the answer to "why is there a model here at all" —
+ * differ, the difference *is* the answer to "why is there a model here at all" -
  * the planner maximises a scalar objective over a closed vocabulary; it has no
  * way to read "anniversary trip" and keep the couples spa.
  *
@@ -50,7 +50,7 @@ const AgentJudgment = ({ event, className }: { event: AuditEvent; className?: st
           {diverged ? 'The agent chose differently to the planner' : 'The agent and the planner agreed'}
         </span>
         <span className='text-muted-foreground shrink-0'>
-          {diverged ? (delta === 0 ? 'same price' : `${delta > 0 ? '+' : ''}${formatINR(delta)}`) : '—'}
+          {diverged ? (delta === 0 ? 'same price' : `${delta > 0 ? '+' : ''}${formatINR(delta)}`) : '-'}
         </span>
       </CollapsibleTrigger>
 
@@ -61,7 +61,7 @@ const AgentJudgment = ({ event, className }: { event: AuditEvent; className?: st
 
           <p className='type-caption text-muted-foreground pt-1 text-xs'>
             {diverged
-              ? 'The planner optimises the merchant’s stated objectives over a closed vocabulary. Anything the traveller said that the vocabulary cannot express — an occasion, a mood — is only available to the model.'
+              ? 'The planner optimises the merchant’s stated objectives over a closed vocabulary. Anything the traveller said that the vocabulary cannot express (an occasion, a mood) is only available to the model.'
               : 'On this turn the model reached the same package the planner did. Both were then priced by the same code and checked by the same guard.'}
           </p>
         </div>

@@ -7,7 +7,7 @@ import { razorpayConfigured } from '@/lib/dealtrip/razorpay'
 import { allMerchants } from '@/lib/dealtrip/service'
 import { getStore } from '@/lib/dealtrip/store'
 
-export const metadata = { title: 'Overview — DealTrip' }
+export const metadata = { title: 'Overview · DealTrip' }
 export const dynamic = 'force-dynamic'
 
 const DashboardPage = async () => {

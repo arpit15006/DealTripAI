@@ -12,7 +12,7 @@ export const maxDuration = 300
  * The revenue simulation, streamed as it runs.
  *
  * A few hundred negotiations take long enough that a spinner tells the viewer
- * nothing about whether anything is happening — or whether the numbers at the
+ * nothing about whether anything is happening, or whether the numbers at the
  * end were arrived at honestly. Streaming each traveller's outcome as it is
  * decided means the result is watched being computed rather than simply
  * asserted, and the running totals in every tick are the same ones the final
