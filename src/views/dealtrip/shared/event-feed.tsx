@@ -91,8 +91,8 @@ const EventRow = ({
       {dot}
       {!isLast && <TimelineLine done className='bg-border min-h-4' />}
 
-      <TimelineHeading className='flex w-full items-start justify-between gap-3 pb-0.5 pl-3 text-sm font-normal text-wrap'>
-        <span className={cn('flex-1', event.decision === 'fail' && 'text-destructive')}>{event.summary}</span>
+      <TimelineHeading className='flex w-full items-start justify-between gap-3 pb-0.5 pl-3 text-sm leading-relaxed font-normal'>
+        <span className={cn('min-w-0 flex-1', event.decision === 'fail' && 'text-destructive')}>{event.summary}</span>
         <span className='text-muted-foreground shrink-0 font-mono text-xs whitespace-nowrap'>{time(event.ts)}</span>
       </TimelineHeading>
 
