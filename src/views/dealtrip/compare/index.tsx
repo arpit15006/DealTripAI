@@ -280,7 +280,7 @@ const DealComparison = ({ negotiationId, initialState }: Props) => {
                       {formatINR(opening.quote.total_price - row.offer.quote.total_price)}
                     </span>
                     <span className='text-muted-foreground'>
-                     . Opened at {formatINR(opening.quote.total_price)}, settled at{' '}
+                      · Opened at {formatINR(opening.quote.total_price)}, settled at{' '}
                       {formatINR(row.offer.quote.total_price)} after {row.offer.round} round
                       {row.offer.round === 1 ? '' : 's'}
                       {opening.quote.check_in !== row.offer.quote.check_in

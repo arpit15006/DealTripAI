@@ -29,7 +29,7 @@ import type { Merchant } from './types'
  * Policy Studio, and re-seeding is not a reason to silently discard them.
  */
 declare global {
-  // eslint-disable-next-line no-var
+   
   var __dealtripSeeded: Promise<DealTripStore> | undefined
 }
 

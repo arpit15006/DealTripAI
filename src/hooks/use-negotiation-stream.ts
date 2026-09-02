@@ -17,6 +17,16 @@ export interface DeskMerchant {
   offer: Offer | null
   verdict: GuardVerdict | null
 
+  /**
+   * Every offer this merchant has made, in order, each with the ruling it got.
+   *
+   * Kept alongside `offer` rather than derived from it because a negotiation is
+   * only legible as a negotiation if you can see what was proposed before, what
+   * the desk said back, and what changed as a result. The latest offer alone
+   * shows the outcome and hides the argument.
+   */
+  history: { offer: Offer; verdict: GuardVerdict | null }[]
+
   /** Every counter the desk has sent this merchant. */
   counters: { round: number; counter: CounterRequest }[]
   withdrawn: string | null
@@ -125,6 +135,7 @@ const reduce = (state: DeskState, event: DeskEvent): DeskState => {
           ...m,
           offer: null,
           verdict: null,
+          history: [],
           counters: [],
           withdrawn: null,
           pending: true
@@ -136,7 +147,18 @@ const reduce = (state: DeskState, event: DeskEvent): DeskState => {
         ...state,
         merchants: state.merchants.map(m =>
           m.id === event.offer.merchant_id
-            ? { ...m, offer: event.offer, verdict: event.verdict, pending: false }
+            ? {
+                ...m,
+                offer: event.offer,
+                verdict: event.verdict,
+
+                // Replay re-sends events, so an offer already recorded is
+                // updated in place rather than appended twice.
+                history: m.history.some(h => h.offer.id === event.offer.id)
+                  ? m.history.map(h => (h.offer.id === event.offer.id ? { offer: event.offer, verdict: event.verdict } : h))
+                  : [...m.history, { offer: event.offer, verdict: event.verdict }],
+                pending: false
+              }
             : m
         )
       }

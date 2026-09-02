@@ -484,6 +484,18 @@ export const materializeOffer = (args: {
 
   const quote = computeQuote(merchant, bundle, nights, travelers)
 
+  /*
+   * The agent writes its own summary of what changed, and sometimes names a
+   * catalog id rather than the thing it refers to ("Removed ps-breakfast").
+   * Those ids are ours, not the traveller's, so they are swapped back for the
+   * names a person would recognise before the text is shown to anyone.
+   */
+  const readable = (line: string) =>
+    [...merchant.rooms, ...merchant.addons].reduce(
+      (text, item) => text.replaceAll(item.id, item.name.toLowerCase()),
+      line
+    )
+
   return {
     id: `off_${merchant.slug}_r${round}_${now.getTime().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
     negotiation_id: negotiationId,
@@ -491,8 +503,8 @@ export const materializeOffer = (args: {
     round,
     bundle,
     quote,
-    rationale: proposal.rationale,
-    changes_from_previous: proposal.changes_from_previous,
+    rationale: readable(proposal.rationale),
+    changes_from_previous: proposal.changes_from_previous.map(readable),
     status: 'proposed',
     created_at: now.toISOString(),
     expires_at: new Date(now.getTime() + merchant.policy.offer_ttl_minutes * 60_000).toISOString()

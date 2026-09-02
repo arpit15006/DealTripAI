@@ -4,10 +4,10 @@
 import { ArrowDownIcon, BanIcon, Loader2Icon, StarIcon } from 'lucide-react'
 
 // Component Imports
-import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import AgentJudgment from './agent-judgment'
+import Exchange from './exchange'
 import GuardChecklist from './guard-checklist'
 import PropertyImage from './property-image'
 
@@ -83,20 +83,18 @@ const OfferCard = ({ merchant, required, image, originEvent, className }: Props)
           </div>
         ) : (
           <>
-            <div className='flex items-end justify-between gap-2'>
+            <div className='flex items-start justify-between gap-3'>
               <div>
-                <p className='text-xl font-semibold tabular-nums'>{formatINR(offer.quote.total_price)}</p>
+                <p className='price'>{formatINR(offer.quote.total_price)}</p>
                 {offer.quote.discount_pct > 0 && (
-                  <p className='text-muted-foreground text-xs'>
+                  <p className='meta'>
                     <span className='line-through'>{formatINR(offer.quote.list_price)}</span>
                     <span className='ml-1.5'>−{offer.quote.discount_pct}%</span>
                   </p>
                 )}
               </div>
               <div className='flex flex-col items-end gap-1'>
-                <Badge variant='outline' className='h-5.5 px-2 text-xs font-normal'>
-                  round {offer.round}
-                </Badge>
+                <span className='meta'>round {offer.round}</span>
                 <span className='text-muted-foreground text-xs'>
                   {formatStay(offer.quote.check_in, offer.quote.nights)} · {weekdayName(offer.quote.check_in)} in
                 </span>
@@ -142,21 +140,11 @@ const OfferCard = ({ merchant, required, image, originEvent, className }: Props)
               </div>
             )}
 
-            {merchant.counters.length > 0 && (
-              <details className='group'>
-                <summary className='text-muted-foreground hover:text-foreground cursor-pointer text-xs'>
-                  {merchant.counters.length} counter-request
-                  {merchant.counters.length === 1 ? '' : 's'} sent by the desk
-                </summary>
-                <div className='mt-1.5 flex flex-col gap-1.5'>
-                  {merchant.counters.map(({ round, counter }) => (
-                    <p key={round} className='text-muted-foreground border-l-2 pl-2 text-xs'>
-                      <span className='font-medium'>Round {round}, cap {formatINR(counter.max_price)}:</span>{' '}
-                      {counter.message}
-                    </p>
-                  ))}
-                </div>
-              </details>
+            {(merchant.history.length > 1 || merchant.counters.length > 0) && (
+              <div className='inset'>
+                <p className='eyebrow mb-2'>The exchange</p>
+                <Exchange merchant={merchant} />
+              </div>
             )}
 
             {verdict && <GuardChecklist verdict={verdict} />}
