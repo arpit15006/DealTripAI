@@ -368,10 +368,5 @@ so the last room could be sold twice. Closed with an atomic hold.
 
 ## Attribution & disclosure
 
-UI built on [shadcn/studio](https://shadcnstudio.com)'s Tourix template (licensed), on
-[shadcn/ui](https://ui.shadcn.com) and [Base UI](https://base-ui.com). Photography is
-destination imagery from the template, chosen to match each property's character, it is
-**not** photography of real rooms, and no room-level imagery is claimed.
-
 **All merchants, inventory, prices and availability in this project are synthetic**,
 published for the Buildathon. Nothing here is bookable. Razorpay runs in **test mode only**.
