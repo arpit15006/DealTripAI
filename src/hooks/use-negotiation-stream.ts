@@ -12,12 +12,15 @@ export interface DeskMerchant {
   name: string
   tagline: string
   rating: number
+
   /** Latest offer this merchant has on the table, if any. */
   offer: Offer | null
   verdict: GuardVerdict | null
+
   /** Every counter the desk has sent this merchant. */
   counters: { round: number; counter: CounterRequest }[]
   withdrawn: string | null
+
   /** Drives the "thinking" state while we wait for a response. */
   pending: boolean
 }
@@ -29,6 +32,7 @@ export interface DeskState {
   ranked: RankedOffer[]
   explanation: string
   error: string | null
+
   /** True once the stream has closed, the run is over, successfully or not. */
   finished: boolean
 }

@@ -1,8 +1,10 @@
 import * as React from 'react'
 
 import { cva, type VariantProps } from 'class-variance-authority'
-import { cn } from '@/lib/utils'
+
 import { IconCircle, IconCheck, IconX } from '@tabler/icons-react'
+
+import { cn } from '@/lib/utils'
 
 const timelineVariants = cva('grid', {
   variants: {

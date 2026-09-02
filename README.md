@@ -24,12 +24,12 @@ Guard** authorises (or refuses) every offer before it can be seen, ranked or pai
 > **Agents choose packages. Code computes money.**
 
 A merchant agent picks a room, a set of add-ons, a check-in date and a discount percentage.
-It never emits a rupee figure - [`pricing.ts`](frontend/src/lib/dealtrip/pricing.ts) is the
+It never emits a rupee figure - [`pricing.ts`](src/lib/dealtrip/pricing.ts) is the
 only module that produces one. The **Commerce Guard** then re-derives the entire quote from
 the catalog and compares it line by line.
 
 So *"the AI cannot invent a price"* is not a claim in a pitch deck. It is a checked property,
-and there is [a test for it](frontend/src/lib/dealtrip/__tests__/commerce-guard.test.ts):
+and there is [a test for it](src/lib/dealtrip/__tests__/commerce-guard.test.ts):
 hand the guard a tampered quote and it refuses.
 
 ---
@@ -129,7 +129,7 @@ at it and negotiate against these merchants with an agent nobody here wrote.
   "mcpServers": {
     "dealtrip": {
       "command": "npx",
-      "args": ["tsx", "<repo>/frontend/src/mcp/server.ts"],
+      "args": ["tsx", "<repo>/src/mcp/server.ts"],
       "env": { "DEALTRIP_BASE_URL": "http://localhost:3000" }
     }
   }
@@ -190,10 +190,29 @@ publishing it just means every buyer opens by demanding the limit.
 
 ---
 
+## Layout
+
+```
+src/lib/dealtrip/     the engine
+  pricing.ts          the only module that produces a rupee figure
+  commerce-guard.ts   13 deterministic checks; recomputes every price
+  merchant-agent.ts   merchant-side agent (model, with a planner fallback)
+  merchant-planner.ts exhaustive legal-package search: the fallback, and the floor
+  orchestrator.ts     buyer-side desk: discovery, counters, ranking
+  scoring.ts          deterministic deal scoring
+  store.ts            Postgres + in-memory, incl. atomic inventory holds
+  seed.ts             15 merchants across 3 destinations
+  __tests__/          44 tests
+
+src/mcp/server.ts     MCP server, lets any external agent transact
+src/app/api/          REST + SSE, the public agent endpoints, the Razorpay webhook
+src/views/dealtrip/   the screens
+src/components/ui/    shadcn/ui + Base UI primitives (from the Tourix template)
+```
+
 ## Running it
 
 ```bash
-cd frontend
 pnpm install
 cp .env.example .env.local   # add your keys
 pnpm dev                     # http://localhost:3000

@@ -1,3 +1,5 @@
+import { IconHeart } from '@tabler/icons-react'
+
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -12,7 +14,6 @@ import {
 } from '@/components/ui/timeline'
 
 import { cn } from '@/lib/utils'
-import { IconHeart } from '@tabler/icons-react'
 
 interface TimelineDataItem {
   id: number
@@ -36,7 +37,7 @@ const TrackOrderPreview = ({ className, timelineData }: TrackOrderPreviewProps) 
           <span className='mb-3 text-lg font-semibold'>Track Your Order</span>
           <Card className='mb-6 grid gap-0 overflow-hidden p-0 md:grid-cols-6'>
             <figure className='bg-muted relative flex items-center justify-center overflow-hidden md:col-span-2'>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
+              { }
               <img
                 src='https://cdn.shadcnstudio.com/ss-assets/blocks/marketing/timeline/image-12.png'
                 className='h-50 w-40 object-contain transition-transform duration-300 hover:scale-105'
