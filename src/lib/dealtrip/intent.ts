@@ -9,7 +9,7 @@
  * A silently misread hard constraint is the single worst failure this product
  * can have, so the parse is a checkpoint rather than a step.
  */
-import type { z } from 'zod'
+import { z } from 'zod'
 
 import { structured } from './llm'
 import { ATTRIBUTES, ATTRIBUTE_LABELS, BudgetSchema, IntentExtractionSchema } from './types'
@@ -242,26 +242,34 @@ export const heuristicIntent = (raw: string, knownDestinations: string[]): Inten
     .filter(([, s]) => s === 'required')
     .map(([a]) => ATTRIBUTE_LABELS[a].toLowerCase())
 
-  return {
-    destination: destination || 'Goa',
-    travelers: Math.max(1, travelers),
-    rooms: rooms === null ? null : Math.min(10, Math.max(1, rooms)),
-    duration_nights: Math.max(1, nights),
-    budget: {
-      max: budgetMax ?? 60_000,
-      currency: 'INR',
-      type: hard ? 'hard_constraint' : 'soft_target'
+  const bounded = withinLimits(
+    {
+      destination: destination || 'Goa',
+      travelers,
+      rooms,
+      duration_nights: nights,
+      budget: {
+        max: budgetMax ?? UNSTATED.budget_max,
+        currency: 'INR' as const,
+        type: (hard ? 'hard_constraint' : 'soft_target') as 'hard_constraint' | 'soft_target'
+      },
+      requirements,
+      date_flexibility_days: flexibility,
+      check_in: null,
+      priority,
+      notes: ''
     },
-    requirements,
-    date_flexibility_days: Math.min(14, flexibility),
-    check_in: null,
-    priority,
-    notes: '',
+    ambiguities
+  )
+
+  return {
+    ...bounded,
     ambiguities: ambiguities.slice(0, 6),
     restatement:
-      `${Math.max(1, nights)} night${nights === 1 ? '' : 's'} in ${destination || 'Goa'} for ${travelers}` +
-      `${rooms ? ` in ${rooms} room${rooms === 1 ? '' : 's'}` : ''}, ` +
-      `up to ${(budgetMax ?? 60_000).toLocaleString('en-IN')} rupees` +
+      `${bounded.duration_nights} night${bounded.duration_nights === 1 ? '' : 's'} in ${bounded.destination} ` +
+      `for ${bounded.travelers}` +
+      `${bounded.rooms ? ` in ${bounded.rooms} room${bounded.rooms === 1 ? '' : 's'}` : ''}, ` +
+      `up to ${bounded.budget.max.toLocaleString('en-IN')} rupees` +
       (requiredList.length ? `, with ${requiredList.join(' and ')} as must-have${requiredList.length === 1 ? '' : 's'}.` : '.')
   }
 }
@@ -293,6 +301,97 @@ const UNSTATED = {
 } as const
 
 /**
+ * The bounds the rest of the system is built on, and the one place an
+ * out-of-range number is brought inside them.
+ *
+ * Both paths need this, for the same reason and with different urgency.
+ *
+ * The model can return 400 nights. The regex parser can too: "400 nights for
+ * 90 people" is a perfectly good match for its patterns. And the fallback's
+ * output was never validated, so it flowed out of a function whose whole
+ * purpose is to be the thing that cannot fail, into an endpoint that rejected
+ * it with a 502. That failure landed precisely when the model was already
+ * down, which is the one moment the fallback exists to cover.
+ *
+ * Clamping rather than rejecting is deliberate. Somebody who types 400 nights
+ * has made a typo or is testing the box; either way "45 nights is more than we
+ * can book, using 30" tells them what happened and leaves them a field to fix,
+ * where a server error tells them DealTrip is broken.
+ */
+const LIMITS = {
+  travelers: { min: 1, max: 20, unit: 'travellers' },
+  rooms: { min: 1, max: 10, unit: 'rooms' },
+  duration_nights: { min: 1, max: 30, unit: 'nights' },
+  date_flexibility_days: { min: 0, max: 14, unit: 'days' }
+} as const
+
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(max, Math.max(min, Math.trunc(Number.isFinite(value) ? value : min)))
+
+/**
+ * Bring the numeric fields inside their bounds, appending a note for anything
+ * that actually moved. Mutates `notes` rather than returning them separately
+ * so both callers can interleave these with their own assumptions.
+ */
+const withinLimits = <T extends {
+  travelers: number
+  rooms: number | null
+  duration_nights: number
+  date_flexibility_days: number
+  check_in: string | null
+  budget: { max: number }
+}>(
+  intent: T,
+  notes: string[]
+): T => {
+  const fix = (key: keyof typeof LIMITS, given: number) => {
+    const { min, max, unit } = LIMITS[key]
+    const used = clamp(given, min, max)
+
+    if (used !== given) notes.push(`${given} ${unit} is outside what can be booked here, using ${used}.`)
+
+    return used
+  }
+
+  /*
+   * A check-in that has already been and gone.
+   *
+   * `resolveCheckIns` filters past dates out of the window, correctly, and an
+   * empty window then made every merchant withdraw. The reason they gave was
+   * "lowest policy-compliant price is INF", because an empty date list reduces
+   * to `Math.min()` of nothing. So a typo in a year produced five merchants
+   * declining for a reason that was not true and could not be acted on.
+   *
+   * Dropping it to null is the honest correction: they clearly meant a date,
+   * we cannot tell which, and the merchant proposing one is the existing
+   * behaviour for a traveller who never gave one.
+   */
+  const today = new Date().toISOString().slice(0, 10)
+  const checkIn = intent.check_in !== null && intent.check_in < today ? null : intent.check_in
+
+  if (checkIn !== intent.check_in) notes.push(`${intent.check_in} has already passed, so the dates are open.`)
+
+  // A budget of zero or less is not a cheap trip, it is an unusable number, and
+  // every merchant would withdraw against it for a reason the traveller could
+  // not act on.
+  const budgetMax = Math.trunc(intent.budget.max)
+  const budget = budgetMax > 0 ? budgetMax : UNSTATED.budget_max
+
+  if (budget !== budgetMax)
+    notes.push(`A budget of ${budgetMax} cannot be booked against, using ${budget.toLocaleString('en-IN')} rupees.`)
+
+  return {
+    ...intent,
+    check_in: checkIn,
+    travelers: fix('travelers', intent.travelers),
+    rooms: intent.rooms === null ? null : fix('rooms', intent.rooms),
+    duration_nights: fix('duration_nights', intent.duration_nights),
+    date_flexibility_days: fix('date_flexibility_days', intent.date_flexibility_days),
+    budget: { ...intent.budget, max: budget }
+  }
+}
+
+/**
  * A model that leaves a field null usually also lists it in `ambiguities`, in
  * its own words ("trip length in nights"). Announcing the assumption ourselves
  * would then say the same thing twice in one list, and the six-item cap means
@@ -306,10 +405,15 @@ const RESTATED_BY_US: Record<'travelers' | 'nights' | 'budget', RegExp> = {
 }
 
 const ExtractionResponseSchema = IntentExtractionSchema.extend({
-  travelers: IntentExtractionSchema.shape.travelers.nullable(),
-  duration_nights: IntentExtractionSchema.shape.duration_nights.nullable(),
-  budget: BudgetSchema.extend({ max: BudgetSchema.shape.max.nullable() }),
-  date_flexibility_days: IntentExtractionSchema.shape.date_flexibility_days.nullable()
+  // Bounds are deliberately dropped here and reapplied by `withinLimits`. A
+  // model that answers "45 nights" has understood the request and overshot a
+  // limit it was never told about; throwing the whole extraction away over it
+  // loses the destination, the budget and every requirement too.
+  travelers: z.number().int().nullable(),
+  rooms: z.number().int().nullable().default(null),
+  duration_nights: z.number().int().nullable(),
+  budget: BudgetSchema.extend({ max: z.number().int().nullable() }),
+  date_flexibility_days: z.number().int().nullable()
 }).transform((raw): IntentExtraction => {
   const assumed: string[] = []
   const covered: RegExp[] = []
@@ -329,12 +433,19 @@ const ExtractionResponseSchema = IntentExtractionSchema.extend({
     covered.push(RESTATED_BY_US.budget)
   }
 
+  const bounded = withinLimits(
+    {
+      ...raw,
+      travelers: raw.travelers ?? UNSTATED.travelers,
+      duration_nights: raw.duration_nights ?? UNSTATED.nights,
+      budget: { ...raw.budget, max: raw.budget.max ?? UNSTATED.budget_max },
+      date_flexibility_days: raw.date_flexibility_days ?? UNSTATED.flexibility
+    },
+    assumed
+  )
+
   return {
-    ...raw,
-    travelers: raw.travelers ?? UNSTATED.travelers,
-    duration_nights: raw.duration_nights ?? UNSTATED.nights,
-    budget: { ...raw.budget, max: raw.budget.max ?? UNSTATED.budget_max },
-    date_flexibility_days: raw.date_flexibility_days ?? UNSTATED.flexibility,
+    ...bounded,
 
     // Assumptions first: they are the ones the traveller most needs to correct,
     // and the list is capped at six.

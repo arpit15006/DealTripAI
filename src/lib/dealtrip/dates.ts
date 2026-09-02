@@ -18,6 +18,21 @@ export const parseDay = (iso: string): number => {
 
 export const toIso = (ms: number): string => new Date(ms).toISOString().slice(0, 10)
 
+/**
+ * Is this a real calendar day in ISO form?
+ *
+ * `Date.parse` alone is not enough: it accepts "2026-02-30" and rolls it into
+ * March, so a date nobody can check into becomes a date the system prices
+ * happily. Round-tripping catches that, and the shape test catches the rest.
+ */
+export const isIsoDate = (value: unknown): value is string => {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
+
+  const ms = Date.parse(`${value}T00:00:00Z`)
+
+  return !Number.isNaN(ms) && toIso(ms) === value
+}
+
 export const addDays = (iso: string, days: number): string => toIso(parseDay(iso) + days * MS_PER_DAY)
 
 export const daysBetween = (from: string, to: string): number =>

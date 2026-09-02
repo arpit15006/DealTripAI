@@ -8,6 +8,8 @@
  */
 import { z } from 'zod'
 
+import { isIsoDate } from './dates'
+
 import { ATTRIBUTES } from './vocabulary'
 
 import type { Actor, Attribute } from './vocabulary'
@@ -70,8 +72,19 @@ export const TravelIntentSchema = z.object({
   requirements: z.partialRecord(AttributeSchema, RequirementStrengthSchema),
   date_flexibility_days: z.number().int().min(0).max(14),
 
-  /** ISO date, optional. Absent means "merchant may propose". */
-  check_in: z.string().nullable().default(null),
+  /**
+   * ISO date, optional. Absent means "merchant may propose".
+   *
+   * Format-checked rather than taken as any string. This field is written by a
+   * model, and "next Friday" reaching `resolveCheckIns` throws before any
+   * handler can catch it, which turns one bad token into a failed negotiation
+   * rather than a rejected field.
+   */
+  check_in: z
+    .string()
+    .refine(isIsoDate, 'check_in must be a real calendar date as YYYY-MM-DD')
+    .nullable()
+    .default(null),
 
   /** What the traveller optimises for when trade-offs are unavoidable. */
   priority: z.enum(['lowest_price', 'best_value', 'best_experience']),

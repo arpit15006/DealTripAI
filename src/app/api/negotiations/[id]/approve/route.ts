@@ -36,6 +36,22 @@ export const POST = async (request: Request, { params }: { params: Promise<{ id:
 
   if (offer.status === 'purchased') return fail(409, 'This offer has already been paid for.')
 
+  /*
+   * One trip, one booking.
+   *
+   * The check above asks whether THIS offer was paid for, which says nothing
+   * about the other five on the same negotiation. Once one is booked the rest
+   * are still `authorized`, so approving a different merchant would raise a
+   * second order and, if paid, charge the traveller twice for one trip and hold
+   * inventory at two properties. Nothing else on this route would have caught
+   * it: the guard adjudicates one offer against the intent, and both offers
+   * pass that on their own merits.
+   */
+  if (negotiation.status === 'booked' && negotiation.selected_offer_id !== offer.id)
+    return fail(409, 'This trip is already booked with another property.', {
+      booked_offer_id: negotiation.selected_offer_id
+    })
+
   const merchants = await allMerchants()
   const merchant = merchants.find(m => m.id === offer.merchant_id)
 

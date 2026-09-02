@@ -332,6 +332,12 @@ export const explainNoCandidate = (input: PlanInput): string => {
   const { merchant, intent, nights, travelers, target_price, allowed_check_ins } = input
   const required = requirementsOf(intent, 'required')
 
+  // With nothing to quote for, the price search below reduces to Math.min() of
+  // an empty list, and every merchant declined citing a lowest price of INF.
+  // The date window is the problem, and saying so is the only useful answer.
+  if (allowed_check_ins.length === 0)
+    return `No bookable check-in date: every date in the traveller's window has already passed.`
+
   const fitting = merchant.rooms
     .map(room => ({ room, count: roomsNeeded(room, travelers, intent.rooms) }))
     .filter(({ room, count }) => room.inventory_available >= count)

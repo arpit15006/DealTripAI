@@ -152,6 +152,23 @@ const IntentComposer = () => {
               </Alert>
             )}
 
+            {/*
+              A destination nobody sells in is a dead end the traveller can only
+              discover by confirming, watching the desk spin up and being told
+              no merchant covers it. It is knowable here, where the field that
+              fixes it is one control away.
+            */}
+            {!parsed.known_destinations.some(d => d.toLowerCase() === intent.destination.toLowerCase()) && (
+              <Alert variant='warning'>
+                <TriangleAlertIcon />
+                <AlertTitle>No properties in {intent.destination} yet</AlertTitle>
+                <AlertDescription>
+                  This marketplace currently covers {parsed.known_destinations.join(', ')}. Negotiating for{' '}
+                  {intent.destination} will come back empty, so pick one of those above.
+                </AlertDescription>
+              </Alert>
+            )}
+
             {parsed.ambiguities.length > 0 && (
               <Alert variant='info'>
                 <InfoIcon />

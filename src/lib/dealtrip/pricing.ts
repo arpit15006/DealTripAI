@@ -59,11 +59,23 @@ export const findAddOn = (merchant: Merchant, addonId: string): AddOn | undefine
  * units is a separate question with a separate answer, and the honest one is a
  * withdrawal rather than a smaller booking the traveller never agreed to.
  */
-export const roomsNeeded = (room: Room, travelers: number, requested: number | null): number => {
+export const roomsNeeded = (room: Room, travelers: number, requested: number | null | undefined): number => {
   const occupancy = Math.max(1, room.max_occupancy)
   const party = Math.max(1, travelers)
   const minimum = Math.ceil(party / occupancy)
-  const wanted = requested === null ? minimum : Math.max(Math.trunc(requested), minimum)
+
+  /*
+   * Anything that is not a usable number means "not stated".
+   *
+   * A strict `=== null` test looked equivalent and was not: intents stored
+   * before this field existed carry `undefined`, because a Zod default applies
+   * when a document is parsed and nothing re-parses rows already in the
+   * database. `Math.trunc(undefined)` is NaN, NaN propagates through Math.max,
+   * and the guard then rejected a real offer citing "1 unit where NaN would
+   * do". Every negotiation older than this field would have been unbookable.
+   */
+  const stated = Number.isFinite(requested as number) ? Math.trunc(requested as number) : null
+  const wanted = stated === null ? minimum : Math.max(stated, minimum)
 
   return Math.min(wanted, party)
 }
