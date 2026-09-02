@@ -36,20 +36,6 @@ const Footer = () => {
           >
             Discovery document
           </Link>
-          <Link
-            href='/.well-known/agent-commerce.json'
-            target='_blank'
-            className='text-muted-foreground hover:text-foreground text-sm transition duration-300'
-          >
-            Discovery document
-          </Link>
-          <Link
-            href='/.well-known/agent-commerce.json'
-            target='_blank'
-            className='text-muted-foreground hover:text-foreground text-sm transition duration-300'
-          >
-            Discovery document
-          </Link>
         </div>
       </div>
     </footer>
