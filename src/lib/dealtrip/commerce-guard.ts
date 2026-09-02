@@ -117,6 +117,7 @@ export const guardOffer = ({ merchant, offer, intent, rounds_used, allowed_check
    * agent that quietly sells one suite where two rooms were asked for is
    * making a substitution the traveller never agreed to, and it would
    * otherwise be invisible because the arithmetic still balances.            */
+  const bedrooms = Math.max(1, room.bedrooms ?? 1)
   const expectedRooms = roomsNeeded(room, quote.travelers, intent.rooms)
   const roomCountOk = roomCount === expectedRooms
 
@@ -128,7 +129,9 @@ export const guardOffer = ({ merchant, offer, intent, rounds_used, allowed_check
       roomCountOk
         ? intent.rooms === null
           ? `${unit(roomCount)}, the fewest that hold ${quote.travelers}.`
-          : `${unit(roomCount)}, as requested.`
+          : bedrooms > 1
+            ? `${unit(roomCount)} of a ${bedrooms}-bedroom unit, giving the ${intent.rooms} rooms asked for.`
+            : `${unit(roomCount)}, as requested.`
         : roomCount < expectedRooms
           ? `Offers ${unit(roomCount)} where ${expectedRooms} were asked for.`
           : `Offers ${unit(roomCount)} where ${expectedRooms} would do.`,

@@ -48,10 +48,13 @@ export const findAddOn = (merchant: Merchant, addonId: string): AddOn | undefine
  *  1. Occupancy is a floor, not a preference. A party of four cannot be sold
  *     one room that sleeps two however politely they ask, so a stated room
  *     count is raised to what legally holds them rather than honoured blindly.
- *  2. A stated count above that floor is honoured. "Two rooms for four" is a
- *     request for privacy, not a rounding of "one room for four", and quietly
- *     substituting the cheaper arrangement is the kind of silent downgrade this
- *     system exists to prevent.
+ *  2. A stated count is measured in BEDROOMS, not in units. "Two rooms for
+ *     four" is a request for privacy, not a rounding of "one room for four",
+ *     and quietly substituting the cheaper arrangement is the kind of silent
+ *     downgrade this system exists to prevent. But a Two-Bedroom Villa already
+ *     delivers two rooms, and counting units instead of bedrooms sold that
+ *     party two villas: four bedrooms and eight beds for four people, at
+ *     nearly double the price of the offer that beat it.
  *  3. Nobody needs more rooms than there are people, which caps the absurd end
  *     ("nine rooms for two") without needing to argue with the traveller.
  *
@@ -61,6 +64,7 @@ export const findAddOn = (merchant: Merchant, addonId: string): AddOn | undefine
  */
 export const roomsNeeded = (room: Room, travelers: number, requested: number | null | undefined): number => {
   const occupancy = Math.max(1, room.max_occupancy)
+  const bedrooms = Math.max(1, room.bedrooms ?? 1)
   const party = Math.max(1, travelers)
   const minimum = Math.ceil(party / occupancy)
 
@@ -75,7 +79,12 @@ export const roomsNeeded = (room: Room, travelers: number, requested: number | n
    * do". Every negotiation older than this field would have been unbookable.
    */
   const stated = Number.isFinite(requested as number) ? Math.trunc(requested as number) : null
-  const wanted = stated === null ? minimum : Math.max(stated, minimum)
+
+  // Units needed to reach the requested number of separate rooms. One villa
+  // with two bedrooms answers a request for two rooms; two family rooms that
+  // sleep four between them do not, because each is still one room.
+  const forPrivacy = stated === null ? minimum : Math.ceil(stated / bedrooms)
+  const wanted = Math.max(minimum, forPrivacy)
 
   return Math.min(wanted, party)
 }

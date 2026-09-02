@@ -174,6 +174,13 @@ const DraftSchema = z.object({
         /** Model estimates a cost ratio; it never sets margin policy directly. */
         cost_ratio: z.number().min(0.2).max(0.9),
         max_occupancy: z.number().int().min(1).max(12),
+
+        /**
+         * Separate sleeping rooms in the unit. Defaults to 1, which is right
+         * for almost everything; a two-bedroom villa says 2, so a party asking
+         * for two rooms is sold one villa rather than two.
+         */
+        bedrooms: z.number().int().min(1).max(6).default(1),
         attributes: z.array(z.enum(ATTRIBUTES)).max(10),
         inventory_available: z.number().int().min(0).max(200)
       })
@@ -213,8 +220,9 @@ Return ONLY a JSON object:
   "rating": number,
   "attributes": string[],            // property-level, inherited by every room
   "rooms": [{ "name", "tier" (1-5), "base_price_per_night" (whole INR),
-              "cost_ratio" (0.2-0.9), "max_occupancy", "attributes": string[],
-              "inventory_available" }],
+              "cost_ratio" (0.2-0.9), "max_occupancy", "bedrooms" (1 unless the
+              unit genuinely has separate sleeping rooms, e.g. a two-bedroom
+              villa is 2), "attributes": string[], "inventory_available" }],
   "addons": [{ "name", "price" (whole INR), "cost_ratio", "per_night", "per_person",
                "attributes": string[], "group": string | null }],
   "voice": string                     // how this property talks, one sentence
@@ -257,6 +265,7 @@ const draftFallback = (text: string): MerchantDraft => {
         base_price_per_night: price,
         cost_ratio: 0.55,
         max_occupancy: 2,
+        bedrooms: 1,
         attributes: [],
         inventory_available: 5
       }
@@ -283,6 +292,9 @@ export const draftToMerchant = (
     base_price_per_night: r.base_price_per_night,
     cost_per_night: Math.round(r.base_price_per_night * r.cost_ratio),
     max_occupancy: r.max_occupancy,
+
+    // A unit cannot hold more separate bedrooms than it holds people.
+    bedrooms: Math.min(r.bedrooms, r.max_occupancy),
     attributes: r.attributes,
     inventory_available: r.inventory_available
   }))

@@ -248,3 +248,37 @@ describe('the guard checks the count it was asked for', () => {
     assert.match(inventory.detail, /needs 2 units/)
   })
 })
+
+describe('a unit that already contains several rooms', () => {
+  const palmstay = SEED_MERCHANTS.find(m => m.slug === 'palmstay') as Merchant
+
+  /** Sleeps 4, two separate bedrooms, two in stock. */
+  const villa = palmstay.rooms.find(r => r.id === 'ps-villa') as Room
+
+  /** Sleeps 2, one bedroom. */
+  const cabana = palmstay.rooms.find(r => r.id === 'ps-cabana') as Room
+
+  it('answers a request for two rooms with one two-bedroom villa', () => {
+    // Counting units rather than bedrooms sold this party TWO villas: four
+    // bedrooms and eight beds for four people, at nearly double the price of
+    // the offer that beat it.
+    assert.equal(villa.bedrooms, 2)
+    assert.equal(roomsNeeded(villa, 4, 2), 1)
+  })
+
+  it('still needs two of a one-bedroom unit for the same request', () => {
+    assert.equal(roomsNeeded(cabana, 4, 2), 2)
+  })
+
+  it('does not let bedrooms undercut what the party physically needs', () => {
+    // Six people in a villa sleeping four still need two villas, whatever the
+    // bedroom count says about privacy.
+    assert.equal(roomsNeeded(villa, 6, 2), 2)
+  })
+
+  it('treats a missing bedroom count as one room', () => {
+    const legacy = { ...villa, bedrooms: undefined } as unknown as Room
+
+    assert.equal(roomsNeeded(legacy, 4, 2), 2)
+  })
+})

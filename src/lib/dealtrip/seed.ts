@@ -50,6 +50,7 @@ export const SEED_MERCHANTS: Merchant[] = [
         base_price_per_night: 11900,
         cost_per_night: 6300,
         max_occupancy: 3,
+        bedrooms: 1,
         attributes: ['quiet', 'balcony'],
         inventory_available: 6
       },
@@ -60,6 +61,7 @@ export const SEED_MERCHANTS: Merchant[] = [
         base_price_per_night: 15400,
         cost_per_night: 8300,
         max_occupancy: 2,
+        bedrooms: 1,
         attributes: ['sea_view', 'balcony'],
         inventory_available: 4
       },
@@ -70,6 +72,7 @@ export const SEED_MERCHANTS: Merchant[] = [
         base_price_per_night: 19200,
         cost_per_night: 10400,
         max_occupancy: 3,
+        bedrooms: 1,
         attributes: ['sea_view', 'balcony', 'romantic'],
         inventory_available: 2
       }
@@ -116,6 +119,7 @@ export const SEED_MERCHANTS: Merchant[] = [
         base_price_per_night: 21000,
         cost_per_night: 13900,
         max_occupancy: 4,
+        bedrooms: 2,
         attributes: ['beachfront', 'sea_view', 'kitchenette', 'balcony'],
         inventory_available: 2
       },
@@ -126,6 +130,7 @@ export const SEED_MERCHANTS: Merchant[] = [
         base_price_per_night: 12400,
         cost_per_night: 8900,
         max_occupancy: 2,
+        bedrooms: 1,
         attributes: ['quiet', 'balcony'],
         inventory_available: 5
       }
@@ -168,6 +173,7 @@ export const SEED_MERCHANTS: Merchant[] = [
         base_price_per_night: 11200,
         cost_per_night: 6400,
         max_occupancy: 2,
+        bedrooms: 1,
         attributes: ['quiet'],
         inventory_available: 8
       },
@@ -178,6 +184,7 @@ export const SEED_MERCHANTS: Merchant[] = [
         base_price_per_night: 15600,
         cost_per_night: 8600,
         max_occupancy: 3,
+        bedrooms: 1,
         attributes: ['sea_view', 'balcony'],
         inventory_available: 5
       },
@@ -188,6 +195,7 @@ export const SEED_MERCHANTS: Merchant[] = [
         base_price_per_night: 19800,
         cost_per_night: 11200,
         max_occupancy: 4,
+        bedrooms: 2,
         attributes: ['sea_view', 'balcony', 'spa'],
         inventory_available: 3
       }
@@ -231,6 +239,7 @@ export const SEED_MERCHANTS: Merchant[] = [
         base_price_per_night: 9600,
         cost_per_night: 5200,
         max_occupancy: 2,
+        bedrooms: 1,
         attributes: ['workspace', 'quiet'],
         inventory_available: 6
       },
@@ -241,6 +250,7 @@ export const SEED_MERCHANTS: Merchant[] = [
         base_price_per_night: 16400,
         cost_per_night: 9100,
         max_occupancy: 3,
+        bedrooms: 1,
         attributes: ['beachfront', 'sea_view', 'kitchenette'],
         inventory_available: 3
       }
@@ -283,6 +293,7 @@ export const SEED_MERCHANTS: Merchant[] = [
         base_price_per_night: 17800,
         cost_per_night: 9600,
         max_occupancy: 2,
+        bedrooms: 1,
         attributes: ['sea_view', 'balcony'],
         inventory_available: 4
       },
@@ -293,6 +304,7 @@ export const SEED_MERCHANTS: Merchant[] = [
         base_price_per_night: 24500,
         cost_per_night: 13200,
         max_occupancy: 2,
+        bedrooms: 1,
         attributes: ['sea_view', 'balcony', 'romantic'],
         inventory_available: 2
       }
@@ -329,8 +341,8 @@ export const SEED_MERCHANTS: Merchant[] = [
     image: '/images/countries/switzerland/switzerland-1.webp',
     attributes: ['wifi', 'quiet', 'family_friendly', 'free_cancellation'],
     rooms: [
-      { id: 'ar-valley', name: 'Valley View Room', tier: 3, base_price_per_night: 8400, cost_per_night: 4600, max_occupancy: 3, attributes: ['balcony'], inventory_available: 7 },
-      { id: 'ar-cabin', name: 'Cedar Cabin', tier: 4, base_price_per_night: 12600, cost_per_night: 6900, max_occupancy: 4, attributes: ['balcony', 'kitchenette', 'romantic'], inventory_available: 3 }
+      { id: 'ar-valley', name: 'Valley View Room', tier: 3, base_price_per_night: 8400, cost_per_night: 4600, max_occupancy: 3, bedrooms: 1, attributes: ['balcony'], inventory_available: 7 },
+      { id: 'ar-cabin', name: 'Cedar Cabin', tier: 4, base_price_per_night: 12600, cost_per_night: 6900, max_occupancy: 4, bedrooms: 1, attributes: ['balcony', 'kitchenette', 'romantic'], inventory_available: 3 }
     ],
     addons: [
       { id: 'ar-breakfast', name: 'Mountain breakfast', price: 700, cost: 300, per_night: true, per_person: false, attributes: ['breakfast'], group: 'meals' },
@@ -372,9 +384,9 @@ export const SEED_MERCHANTS: Merchant[] = [
     image: '/images/countries/switzerland/switzerland-3.webp',
     attributes: ['pool', 'gym', 'wifi', 'air_conditioning', 'family_friendly', 'free_cancellation'],
     rooms: [
-      { id: 'sp-valley', name: 'Valley Twin', tier: 2, base_price_per_night: 7400, cost_per_night: 4100, max_occupancy: 3, attributes: ['balcony'], inventory_available: 12 },
-      { id: 'sp-summit', name: 'Summit Room', tier: 3, base_price_per_night: 10800, cost_per_night: 5900, max_occupancy: 3, attributes: ['balcony', 'quiet'], inventory_available: 7 },
-      { id: 'sp-suite', name: 'Glacier Suite', tier: 4, base_price_per_night: 15200, cost_per_night: 8300, max_occupancy: 4, attributes: ['balcony', 'spa', 'romantic'], inventory_available: 3 }
+      { id: 'sp-valley', name: 'Valley Twin', tier: 2, base_price_per_night: 7400, cost_per_night: 4100, max_occupancy: 3, bedrooms: 1, attributes: ['balcony'], inventory_available: 12 },
+      { id: 'sp-summit', name: 'Summit Room', tier: 3, base_price_per_night: 10800, cost_per_night: 5900, max_occupancy: 3, bedrooms: 1, attributes: ['balcony', 'quiet'], inventory_available: 7 },
+      { id: 'sp-suite', name: 'Glacier Suite', tier: 4, base_price_per_night: 15200, cost_per_night: 8300, max_occupancy: 4, bedrooms: 1, attributes: ['balcony', 'spa', 'romantic'], inventory_available: 3 }
     ],
     addons: [
       { id: 'sp-breakfast', name: 'Breakfast buffet', price: 650, cost: 280, per_night: true, per_person: true, attributes: ['breakfast'], group: 'meals' },
@@ -409,8 +421,8 @@ export const SEED_MERCHANTS: Merchant[] = [
     image: '/images/countries/chile/chile-2.webp',
     attributes: ['wifi', 'city_center', 'nightlife_nearby', 'free_cancellation'],
     rooms: [
-      { id: 'hi-standard', name: 'Standard Double', tier: 1, base_price_per_night: 3200, cost_per_night: 2050, max_occupancy: 2, attributes: [], inventory_available: 9 },
-      { id: 'hi-deodar', name: 'Deodar View Room', tier: 2, base_price_per_night: 4900, cost_per_night: 3000, max_occupancy: 3, attributes: ['balcony'], inventory_available: 5 }
+      { id: 'hi-standard', name: 'Standard Double', tier: 1, base_price_per_night: 3200, cost_per_night: 2050, max_occupancy: 2, bedrooms: 1, attributes: [], inventory_available: 9 },
+      { id: 'hi-deodar', name: 'Deodar View Room', tier: 2, base_price_per_night: 4900, cost_per_night: 3000, max_occupancy: 3, bedrooms: 1, attributes: ['balcony'], inventory_available: 5 }
     ],
     addons: [
       { id: 'hi-breakfast', name: 'Cafe breakfast', price: 350, cost: 190, per_night: true, per_person: true, attributes: ['breakfast'], group: 'meals' },
@@ -445,8 +457,8 @@ export const SEED_MERCHANTS: Merchant[] = [
     image: '/images/countries/switzerland/switzerland-4.webp',
     attributes: ['quiet', 'romantic', 'wifi', 'free_cancellation'],
     rooms: [
-      { id: 'cv-cedar', name: 'Cedar Chalet', tier: 4, base_price_per_night: 14800, cost_per_night: 7900, max_occupancy: 2, attributes: ['balcony', 'kitchenette', 'romantic'], inventory_available: 4 },
-      { id: 'cv-ridge', name: 'Ridge Chalet', tier: 5, base_price_per_night: 21500, cost_per_night: 11200, max_occupancy: 3, attributes: ['balcony', 'kitchenette', 'romantic', 'spa'], inventory_available: 2 }
+      { id: 'cv-cedar', name: 'Cedar Chalet', tier: 4, base_price_per_night: 14800, cost_per_night: 7900, max_occupancy: 2, bedrooms: 1, attributes: ['balcony', 'kitchenette', 'romantic'], inventory_available: 4 },
+      { id: 'cv-ridge', name: 'Ridge Chalet', tier: 5, base_price_per_night: 21500, cost_per_night: 11200, max_occupancy: 3, bedrooms: 1, attributes: ['balcony', 'kitchenette', 'romantic', 'spa'], inventory_available: 2 }
     ],
     addons: [
       { id: 'cv-hamper', name: 'Breakfast hamper', price: 1250, cost: 560, per_night: true, per_person: false, attributes: ['breakfast'], group: 'meals' },
@@ -480,8 +492,8 @@ export const SEED_MERCHANTS: Merchant[] = [
     image: '/images/countries/canada/canada-3.webp',
     attributes: ['workspace', 'wifi', 'quiet', 'air_conditioning', 'pet_friendly', 'free_cancellation'],
     rooms: [
-      { id: 'bw-studio', name: 'Work Studio', tier: 3, base_price_per_night: 6800, cost_per_night: 3600, max_occupancy: 2, attributes: ['kitchenette', 'workspace'], inventory_available: 10 },
-      { id: 'bw-corner', name: 'Corner Studio', tier: 4, base_price_per_night: 9400, cost_per_night: 4900, max_occupancy: 3, attributes: ['kitchenette', 'workspace', 'balcony'], inventory_available: 4 }
+      { id: 'bw-studio', name: 'Work Studio', tier: 3, base_price_per_night: 6800, cost_per_night: 3600, max_occupancy: 2, bedrooms: 1, attributes: ['kitchenette', 'workspace'], inventory_available: 10 },
+      { id: 'bw-corner', name: 'Corner Studio', tier: 4, base_price_per_night: 9400, cost_per_night: 4900, max_occupancy: 3, bedrooms: 1, attributes: ['kitchenette', 'workspace', 'balcony'], inventory_available: 4 }
     ],
     addons: [
       { id: 'bw-breakfast', name: 'Breakfast delivered', price: 480, cost: 240, per_night: true, per_person: true, attributes: ['breakfast'], group: 'meals' },
@@ -514,8 +526,8 @@ export const SEED_MERCHANTS: Merchant[] = [
     image: '/images/countries/india/india-3.webp',
     attributes: ['wifi', 'air_conditioning', 'city_center', 'romantic', 'spa'],
     rooms: [
-      { id: 'ha-courtyard', name: 'Courtyard Chamber', tier: 3, base_price_per_night: 13800, cost_per_night: 7200, max_occupancy: 2, attributes: ['quiet'], inventory_available: 5 },
-      { id: 'ha-lake', name: 'Lake-Facing Suite', tier: 5, base_price_per_night: 22400, cost_per_night: 11800, max_occupancy: 3, attributes: ['balcony', 'romantic'], inventory_available: 2 }
+      { id: 'ha-courtyard', name: 'Courtyard Chamber', tier: 3, base_price_per_night: 13800, cost_per_night: 7200, max_occupancy: 2, bedrooms: 1, attributes: ['quiet'], inventory_available: 5 },
+      { id: 'ha-lake', name: 'Lake-Facing Suite', tier: 5, base_price_per_night: 22400, cost_per_night: 11800, max_occupancy: 3, bedrooms: 1, attributes: ['balcony', 'romantic'], inventory_available: 2 }
     ],
     addons: [
       { id: 'ha-breakfast', name: 'Rooftop breakfast', price: 1200, cost: 500, per_night: true, per_person: false, attributes: ['breakfast'], group: 'meals' },
@@ -556,9 +568,9 @@ export const SEED_MERCHANTS: Merchant[] = [
     image: '/images/countries/switzerland/switzerland-2.webp',
     attributes: ['pool', 'spa', 'wifi', 'air_conditioning', 'romantic', 'city_center'],
     rooms: [
-      { id: 'pp-courtyard', name: 'Courtyard Room', tier: 3, base_price_per_night: 16800, cost_per_night: 8600, max_occupancy: 2, attributes: ['quiet'], inventory_available: 8 },
-      { id: 'pp-lake', name: 'Lake-Facing Room', tier: 4, base_price_per_night: 24500, cost_per_night: 12400, max_occupancy: 3, attributes: ['balcony', 'romantic'], inventory_available: 5 },
-      { id: 'pp-suite', name: 'Maharani Suite', tier: 5, base_price_per_night: 38000, cost_per_night: 18900, max_occupancy: 4, attributes: ['balcony', 'romantic', 'spa'], inventory_available: 2 }
+      { id: 'pp-courtyard', name: 'Courtyard Room', tier: 3, base_price_per_night: 16800, cost_per_night: 8600, max_occupancy: 2, bedrooms: 1, attributes: ['quiet'], inventory_available: 8 },
+      { id: 'pp-lake', name: 'Lake-Facing Room', tier: 4, base_price_per_night: 24500, cost_per_night: 12400, max_occupancy: 3, bedrooms: 1, attributes: ['balcony', 'romantic'], inventory_available: 5 },
+      { id: 'pp-suite', name: 'Maharani Suite', tier: 5, base_price_per_night: 38000, cost_per_night: 18900, max_occupancy: 4, bedrooms: 1, attributes: ['balcony', 'romantic', 'spa'], inventory_available: 2 }
     ],
     addons: [
       { id: 'pp-breakfast', name: 'Courtyard breakfast', price: 1400, cost: 590, per_night: true, per_person: true, attributes: ['breakfast'], group: 'meals' },
@@ -593,9 +605,9 @@ export const SEED_MERCHANTS: Merchant[] = [
     image: '/images/countries/india/india-4.webp',
     attributes: ['pool', 'wifi', 'air_conditioning', 'family_friendly', 'free_cancellation'],
     rooms: [
-      { id: 'sc-garden', name: 'Garden Room', tier: 2, base_price_per_night: 7600, cost_per_night: 4200, max_occupancy: 3, attributes: ['quiet'], inventory_available: 14 },
-      { id: 'sc-family', name: 'Family Room', tier: 3, base_price_per_night: 11400, cost_per_night: 6100, max_occupancy: 5, attributes: ['balcony', 'family_friendly'], inventory_available: 8 },
-      { id: 'sc-connect', name: 'Interconnecting Pair', tier: 4, base_price_per_night: 16200, cost_per_night: 8800, max_occupancy: 6, attributes: ['balcony', 'family_friendly'], inventory_available: 3 }
+      { id: 'sc-garden', name: 'Garden Room', tier: 2, base_price_per_night: 7600, cost_per_night: 4200, max_occupancy: 3, bedrooms: 1, attributes: ['quiet'], inventory_available: 14 },
+      { id: 'sc-family', name: 'Family Room', tier: 3, base_price_per_night: 11400, cost_per_night: 6100, max_occupancy: 5, bedrooms: 1, attributes: ['balcony', 'family_friendly'], inventory_available: 8 },
+      { id: 'sc-connect', name: 'Interconnecting Pair', tier: 4, base_price_per_night: 16200, cost_per_night: 8800, max_occupancy: 6, bedrooms: 1, attributes: ['balcony', 'family_friendly'], inventory_available: 3 }
     ],
     addons: [
       { id: 'sc-breakfast', name: 'Family breakfast', price: 620, cost: 270, per_night: true, per_person: true, attributes: ['breakfast'], group: 'meals' },
@@ -629,8 +641,8 @@ export const SEED_MERCHANTS: Merchant[] = [
     image: '/images/countries/greece/greece-4.webp',
     attributes: ['wifi', 'city_center', 'nightlife_nearby', 'free_cancellation'],
     rooms: [
-      { id: 'ah-private', name: 'Small Private Room', tier: 1, base_price_per_night: 2900, cost_per_night: 1750, max_occupancy: 2, attributes: [], inventory_available: 11 },
-      { id: 'ah-terrace', name: 'Terrace Room', tier: 2, base_price_per_night: 4400, cost_per_night: 2600, max_occupancy: 3, attributes: ['balcony'], inventory_available: 6 }
+      { id: 'ah-private', name: 'Small Private Room', tier: 1, base_price_per_night: 2900, cost_per_night: 1750, max_occupancy: 2, bedrooms: 1, attributes: [], inventory_available: 11 },
+      { id: 'ah-terrace', name: 'Terrace Room', tier: 2, base_price_per_night: 4400, cost_per_night: 2600, max_occupancy: 3, bedrooms: 1, attributes: ['balcony'], inventory_available: 6 }
     ],
     addons: [
       { id: 'ah-breakfast', name: 'Cafe breakfast', price: 300, cost: 150, per_night: true, per_person: true, attributes: ['breakfast'], group: 'meals' },
@@ -663,8 +675,8 @@ export const SEED_MERCHANTS: Merchant[] = [
     image: '/images/countries/greece/greece-3.webp',
     attributes: ['wifi', 'air_conditioning', 'pet_friendly', 'quiet', 'free_cancellation'],
     rooms: [
-      { id: 'fv-garden', name: 'Garden Villa', tier: 3, base_price_per_night: 12600, cost_per_night: 7100, max_occupancy: 4, attributes: ['kitchenette', 'balcony'], inventory_available: 3 },
-      { id: 'fv-lake', name: 'Lake View Villa', tier: 4, base_price_per_night: 18400, cost_per_night: 10200, max_occupancy: 5, attributes: ['kitchenette', 'balcony', 'romantic'], inventory_available: 2 }
+      { id: 'fv-garden', name: 'Garden Villa', tier: 3, base_price_per_night: 12600, cost_per_night: 7100, max_occupancy: 4, bedrooms: 1, attributes: ['kitchenette', 'balcony'], inventory_available: 3 },
+      { id: 'fv-lake', name: 'Lake View Villa', tier: 4, base_price_per_night: 18400, cost_per_night: 10200, max_occupancy: 5, bedrooms: 1, attributes: ['kitchenette', 'balcony', 'romantic'], inventory_available: 2 }
     ],
     addons: [
       // No kitchen of its own, so no breakfast product exists to sell. A

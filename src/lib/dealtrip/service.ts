@@ -79,15 +79,33 @@ const seedOnce = async (): Promise<DealTripStore> => {
     drifted.push(seed.slug)
   }
 
-  // Onboarded merchants are not ours to reshape, but they must still parse.
+  /*
+   * Onboarded merchants are not ours to reshape, but they must still parse.
+   *
+   * A stored document does not gain a field just because the schema did: Zod
+   * defaults apply when something is parsed, and these rows are read straight
+   * back as JSON. Every field added since a row was written has to be filled
+   * in explicitly here or it stays undefined forever, which is how `bedrooms`
+   * and `rooms` both ended up reading as NaN somewhere downstream.
+   */
   for (const merchant of existing) {
     if (SEED_MERCHANTS.some(s => s.slug === merchant.slug)) continue
-    if (Number.isFinite(merchant.weekend_uplift_pct) && merchant.image !== undefined) continue
+
+    const complete =
+      Number.isFinite(merchant.weekend_uplift_pct) &&
+      merchant.image !== undefined &&
+      merchant.rooms.every(r => Number.isFinite(r.bedrooms))
+
+    if (complete) continue
 
     await store.upsertMerchant({
       ...merchant,
       weekend_uplift_pct: merchant.weekend_uplift_pct ?? 20,
-      image: merchant.image ?? ''
+      image: merchant.image ?? '',
+      rooms: merchant.rooms.map(r => ({
+        ...r,
+        bedrooms: Number.isFinite(r.bedrooms) ? r.bedrooms : 1
+      }))
     })
     drifted.push(merchant.slug)
   }

@@ -120,6 +120,18 @@ export const RoomSchema = z.object({
   /** Merchant's true cost. Never leaves the server. Drives the margin floor. */
   cost_per_night: z.number().int().nonnegative(),
   max_occupancy: z.number().int().min(1),
+
+  /**
+   * Separate sleeping rooms inside this unit. Almost always 1.
+   *
+   * Without it, a Two-Bedroom Villa that sleeps four is indistinguishable from
+   * a family room that sleeps four, and a party of four asking for two rooms
+   * was sold TWO villas: four bedrooms, eight beds, and nearly double the
+   * price of the offer that won. Guessing from the name is not an option and
+   * ignoring the distinction is what produced the silly offer, so the catalog
+   * states it.
+   */
+  bedrooms: z.number().int().min(1).max(6).default(1),
   attributes: z.array(AttributeSchema),
   inventory_available: z.number().int().nonnegative()
 })
