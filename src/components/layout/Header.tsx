@@ -1,7 +1,7 @@
 'use client'
 
 // Third-party Imports
-import { CalendarCheckIcon, LayoutDashboardIcon, PackageIcon, SearchIcon, UserIcon } from 'lucide-react'
+import { HistoryIcon, LayoutDashboardIcon, SearchIcon, StoreIcon, TrendingUpIcon } from 'lucide-react'
 
 // Component Imports
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -10,9 +10,7 @@ import { Separator } from '@/components/ui/separator'
 import { SidebarTrigger, useSidebar } from '@/components/ui/sidebar'
 import AdminProfileDropdown from '@/components/layout/AdminProfileDropdown'
 import DynamicBreadcrumb from '@/components/layout/DynamicBreadcrumb'
-import ModeToggle from '@/components/layout/ModeToggle'
 import CommandMenu from './CommandMenu'
-import ThemeCustomizer from './ThemeCustomizer'
 
 // Store Imports
 import { useAdminPersonalInfo } from '@/store/use-admin-profile-store'
@@ -26,11 +24,18 @@ import { cn } from '@/lib/utils'
 // Data Imports
 import { adminSearchData } from '@/assets/data/admin-search'
 
+/**
+ * What the palette offers before anything is typed.
+ *
+ * These were still the template's own pages, and all three of the lower ones
+ * pointed at routes this product does not have, so the first thing the palette
+ * did was offer three dead ends.
+ */
 const ADMIN_SEARCH_SUGGESTIONS = [
-  { icon: LayoutDashboardIcon, name: 'Dashboard', href: '/dashboard' },
-  { icon: CalendarCheckIcon, name: 'All Bookings', href: '/dashboard/bookings' },
-  { icon: PackageIcon, name: 'Tour Packages', href: '/dashboard/tour-packages' },
-  { icon: UserIcon, name: 'Profile Settings', href: '/dashboard/settings/profile' }
+  { icon: LayoutDashboardIcon, name: 'Overview', href: '/dashboard' },
+  { icon: StoreIcon, name: 'All merchants', href: '/dashboard/merchants' },
+  { icon: HistoryIcon, name: 'Negotiations', href: '/dashboard/negotiations' },
+  { icon: TrendingUpIcon, name: 'Revenue simulator', href: '/dashboard/simulator' }
 ]
 
 const Header = () => {
@@ -77,8 +82,6 @@ const Header = () => {
           />
         </div>
         <div className='flex items-center gap-2'>
-          <ThemeCustomizer />
-          <ModeToggle />
           <AdminProfileDropdown
             trigger={
               <Button variant='ghost' size='icon' className='rounded-full' aria-label='Open profile menu'>
