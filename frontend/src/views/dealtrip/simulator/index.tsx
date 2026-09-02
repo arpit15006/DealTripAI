@@ -128,7 +128,7 @@ const RevenueSimulator = ({ destinations }: { destinations: string[] }) => {
   return (
     <div className='flex flex-col gap-6'>
       <div>
-        <h1 className='text-xl font-semibold tracking-tight'>Revenue simulator</h1>
+        <h1 className='type-title text-2xl font-semibold'>Revenue simulator</h1>
         <p className='text-muted-foreground text-sm'>
           The same synthetic demand run twice: once where merchants can negotiate, once where they cannot.
         </p>
@@ -434,8 +434,8 @@ const RevenueSimulator = ({ destinations }: { destinations: string[] }) => {
 
 const Live = ({ label, value, accent }: { label: string; value: string; accent?: boolean }) => (
   <div>
-    <p className='text-muted-foreground text-xs'>{label}</p>
-    <p className={cn('text-sm font-semibold tabular-nums', accent && 'text-primary')}>{value}</p>
+    <p className='eyebrow'>{label}</p>
+    <p className={cn('price-sm', accent && 'text-primary')}>{value}</p>
   </div>
 )
 
@@ -452,15 +452,14 @@ const Delta = ({
   change: string
   positive: boolean
 }) => (
-  <Card className='gap-2 py-4'>
-    <CardContent className='flex flex-col gap-1 px-4'>
-      <p className='text-muted-foreground text-xs'>{label}</p>
-      <p className='text-xl font-semibold tabular-nums'>{to}</p>
-      <p className='text-muted-foreground text-xs'>
-        from <span className='tabular-nums'>{from}</span>
-        <span
-          className={`ml-2 font-medium ${positive ? 'text-green-600 dark:text-green-400' : 'text-destructive'}`}
-        >
+  <Card className='gap-2 py-5'>
+    <CardContent className='flex flex-col gap-1.5 px-4'>
+      <p className='eyebrow'>{label}</p>
+      {/* The agentic figure is the claim; the baseline is context for it. */}
+      <p className='price'>{to}</p>
+      <p className='meta'>
+        from <span className='tabular'>{from}</span>
+        <span className={`ml-2 font-semibold ${positive ? 'text-green-600 dark:text-green-400' : 'text-destructive'}`}>
           {change}
         </span>
       </p>

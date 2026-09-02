@@ -182,7 +182,7 @@ const Checkout = ({ state, negotiationId, offerId }: Props) => {
 
       <div className='flex items-start justify-between gap-3'>
         <div>
-          <h1 className='text-xl font-semibold tracking-tight'>Approve and pay</h1>
+          <h1 className='type-title text-2xl font-semibold'>Approve and pay</h1>
           <p className='text-muted-foreground text-sm'>
             Nothing is charged until you approve this exact offer.
           </p>

@@ -115,7 +115,7 @@ const NegotiationReplay = ({ state, negotiationId }: { state: NegotiationView; n
     <div className='mx-auto w-full max-w-4xl px-4 py-8 sm:px-6'>
       <div className='flex flex-wrap items-start justify-between gap-3'>
         <div>
-          <h1 className='text-xl font-semibold tracking-tight'>Negotiation replay</h1>
+          <h1 className='type-title text-2xl font-semibold'>Negotiation replay</h1>
           <p className='text-muted-foreground text-sm'>
             Step through what every merchant had on the table, event by event.
           </p>
@@ -228,7 +228,7 @@ const NegotiationReplay = ({ state, negotiationId }: { state: NegotiationView; n
             </CardHeader>
             <CardContent className='flex flex-col gap-2 border-t px-4 py-3'>
               {position.withdrawn ? (
-                <p className='text-muted-foreground text-xs'>{position.withdrawn}</p>
+                <p className='meta'>{position.withdrawn}</p>
               ) : position.offer ? (
                 <>
                   <div className='flex items-baseline justify-between gap-2'>
@@ -245,7 +245,7 @@ const NegotiationReplay = ({ state, negotiationId }: { state: NegotiationView; n
                       {position.blocked ? 'blocked' : `round ${position.offer.round}`}
                     </Badge>
                   </div>
-                  <p className='text-muted-foreground text-xs'>
+                  <p className='meta'>
                     {formatStay(position.offer.quote.check_in, position.offer.quote.nights)}
                   </p>
                   {verdictById.get(position.offer.id) && step >= audit.length && (
@@ -253,7 +253,7 @@ const NegotiationReplay = ({ state, negotiationId }: { state: NegotiationView; n
                   )}
                 </>
               ) : (
-                <p className='text-muted-foreground text-xs'>No offer yet.</p>
+                <p className='meta'>No offer yet.</p>
               )}
             </CardContent>
           </Card>

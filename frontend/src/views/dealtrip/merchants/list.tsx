@@ -53,7 +53,7 @@ const MerchantList = ({ merchants, baseUrl }: { merchants: MerchantListItem[]; b
     <div className='flex flex-col gap-6'>
       <div className='flex flex-wrap items-start justify-between gap-3'>
         <div>
-          <h1 className='text-xl font-semibold tracking-tight'>Merchants</h1>
+          <h1 className='type-title text-2xl font-semibold'>Merchants</h1>
           <p className='text-muted-foreground text-sm'>
             {merchants.length} merchants publishing machine-readable catalogs that AI buyers can transact against.
           </p>
@@ -181,8 +181,8 @@ const MerchantList = ({ merchants, baseUrl }: { merchants: MerchantListItem[]; b
 
 const Metric = ({ label, value }: { label: string; value: string }) => (
   <div>
-    <p className='text-foreground text-sm font-medium'>{value}</p>
-    <p className='text-xs'>{label}</p>
+    <p className='price-sm text-foreground'>{value}</p>
+    <p className='eyebrow'>{label}</p>
   </div>
 )
 

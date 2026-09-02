@@ -45,7 +45,7 @@ const TrustTimeline = ({ state, negotiationId }: { state: NegotiationView; negot
     <div className='mx-auto w-full max-w-3xl px-4 py-8 sm:px-6'>
       <div className='flex flex-wrap items-start justify-between gap-3'>
         <div>
-          <h1 className='text-xl font-semibold tracking-tight'>Trust Timeline</h1>
+          <h1 className='type-title text-2xl font-semibold'>Trust Timeline</h1>
           <p className='text-muted-foreground text-sm'>
             Every decision taken on your behalf, in the order it happened.
           </p>
@@ -128,7 +128,7 @@ const Stat = ({ label, value, tone }: { label: string; value: string; tone?: str
   <Card className='gap-1 py-3'>
     <CardContent className='px-4'>
       <p className={`text-lg font-semibold ${tone ?? ''}`}>{value}</p>
-      <p className='text-muted-foreground text-xs'>{label}</p>
+      <p className='meta'>{label}</p>
     </CardContent>
   </Card>
 )

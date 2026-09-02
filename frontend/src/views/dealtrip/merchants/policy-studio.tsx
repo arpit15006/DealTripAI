@@ -133,7 +133,7 @@ const PolicyStudio = ({ merchant: initial }: { merchant: Merchant }) => {
             sizes='48px'
           />
           <div>
-          <h1 className='text-xl font-semibold tracking-tight'>{initial.name}</h1>
+          <h1 className='type-title text-2xl font-semibold'>{initial.name}</h1>
           <p className='text-muted-foreground text-sm'>
             {initial.tagline} · Policy Studio
           </p>
@@ -215,7 +215,7 @@ const PolicyStudio = ({ merchant: initial }: { merchant: Merchant }) => {
               <div className='flex items-start justify-between gap-4'>
                 <div className='flex flex-col gap-0.5'>
                   <Label htmlFor='substitutions'>Allow package substitutions</Label>
-                  <p className='text-muted-foreground text-xs'>
+                  <p className='meta'>
                     Lets the agent swap a room grade or an add-on to reach a target instead of cutting the rate.
                   </p>
                 </div>
@@ -341,7 +341,7 @@ const PolicyStudio = ({ merchant: initial }: { merchant: Merchant }) => {
           <CardContent className='flex flex-col gap-4'>
             {preview ? (
               <>
-                <p className='text-muted-foreground text-xs'>
+                <p className='meta'>
                   For your {preview.room.name} over 3 nights, 2 guests:
                 </p>
 
@@ -362,9 +362,10 @@ const PolicyStudio = ({ merchant: initial }: { merchant: Merchant }) => {
                 <Separator />
 
                 <div>
-                  <p className='text-muted-foreground text-xs'>Lowest your agent can legally sell this for</p>
-                  <p className='text-xl font-semibold tabular-nums'>{formatINR(preview.floors.floor)}</p>
-                  <p className='text-muted-foreground text-xs'>
+                  <p className='eyebrow'>Lowest your agent can legally sell this for</p>
+                  {/* The one number these sliders exist to move. */}
+                  <p className='price'>{formatINR(preview.floors.floor)}</p>
+                  <p className='meta'>
                     The <span className='text-foreground font-medium'>{preview.floors.binding}</span> floor is binding —
                     it is the higher of the two.
                   </p>
@@ -379,7 +380,7 @@ const PolicyStudio = ({ merchant: initial }: { merchant: Merchant }) => {
                 </Alert>
               </>
             ) : (
-              <p className='text-muted-foreground text-xs'>No room available to preview against.</p>
+              <p className='meta'>No room available to preview against.</p>
             )}
           </CardContent>
         </Card>
@@ -429,7 +430,7 @@ const SliderField = ({
       step={step}
       onValueChange={next => onChange(Array.isArray(next) ? next[0] : next)}
     />
-    <p className='text-muted-foreground text-xs'>{hint}</p>
+    <p className='meta'>{hint}</p>
   </div>
 )
 

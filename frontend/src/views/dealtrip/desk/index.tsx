@@ -96,7 +96,7 @@ const DealDesk = ({ negotiationId }: { negotiationId: string }) => {
       <div className='flex flex-col gap-4'>
         <div className='flex flex-wrap items-center justify-between gap-3'>
           <div>
-            <h1 className='text-xl font-semibold tracking-tight'>Live Deal Desk</h1>
+            <h1 className='type-title text-2xl font-semibold'>Live Deal Desk</h1>
             <p className='text-muted-foreground text-sm'>
               {intent
                 ? `${intent.duration_nights} nights in ${intent.destination} for ${intent.travelers}, up to ${formatINR(intent.budget.max)}`

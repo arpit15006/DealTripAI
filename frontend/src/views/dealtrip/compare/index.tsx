@@ -107,7 +107,7 @@ const DealComparison = ({ negotiationId, initialState }: Props) => {
     <div className='mx-auto w-full max-w-5xl px-4 py-8 sm:px-6'>
       <div className='flex flex-wrap items-start justify-between gap-3'>
         <div>
-          <h1 className='text-xl font-semibold tracking-tight'>The deals on the table</h1>
+          <h1 className='type-title text-2xl font-semibold'>The deals on the table</h1>
           <p className='text-muted-foreground text-sm'>
             {negotiation.intent.duration_nights} nights in {negotiation.intent.destination} for{' '}
             {negotiation.intent.travelers}, up to {formatINR(negotiation.intent.budget.max)}

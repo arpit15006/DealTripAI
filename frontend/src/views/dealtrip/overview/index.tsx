@@ -44,7 +44,7 @@ const Overview = ({ health, negotiations }: { health: HealthResponse; negotiatio
   <div className='flex flex-col gap-6'>
     <div className='flex flex-wrap items-start justify-between gap-3'>
       <div>
-        <h1 className='text-xl font-semibold tracking-tight'>Overview</h1>
+        <h1 className='type-title text-2xl font-semibold'>Overview</h1>
         <p className='text-muted-foreground text-sm'>The agentic deal desk for travel.</p>
       </div>
       <Button nativeButton={false} render={<Link href='/' />}>
@@ -167,19 +167,20 @@ const StatusCard = ({
 }) => (
   <Card className='gap-2 py-4'>
     <CardContent className='flex flex-col gap-1.5 px-4'>
-      <div className='text-muted-foreground flex items-center gap-1.5 text-xs [&>svg]:size-3.5'>
+      <div className='eyebrow flex items-center gap-1.5 [&>svg]:size-3.5'>
         {icon}
         {label}
       </div>
       <div className='flex items-center gap-1.5'>
         {ok ? (
-          <CircleCheckIcon className='size-4 shrink-0 text-green-600 dark:text-green-400' />
+          <CircleCheckIcon className='size-4 shrink-0 text-green-600 dark:text-green-400' aria-hidden />
         ) : (
-          <CircleXIcon className='size-4 shrink-0 text-amber-600 dark:text-amber-400' />
+          <CircleXIcon className='size-4 shrink-0 text-amber-600 dark:text-amber-400' aria-hidden />
         )}
-        <span className='text-sm font-semibold'>{value}</span>
+        <span className='price-sm'>{value}</span>
+        <span className='sr-only'>{ok ? '— live' : '— degraded'}</span>
       </div>
-      <p className='text-muted-foreground truncate text-xs'>{detail}</p>
+      <p className='meta truncate'>{detail}</p>
     </CardContent>
   </Card>
 )

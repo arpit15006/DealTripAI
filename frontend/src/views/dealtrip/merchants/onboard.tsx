@@ -86,7 +86,7 @@ const MerchantOnboarding = () => {
   return (
     <div className='flex flex-col gap-6'>
       <div>
-        <h1 className='text-xl font-semibold tracking-tight'>Onboard a merchant</h1>
+        <h1 className='type-title text-2xl font-semibold'>Onboard a merchant</h1>
         <p className='text-muted-foreground text-sm'>
           Paste what you already have. DealTrip turns it into an Agent Commerce Profile that AI buyers can transact
           against.
