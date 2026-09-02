@@ -2,6 +2,7 @@
 import type { ReactNode } from 'react'
 
 // Component Imports
+import ModeSync from './layout/ModeSync'
 import { ThemeProvider } from './ThemeProvider'
 import { SidebarProvider } from './ui/sidebar'
 import { TooltipProvider } from './ui/tooltip'
@@ -20,6 +21,7 @@ const Providers = ({ children, settingsCookie, sidebarDefaultOpen }: Props) => {
   return (
     <ThemeProvider attribute='class' defaultTheme={settingsCookie?.mode ?? 'system'} enableSystem={true}>
       <SettingsProvider settingsCookie={settingsCookie}>
+        <ModeSync />
         <TooltipProvider>
           <SidebarProvider defaultOpen={sidebarDefaultOpen}>{children}</SidebarProvider>
         </TooltipProvider>

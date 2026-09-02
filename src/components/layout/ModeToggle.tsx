@@ -1,8 +1,5 @@
 'use client'
 
-// React Imports
-import { useEffect } from 'react'
-
 // Third-party Imports
 import { useTheme } from 'next-themes'
 import { MoonStarIcon, SunIcon } from 'lucide-react'
@@ -28,13 +25,6 @@ const ModeToggle = () => {
 
     setTheme(newMode)
   }
-
-  useEffect(() => {
-    if (settings.mode) {
-      setTheme(settings.mode)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settings.mode])
 
   return (
     <Button variant='ghost' size='icon' className='relative' onClick={handleModeChange}>

@@ -360,36 +360,41 @@ const DealComparison = ({ negotiationId, initialState }: Props) => {
                         </li>
                       )}
                     </ul>
+
+                    {/*
+                      Every amenity, listed and named, in the gap the price lines
+                      leave behind. A run of dot-separated text truncated at eight
+                      with "+1 more" hid the thing a traveller is actually
+                      comparing, and hid it most often on the richest package.
+                      The score breakdown alongside runs long enough that this
+                      column was mostly empty, so the full list costs no height.
+                    */}
+                    {row.offer.quote.attributes.length > 0 && (
+                      <div className='mt-2 flex flex-col gap-2'>
+                        <p className='text-xs font-medium'>
+                          Amenities included
+                          <span className='text-muted-foreground ml-1.5 font-normal tabular-nums'>
+                            {row.offer.quote.attributes.length}
+                          </span>
+                        </p>
+                        <ul className='grid grid-cols-1 gap-x-4 gap-y-1.5 sm:grid-cols-2'>
+                          {row.offer.quote.attributes.map(a => (
+                            <li key={a} className='flex items-center gap-2 text-sm'>
+                              <CheckIcon
+                                className='size-3.5 shrink-0 text-green-600 dark:text-green-400'
+                                aria-hidden
+                              />
+                              <span>{ATTRIBUTE_LABELS[a]}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
 
                   <ScoreBreakdown score={row.score} />
                 </div>
 
-                {/*
-                  Every amenity, listed and named.
-                  A run of dot-separated text truncated at eight with "+1 more"
-                  hid the thing a traveller is actually comparing, and hid it
-                  most often on the richest package. Given the full width of the
-                  card these fit as a checked list, so nothing needs a count.
-                */}
-                {row.offer.quote.attributes.length > 0 && (
-                  <div className='flex flex-col gap-2'>
-                    <p className='text-xs font-medium'>
-                      Amenities included
-                      <span className='text-muted-foreground ml-1.5 font-normal tabular-nums'>
-                        {row.offer.quote.attributes.length}
-                      </span>
-                    </p>
-                    <ul className='grid grid-cols-1 gap-x-6 gap-y-1.5 sm:grid-cols-2 lg:grid-cols-3'>
-                      {row.offer.quote.attributes.map(a => (
-                        <li key={a} className='flex items-center gap-2 text-sm'>
-                          <CheckIcon className='size-3.5 shrink-0 text-green-600 dark:text-green-400' aria-hidden />
-                          <span>{ATTRIBUTE_LABELS[a]}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
 
                 <GuardChecklist verdict={row.verdict} />
 
