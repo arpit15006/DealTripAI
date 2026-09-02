@@ -4,6 +4,9 @@
 
 Built for the **Razorpay AI Buildathon**, Track 01 - *AI Growth & Agentic Commerce*.
 
+**Live: [dealtripai.vercel.app](https://dealtripai.vercel.app)** - a negotiation takes about a
+minute; five merchant agents are working while the desk streams.
+
 A traveller says what they want. DealTrip turns it into hard constraints, negotiates with
 merchant agents that each defend their own margin, blocks anything outside policy, and
 settles through Razorpay, with every money decision explainable, bounded, gated and
@@ -80,8 +83,8 @@ Intent extraction ─────► confirmed by the traveller before anything 
 Deal Orchestrator ◄────────────────► Merchant Agents  (one per merchant, own objectives)
    │  structured COUNTER_REQUESTs         │  choose room + add-ons + dates + discount
    ▼                                       ▼
-Commerce Guard  ◄── 13 deterministic checks, recomputes every price from the catalog
-                    (14 at payment: the offer must also be the one approved)
+Commerce Guard  ◄── 14 deterministic checks, recomputes every price from the catalog
+                    (15 at payment: the offer must also be the one approved)
    │  authorised offers only
    ▼
 Deal scoring ──► ranked shortlist, hard constraints as a gate
@@ -196,7 +199,7 @@ publishing it just means every buyer opens by demanding the limit.
 ```
 src/lib/dealtrip/     the engine
   pricing.ts          the only module that produces a rupee figure
-  commerce-guard.ts   13 deterministic checks; recomputes every price
+  commerce-guard.ts   14 deterministic checks; recomputes every price
   merchant-agent.ts   merchant-side agent (model, with a planner fallback)
   merchant-planner.ts exhaustive legal-package search: the fallback, and the floor
   orchestrator.ts     buyer-side desk: discovery, counters, ranking
