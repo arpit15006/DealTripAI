@@ -304,6 +304,7 @@ export const draftToMerchant = (
     id: `mch_${slug.replace(/-/g, '_')}`,
     slug,
     name: draft.name,
+
     // Discovery matches a destination exactly, so "Varkala, Kerala" would be
     // unreachable for a traveller who asks for Varkala. The locality is what
     // people search for; the region is context.
