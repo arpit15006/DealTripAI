@@ -9,8 +9,10 @@
  * A silently misread hard constraint is the single worst failure this product
  * can have, so the parse is a checkpoint rather than a step.
  */
+import type { z } from 'zod'
+
 import { structured } from './llm'
-import { ATTRIBUTES, ATTRIBUTE_LABELS, IntentExtractionSchema } from './types'
+import { ATTRIBUTES, ATTRIBUTE_LABELS, BudgetSchema, IntentExtractionSchema } from './types'
 
 import type { Attribute, IntentExtraction, RequirementStrength } from './types'
 import type { LlmResult } from './llm'
@@ -22,11 +24,11 @@ const SYSTEM = `You convert a traveller's free-text request into a structured tr
 Return ONLY a JSON object with exactly these keys:
 {
   "destination": string,              // city or region, Title Case, e.g. "Goa"
-  "travelers": integer,               // number of people
-  "duration_nights": integer,
-  "budget": { "max": integer, "currency": "INR", "type": "hard_constraint" | "soft_target" },
+  "travelers": integer | null,        // number of people, null if not stated
+  "duration_nights": integer | null,  // null if the traveller never said how long
+  "budget": { "max": integer | null, "currency": "INR", "type": "hard_constraint" | "soft_target" },
   "requirements": { "<attribute>": "required" | "preferred" | "avoid" },
-  "date_flexibility_days": integer,   // 0 if they gave fixed dates
+  "date_flexibility_days": integer | null, // 0 if they gave fixed dates
   "check_in": string | null,          // ISO yyyy-mm-dd, or null if unspecified
   "priority": "lowest_price" | "best_value" | "best_experience",
   "ambiguities": string[],            // things you could not resolve, max 6
@@ -46,7 +48,11 @@ Rules that matter:
   emphasise quality and barely mention money, otherwise "best_value".
 - Never invent a requirement the traveller did not express. An empty requirements
   object is a valid and honest answer.
-- If something is genuinely unclear, say so in "ambiguities" rather than guessing.`
+- If something is genuinely unclear, say so in "ambiguities" rather than guessing.
+- travelers, duration_nights, budget.max and date_flexibility_days may be null when
+  the traveller genuinely did not say. Null is the correct answer there, and a safe
+  default is filled in afterwards and shown to them. Never invent a number to avoid
+  a null: a guessed trip length is a constraint merchants get held to.`
 
 /* ------------------------------------------------------------------ *
  * Deterministic fallback
@@ -244,13 +250,89 @@ export const heuristicIntent = (raw: string, knownDestinations: string[]): Inten
   }
 }
 
+/* ------------------------------------------------------------------ *
+ * What the model is allowed to say it does not know
+ *
+ * The strict intent schema requires a number for trip length, party size and
+ * budget. Asked for a trip with no length stated, a well behaved model returns
+ * `duration_nights: null`, which is the honest answer, and validation threw it
+ * away as invalid output. The whole extraction then fell back to the regex
+ * parser, and the UI told the traveller the language model was unavailable
+ * when it had in fact answered correctly.
+ *
+ * So the model-facing schema accepts null on exactly the fields a traveller
+ * plausibly leaves out, and the defaults are filled here rather than by the
+ * model. That matters: a model pressed to produce a number invents one, and an
+ * invented trip length is not a harmless guess, it is a constraint every
+ * merchant is then held to. Filling it here also means the assumption is
+ * announced in `ambiguities`, where the traveller can see and correct it,
+ * which is the same contract the fallback parser already honours.
+ * ------------------------------------------------------------------ */
+
+const UNSTATED = {
+  travelers: 2,
+  nights: 3,
+  budget_max: 60_000,
+  flexibility: 0
+} as const
+
+/**
+ * A model that leaves a field null usually also lists it in `ambiguities`, in
+ * its own words ("trip length in nights"). Announcing the assumption ourselves
+ * would then say the same thing twice in one list, and the six-item cap means
+ * the duplicate crowds out a real ambiguity. Ours wins because it names the
+ * value that was actually filled in.
+ */
+const RESTATED_BY_US: Record<'travelers' | 'nights' | 'budget', RegExp> = {
+  travelers: /\b(travell?ers?|party size|number of (people|guests)|group size|how many)\b/i,
+  nights: /\b(nights?|duration|trip length|how long|length of (stay|trip))\b/i,
+  budget: /\bbudget|price range|spend\b/i
+}
+
+const ExtractionResponseSchema = IntentExtractionSchema.extend({
+  travelers: IntentExtractionSchema.shape.travelers.nullable(),
+  duration_nights: IntentExtractionSchema.shape.duration_nights.nullable(),
+  budget: BudgetSchema.extend({ max: BudgetSchema.shape.max.nullable() }),
+  date_flexibility_days: IntentExtractionSchema.shape.date_flexibility_days.nullable()
+}).transform((raw): IntentExtraction => {
+  const assumed: string[] = []
+  const covered: RegExp[] = []
+
+  if (raw.travelers === null) {
+    assumed.push(`Party size was not stated; assumed ${UNSTATED.travelers} travellers.`)
+    covered.push(RESTATED_BY_US.travelers)
+  }
+
+  if (raw.duration_nights === null) {
+    assumed.push(`Trip length was not stated; assumed ${UNSTATED.nights} nights.`)
+    covered.push(RESTATED_BY_US.nights)
+  }
+
+  if (raw.budget.max === null) {
+    assumed.push(`Budget was not stated; assumed ${UNSTATED.budget_max.toLocaleString('en-IN')} rupees.`)
+    covered.push(RESTATED_BY_US.budget)
+  }
+
+  return {
+    ...raw,
+    travelers: raw.travelers ?? UNSTATED.travelers,
+    duration_nights: raw.duration_nights ?? UNSTATED.nights,
+    budget: { ...raw.budget, max: raw.budget.max ?? UNSTATED.budget_max },
+    date_flexibility_days: raw.date_flexibility_days ?? UNSTATED.flexibility,
+
+    // Assumptions first: they are the ones the traveller most needs to correct,
+    // and the list is capped at six.
+    ambiguities: [...assumed, ...raw.ambiguities.filter(a => !covered.some(re => re.test(a)))].slice(0, 6)
+  }
+}) satisfies z.ZodType<IntentExtraction>
+
 export const extractIntent = async (
   raw: string,
   knownDestinations: string[]
 ): Promise<LlmResult<IntentExtraction>> =>
   structured({
     label: 'intent.extract',
-    schema: IntentExtractionSchema,
+    schema: ExtractionResponseSchema,
     system: SYSTEM,
     user:
       `Destinations this marketplace currently has inventory for: ${knownDestinations.join(', ')}.\n` +

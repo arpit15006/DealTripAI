@@ -47,6 +47,15 @@ type Props = {
 const DealComparison = ({ negotiationId, initialState }: Props) => {
   const [state, setState] = useState<NegotiationState | null>(initialState)
   const [error, setError] = useState<string | null>(null)
+  const [jumped, setJumped] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!jumped) return
+
+    const timer = setTimeout(() => setJumped(null), 1800)
+
+    return () => clearTimeout(timer)
+  }, [jumped])
 
   useEffect(() => {
     if (initialState.negotiation.status !== 'ranked') return
@@ -102,6 +111,24 @@ const DealComparison = ({ negotiationId, initialState }: Props) => {
 
   const openingOf = (merchantId: string) =>
     state.offers.filter(o => o.merchant_id === merchantId).sort((a, b) => a.round - b.round)[0] ?? null
+
+  /**
+   * The glance table is a summary of cards that are further down the same page,
+   * so a row that reads like a link has to behave like one. Landing on the card
+   * with nothing to mark it makes the reader hunt for the row they just clicked,
+   * so the destination announces itself briefly and then gets out of the way.
+   */
+  const jumpToDeal = (offerId: string) => {
+    const target = document.getElementById(`deal-${offerId}`)
+
+    if (!target) return
+
+    target.scrollIntoView({
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+      block: 'start'
+    })
+    setJumped(offerId)
+  }
 
   return (
     <div className='mx-auto w-full max-w-5xl px-4 py-8 sm:px-6'>
@@ -174,7 +201,14 @@ const DealComparison = ({ negotiationId, initialState }: Props) => {
             </TableHeader>
             <TableBody>
               {ranked.map(row => (
-                <TableRow key={row.offer.id} className={cnRow(row.rank === 1 && row.score.eligible)}>
+                <TableRow
+                  key={row.offer.id}
+                  onClick={() => jumpToDeal(row.offer.id)}
+                  className={cn(
+                    'hover:bg-muted/60 cursor-pointer transition-colors',
+                    cnRow(row.rank === 1 && row.score.eligible)
+                  )}
+                >
                   <TableCell>
                     <div className='flex items-center gap-2'>
                       <PropertyImage
@@ -186,7 +220,21 @@ const DealComparison = ({ negotiationId, initialState }: Props) => {
                       />
                       {row.rank === 1 && row.score.eligible && <TrophyIcon className='text-primary size-3.5' />}
                       <div className='min-w-0'>
-                        <p className='truncate text-sm font-medium'>{row.merchant.name}</p>
+                        {/*
+                          A real anchor rather than a click handler on the row alone:
+                          the row click is a convenience, this is what makes the jump
+                          reachable by keyboard and readable to a screen reader.
+                        */}
+                        <a
+                          href={`#deal-${row.offer.id}`}
+                          onClick={event => {
+                            event.preventDefault()
+                            jumpToDeal(row.offer.id)
+                          }}
+                          className='focus-visible:ring-ring block truncate rounded-sm text-sm font-medium hover:underline focus-visible:ring-2 focus-visible:outline-none'
+                        >
+                          {row.merchant.name}
+                        </a>
                         <p className='text-muted-foreground truncate text-xs'>{row.merchant.tagline}</p>
                       </div>
                     </div>
@@ -240,7 +288,12 @@ const DealComparison = ({ negotiationId, initialState }: Props) => {
           return (
             <Card
               key={row.offer.id}
-              className={cn('gap-0 overflow-hidden py-0', row.rank === 1 && 'border-primary/50')}
+              id={`deal-${row.offer.id}`}
+              className={cn(
+                'gap-0 overflow-hidden py-0 transition-shadow duration-500 scroll-mt-20',
+                row.rank === 1 && 'border-primary/50',
+                jumped === row.offer.id && 'ring-primary/60 ring-2'
+              )}
             >
               <PropertyImage
                 src={imageFor(row.merchant.id)}
@@ -354,7 +407,14 @@ const DealComparison = ({ negotiationId, initialState }: Props) => {
           <h2 className='mt-8 text-sm font-semibold'>Ruled out</h2>
           <div className='mt-3 flex flex-col gap-2'>
             {rejected.map(row => (
-              <Card key={row.offer.id} className='gap-0 py-3'>
+              <Card
+                key={row.offer.id}
+                id={`deal-${row.offer.id}`}
+                className={cn(
+                  'gap-0 py-3 transition-shadow duration-500 scroll-mt-20',
+                  jumped === row.offer.id && 'ring-primary/60 ring-2'
+                )}
+              >
                 <CardContent className='flex flex-wrap items-center gap-x-3 gap-y-1 px-4'>
                   <BanIcon className='text-muted-foreground size-3.5 shrink-0' />
                   <span className='text-sm font-medium'>{row.merchant.name}</span>
