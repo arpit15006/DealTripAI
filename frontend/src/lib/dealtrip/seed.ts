@@ -350,6 +350,159 @@ export const SEED_MERCHANTS: Merchant[] = [
     voice: 'Unhurried and outdoorsy.'
   },
 
+
+  /* ══════════════════════════════════════════════════════════════════════
+   * MANALI · mountains
+   *
+   * A different shape of demand to Goa: nobody asks for beachfront, but
+   * kitchenette, quiet, workspace and pet_friendly all become decisive. The
+   * five below deliberately do not overlap, so an intent that names any one
+   * requirement has an obvious winner and an obvious set of near-misses.
+   * ═══════════════════════════════════════════════════════════════════════ */
+
+  {
+    id: 'mch_solang_peaks',
+    slug: 'solang-peaks',
+    name: 'Solang Peaks Resort',
+    destination: 'Manali',
+    tagline: 'Solang valley · full-board activity resort',
+    description:
+      'A 96-room resort at the mouth of the Solang valley with a heated indoor pool, a gym and a guided-activity desk. Sells full board because most guests are out all day and eat where they sleep.',
+    rating: 4.4,
+    image: '/images/countries/switzerland/switzerland-3.webp',
+    attributes: ['pool', 'gym', 'wifi', 'air_conditioning', 'family_friendly', 'free_cancellation'],
+    rooms: [
+      { id: 'sp-valley', name: 'Valley Twin', tier: 2, base_price_per_night: 7400, cost_per_night: 4100, max_occupancy: 3, attributes: ['balcony'], inventory_available: 12 },
+      { id: 'sp-summit', name: 'Summit Room', tier: 3, base_price_per_night: 10800, cost_per_night: 5900, max_occupancy: 3, attributes: ['balcony', 'quiet'], inventory_available: 7 },
+      { id: 'sp-suite', name: 'Glacier Suite', tier: 4, base_price_per_night: 15200, cost_per_night: 8300, max_occupancy: 4, attributes: ['balcony', 'spa', 'romantic'], inventory_available: 3 }
+    ],
+    addons: [
+      { id: 'sp-breakfast', name: 'Breakfast buffet', price: 650, cost: 280, per_night: true, per_person: true, attributes: ['breakfast'], group: 'meals' },
+      { id: 'sp-fullboard', name: 'Full board', price: 1900, cost: 950, per_night: true, per_person: true, attributes: ['breakfast', 'all_meals'], group: 'meals' },
+      { id: 'sp-transfer', name: 'Kullu airport transfer', price: 4600, cost: 2900, per_night: false, per_person: false, attributes: ['airport_transfer'], group: 'transfer' },
+      { id: 'sp-adventure', name: 'Guided adventure day', price: 2800, cost: 1600, per_night: false, per_person: true, attributes: ['water_sports'], group: 'activity' },
+      { id: 'sp-early', name: 'Early check-in', price: 800, cost: 120, per_night: false, per_person: false, attributes: ['early_checkin'], group: 'flex' }
+    ],
+    policy: {
+      max_discount_pct: 11,
+      min_margin_pct: 27,
+      max_counter_rounds: 2,
+      allow_substitutions: true,
+      substitutable_groups: ['meals', 'transfer', 'activity', 'flex', 'room_category'],
+      locked_addons: [],
+      objectives: ['maximize_occupancy', 'increase_package_value', 'maximize_revenue'],
+      offer_ttl_minutes: 20
+    },
+    weekend_uplift_pct: 26,
+    voice: 'Energetic and logistics-minded. Talks about what you will actually do each day.'
+  },
+
+  {
+    id: 'mch_hadimba_inn',
+    slug: 'hadimba-inn',
+    name: 'Hadimba Heritage Inn',
+    destination: 'Manali',
+    tagline: 'Old Manali · walkable and cheap',
+    description:
+      'A plain eleven-room inn a few minutes from Hadimba temple and the Old Manali cafes. No pool, no spa, no transfers worth speaking of. The cheapest bed in the set, and honest about it.',
+    rating: 3.9,
+    image: '',
+    attributes: ['wifi', 'city_center', 'nightlife_nearby', 'free_cancellation'],
+    rooms: [
+      { id: 'hi-standard', name: 'Standard Double', tier: 1, base_price_per_night: 3200, cost_per_night: 2050, max_occupancy: 2, attributes: [], inventory_available: 9 },
+      { id: 'hi-deodar', name: 'Deodar View Room', tier: 2, base_price_per_night: 4900, cost_per_night: 3000, max_occupancy: 3, attributes: ['balcony'], inventory_available: 5 }
+    ],
+    addons: [
+      { id: 'hi-breakfast', name: 'Cafe breakfast', price: 350, cost: 190, per_night: true, per_person: true, attributes: ['breakfast'], group: 'meals' },
+      { id: 'hi-taxi', name: 'Shared taxi from Kullu', price: 1500, cost: 1050, per_night: false, per_person: false, attributes: ['airport_transfer'], group: 'transfer' }
+    ],
+    policy: {
+      // Thin margins leave almost nothing to give: the margin floor binds long
+      // before the discount ceiling does, so this merchant withdraws early
+      // rather than negotiating a deal it cannot afford.
+      max_discount_pct: 6,
+      min_margin_pct: 30,
+      max_counter_rounds: 1,
+      allow_substitutions: true,
+      substitutable_groups: ['meals', 'transfer', 'room_category'],
+      locked_addons: [],
+      objectives: ['maximize_occupancy'],
+      offer_ttl_minutes: 20
+    },
+    weekend_uplift_pct: 14,
+    voice: 'Blunt and unpolished. Quotes a low number and does not pretend to be more than it is.'
+  },
+
+  {
+    id: 'mch_cloudveil',
+    slug: 'cloudveil',
+    name: 'Cloudveil Chalets',
+    destination: 'Manali',
+    tagline: 'Naggar ridge · adults-only chalets',
+    description:
+      'Six standalone cedar chalets on the Naggar ridge, each with a wood stove, a private deck and a kitchenette. Adults only, deliberately hard to reach, and priced for people who want nobody else nearby.',
+    rating: 4.8,
+    image: '/images/countries/switzerland/switzerland-1.webp',
+    attributes: ['quiet', 'romantic', 'wifi', 'free_cancellation'],
+    rooms: [
+      { id: 'cv-cedar', name: 'Cedar Chalet', tier: 4, base_price_per_night: 14800, cost_per_night: 7900, max_occupancy: 2, attributes: ['balcony', 'kitchenette', 'romantic'], inventory_available: 4 },
+      { id: 'cv-ridge', name: 'Ridge Chalet', tier: 5, base_price_per_night: 21500, cost_per_night: 11200, max_occupancy: 3, attributes: ['balcony', 'kitchenette', 'romantic', 'spa'], inventory_available: 2 }
+    ],
+    addons: [
+      { id: 'cv-hamper', name: 'Breakfast hamper', price: 1250, cost: 560, per_night: true, per_person: false, attributes: ['breakfast'], group: 'meals' },
+      { id: 'cv-private', name: 'Private mountain transfer', price: 6200, cost: 3400, per_night: false, per_person: false, attributes: ['airport_transfer', 'private_transfer'], group: 'transfer' },
+      { id: 'cv-spa', name: 'In-chalet massage for two', price: 5400, cost: 2600, per_night: false, per_person: false, attributes: ['spa', 'romantic'], group: 'wellness' },
+      { id: 'cv-latecheckout', name: 'Late checkout', price: 1400, cost: 200, per_night: false, per_person: false, attributes: ['late_checkout'], group: 'flex' }
+    ],
+    policy: {
+      max_discount_pct: 4,
+      min_margin_pct: 38,
+      max_counter_rounds: 1,
+      allow_substitutions: true,
+      substitutable_groups: ['meals', 'wellness', 'flex'],
+      locked_addons: [],
+      objectives: ['protect_margin', 'increase_package_value'],
+      offer_ttl_minutes: 25
+    },
+    weekend_uplift_pct: 34,
+    voice: 'Spare and a little austere. Says less than it could and never discounts to win.'
+  },
+
+  {
+    id: 'mch_beas_workstay',
+    slug: 'beas-workstay',
+    name: 'Beas Workstay',
+    destination: 'Manali',
+    tagline: 'Prini · long-stay studios for remote work',
+    description:
+      'Fourteen serviced studios built for people working a full week from the mountains: a real desk, a fibre line with a backup, a kitchenette in every room and laundry down the hall. Weekly rates, not nightly ones, in spirit.',
+    rating: 4.5,
+    image: '',
+    attributes: ['workspace', 'wifi', 'quiet', 'air_conditioning', 'pet_friendly', 'free_cancellation'],
+    rooms: [
+      { id: 'bw-studio', name: 'Work Studio', tier: 3, base_price_per_night: 6800, cost_per_night: 3600, max_occupancy: 2, attributes: ['kitchenette', 'workspace'], inventory_available: 10 },
+      { id: 'bw-corner', name: 'Corner Studio', tier: 4, base_price_per_night: 9400, cost_per_night: 4900, max_occupancy: 3, attributes: ['kitchenette', 'workspace', 'balcony'], inventory_available: 4 }
+    ],
+    addons: [
+      { id: 'bw-breakfast', name: 'Breakfast delivered', price: 480, cost: 240, per_night: true, per_person: true, attributes: ['breakfast'], group: 'meals' },
+      { id: 'bw-transfer', name: 'Airport transfer', price: 4000, cost: 2600, per_night: false, per_person: false, attributes: ['airport_transfer'], group: 'transfer' },
+      { id: 'bw-desk', name: 'Dedicated desk in the co-working room', price: 700, cost: 180, per_night: true, per_person: true, attributes: ['workspace'], group: 'work' },
+      { id: 'bw-laundry', name: 'Weekly laundry', price: 900, cost: 420, per_night: false, per_person: false, attributes: [], group: 'services' }
+    ],
+    policy: {
+      max_discount_pct: 14,
+      min_margin_pct: 24,
+      max_counter_rounds: 3,
+      allow_substitutions: true,
+      substitutable_groups: ['meals', 'transfer', 'work', 'services', 'room_category'],
+      locked_addons: [],
+      objectives: ['maximize_occupancy', 'move_unsold_inventory'],
+      offer_ttl_minutes: 30
+    },
+    weekend_uplift_pct: 8,
+    voice: 'Practical and specific. Leads with bandwidth, desk height and how quiet the street is.'
+  },
+
   {
     id: 'mch_haveli_amrit',
     slug: 'haveli-amrit',
@@ -380,6 +533,159 @@ export const SEED_MERCHANTS: Merchant[] = [
     },
     weekend_uplift_pct: 24,
     voice: 'Formal and heritage-proud.'
+  },
+
+  /* ══════════════════════════════════════════════════════════════════════
+   * UDAIPUR · lakes and heritage
+   *
+   * Here the decisive attributes are city_center, romantic, spa and
+   * pet_friendly. As in Goa, one property is deliberately unable to satisfy
+   * the destination's most-asked-for requirement, so a hard constraint has
+   * something real to exclude.
+   * ═══════════════════════════════════════════════════════════════════════ */
+
+  {
+    id: 'mch_pichola_palace',
+    slug: 'pichola-palace',
+    name: 'Pichola Palace Retreat',
+    destination: 'Udaipur',
+    tagline: 'Lake Pichola · restored palace wing',
+    description:
+      'Twenty-two rooms in a restored wing of a lakeside palace, with a courtyard pool, a full spa and boats on call. The most expensive inventory in the marketplace, and the least willing to discount.',
+    rating: 4.9,
+    image: '/images/countries/switzerland/switzerland-2.webp',
+    attributes: ['pool', 'spa', 'wifi', 'air_conditioning', 'romantic', 'city_center'],
+    rooms: [
+      { id: 'pp-courtyard', name: 'Courtyard Room', tier: 3, base_price_per_night: 16800, cost_per_night: 8600, max_occupancy: 2, attributes: ['quiet'], inventory_available: 8 },
+      { id: 'pp-lake', name: 'Lake-Facing Room', tier: 4, base_price_per_night: 24500, cost_per_night: 12400, max_occupancy: 3, attributes: ['balcony', 'romantic'], inventory_available: 5 },
+      { id: 'pp-suite', name: 'Maharani Suite', tier: 5, base_price_per_night: 38000, cost_per_night: 18900, max_occupancy: 4, attributes: ['balcony', 'romantic', 'spa'], inventory_available: 2 }
+    ],
+    addons: [
+      { id: 'pp-breakfast', name: 'Courtyard breakfast', price: 1400, cost: 590, per_night: true, per_person: true, attributes: ['breakfast'], group: 'meals' },
+      { id: 'pp-halfboard', name: 'Half board', price: 3200, cost: 1500, per_night: true, per_person: true, attributes: ['breakfast', 'all_meals'], group: 'meals' },
+      { id: 'pp-transfer', name: 'Private car from Dabok', price: 5200, cost: 2700, per_night: false, per_person: false, attributes: ['airport_transfer', 'private_transfer'], group: 'transfer' },
+      { id: 'pp-boat', name: 'Sunset boat for two', price: 6800, cost: 3100, per_night: false, per_person: false, attributes: ['romantic'], group: 'activity' },
+      { id: 'pp-spa', name: 'Royal spa ritual', price: 7400, cost: 3300, per_night: false, per_person: false, attributes: ['spa'], group: 'wellness' }
+    ],
+    policy: {
+      max_discount_pct: 5,
+      min_margin_pct: 40,
+      max_counter_rounds: 1,
+      allow_substitutions: true,
+      substitutable_groups: ['meals', 'activity', 'wellness', 'room_category'],
+      locked_addons: [],
+      objectives: ['protect_margin', 'maximize_revenue'],
+      offer_ttl_minutes: 25
+    },
+    weekend_uplift_pct: 30,
+    voice: 'Formal and unhurried. Sells the address and does not apologise for the rate.'
+  },
+
+  {
+    id: 'mch_saheli_courtyard',
+    slug: 'saheli-courtyard',
+    name: 'Saheli Courtyard',
+    destination: 'Udaipur',
+    tagline: 'Saheliyon ki Bari · family stays',
+    description:
+      'A thirty-room hotel near Saheliyon ki Bari built around a shallow pool, with interconnecting rooms, cots on request and an early dinner service. Designed around families and priced to fill.',
+    rating: 4.4,
+    image: '',
+    attributes: ['pool', 'wifi', 'air_conditioning', 'family_friendly', 'free_cancellation'],
+    rooms: [
+      { id: 'sc-garden', name: 'Garden Room', tier: 2, base_price_per_night: 7600, cost_per_night: 4200, max_occupancy: 3, attributes: ['quiet'], inventory_available: 14 },
+      { id: 'sc-family', name: 'Family Room', tier: 3, base_price_per_night: 11400, cost_per_night: 6100, max_occupancy: 5, attributes: ['balcony', 'family_friendly'], inventory_available: 8 },
+      { id: 'sc-connect', name: 'Interconnecting Pair', tier: 4, base_price_per_night: 16200, cost_per_night: 8800, max_occupancy: 6, attributes: ['balcony', 'family_friendly'], inventory_available: 3 }
+    ],
+    addons: [
+      { id: 'sc-breakfast', name: 'Family breakfast', price: 620, cost: 270, per_night: true, per_person: true, attributes: ['breakfast'], group: 'meals' },
+      { id: 'sc-allmeals', name: 'All meals', price: 1750, cost: 880, per_night: true, per_person: true, attributes: ['breakfast', 'all_meals'], group: 'meals' },
+      { id: 'sc-transfer', name: 'Airport transfer', price: 3400, cost: 1900, per_night: false, per_person: false, attributes: ['airport_transfer'], group: 'transfer' },
+      { id: 'sc-earlycheckin', name: 'Early check-in', price: 950, cost: 160, per_night: false, per_person: false, attributes: ['early_checkin'], group: 'flex' }
+    ],
+    policy: {
+      max_discount_pct: 12,
+      min_margin_pct: 26,
+      max_counter_rounds: 2,
+      allow_substitutions: true,
+      substitutable_groups: ['meals', 'transfer', 'flex', 'room_category'],
+      locked_addons: [],
+      objectives: ['maximize_occupancy', 'increase_package_value'],
+      offer_ttl_minutes: 20
+    },
+    weekend_uplift_pct: 22,
+    voice: 'Warm and reassuring. Answers the questions parents actually ask.'
+  },
+
+  {
+    id: 'mch_ambrai_house',
+    slug: 'ambrai-house',
+    name: 'Ambrai Backpacker House',
+    destination: 'Udaipur',
+    tagline: 'Ambrai ghat · cheap beds by the water',
+    description:
+      'Bunks and small private rooms a minute from Ambrai ghat, above a busy cafe. Loud, central and the cheapest way to sleep in Udaipur. No pool, no spa, no quiet.',
+    rating: 4.1,
+    image: '',
+    attributes: ['wifi', 'city_center', 'nightlife_nearby', 'free_cancellation'],
+    rooms: [
+      { id: 'ah-private', name: 'Small Private Room', tier: 1, base_price_per_night: 2900, cost_per_night: 1750, max_occupancy: 2, attributes: [], inventory_available: 11 },
+      { id: 'ah-terrace', name: 'Terrace Room', tier: 2, base_price_per_night: 4400, cost_per_night: 2600, max_occupancy: 3, attributes: ['balcony'], inventory_available: 6 }
+    ],
+    addons: [
+      { id: 'ah-breakfast', name: 'Cafe breakfast', price: 300, cost: 150, per_night: true, per_person: true, attributes: ['breakfast'], group: 'meals' },
+      { id: 'ah-airport', name: 'Airport pickup', price: 1900, cost: 1300, per_night: false, per_person: false, attributes: ['airport_transfer'], group: 'transfer' },
+      { id: 'ah-locker', name: 'Luggage store and late checkout', price: 500, cost: 120, per_night: false, per_person: false, attributes: ['late_checkout'], group: 'flex' }
+    ],
+    policy: {
+      max_discount_pct: 8,
+      min_margin_pct: 22,
+      max_counter_rounds: 2,
+      allow_substitutions: true,
+      substitutable_groups: ['meals', 'transfer', 'flex', 'room_category'],
+      locked_addons: [],
+      objectives: ['maximize_occupancy', 'move_unsold_inventory'],
+      offer_ttl_minutes: 15
+    },
+    weekend_uplift_pct: 18,
+    voice: 'Casual and unbothered. Tells you where to eat before it tells you about the room.'
+  },
+
+  {
+    id: 'mch_fateh_villas',
+    slug: 'fateh-villas',
+    name: 'Fateh Lake Villas',
+    destination: 'Udaipur',
+    tagline: 'Fateh Sagar · self-catering villas, pets welcome',
+    description:
+      'Four two-bedroom villas above Fateh Sagar with full kitchens, walled gardens and no restaurant at all. Dogs stay free. Nothing here is in the old city, and it does not pretend to be.',
+    rating: 4.6,
+    image: '',
+    attributes: ['wifi', 'air_conditioning', 'pet_friendly', 'quiet', 'free_cancellation'],
+    rooms: [
+      { id: 'fv-garden', name: 'Garden Villa', tier: 3, base_price_per_night: 12600, cost_per_night: 7100, max_occupancy: 4, attributes: ['kitchenette', 'balcony'], inventory_available: 3 },
+      { id: 'fv-lake', name: 'Lake View Villa', tier: 4, base_price_per_night: 18400, cost_per_night: 10200, max_occupancy: 5, attributes: ['kitchenette', 'balcony', 'romantic'], inventory_available: 2 }
+    ],
+    addons: [
+      // No kitchen of its own, so no breakfast product exists to sell. A
+      // traveller who marks breakfast as a must-have cannot be served here at
+      // any price, which is the honest answer rather than a workaround.
+      { id: 'fv-hamper', name: 'Grocery hamper on arrival', price: 2400, cost: 1500, per_night: false, per_person: false, attributes: [], group: 'provisions' },
+      { id: 'fv-transfer', name: 'Airport transfer', price: 3600, cost: 2100, per_night: false, per_person: false, attributes: ['airport_transfer'], group: 'transfer' },
+      { id: 'fv-housekeeping', name: 'Daily housekeeping', price: 800, cost: 520, per_night: true, per_person: false, attributes: [], group: null }
+    ],
+    policy: {
+      max_discount_pct: 9,
+      min_margin_pct: 28,
+      max_counter_rounds: 2,
+      allow_substitutions: true,
+      substitutable_groups: ['provisions', 'transfer', 'room_category'],
+      locked_addons: ['fv-housekeeping'],
+      objectives: ['protect_margin', 'maximize_occupancy'],
+      offer_ttl_minutes: 20
+    },
+    weekend_uplift_pct: 20,
+    voice: 'Low-key and domestic. Talks about the kitchen and the garden gate.'
   }
 ]
 

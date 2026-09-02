@@ -235,6 +235,33 @@ Plus, outside the browser: an **MCP server** (`pnpm mcp`) and a signed
 
 ---
 
+## The marketplace
+
+**15 merchants across 3 destinations**, five apiece, deliberately non-overlapping so that
+any single requirement has an obvious winner and an obvious set of near-misses.
+
+| | Goa (beach) | Manali (mountains) | Udaipur (lakes) |
+|---|---|---|---|
+| **Premium** | OceanVista | Cloudveil Chalets | Pichola Palace |
+| **Family** | Sunset Bay | Alpine Rowan | Saheli Courtyard |
+| **Budget** | Casa Aurora | Hadimba Inn | Ambrai House |
+| **Self-catering / pets** | PalmStay | Beas Workstay | Fateh Lake Villas |
+| **The one that cannot** | Kokum Cliffs (not beachfront) | Solang Peaks | Haveli Amrit |
+
+Each destination has 11 to 14 attributes contested by two or more merchants, 7 to 11 that
+only one merchant offers, and 2 to 5 nobody offers at all, so a hard constraint has
+something real to exclude. Verified per-archetype:
+
+```
+Couple, anniversary    Goa      ≤ ₹60,000  →  OceanVista Resort        ₹44,889  (4 eligible)
+Family of four         Goa      ≤ ₹95,000  →  Sunset Bay Retreat       ₹84,680
+Backpacker, cheapest   Udaipur  ≤ ₹18,000  →  Ambrai Backpacker House  ₹13,944
+Remote worker, 5n      Manali   ≤ ₹55,000  →  Beas Workstay            ₹45,888
+Dog owner              Udaipur  ≤ ₹70,000  →  Fateh Lake Villas        ₹64,960
+Adventure group        Manali   ≤ ₹80,000  →  Solang Peaks Resort      ₹76,500  (5 eligible)
+Wants a beach          Manali   ≤ ₹60,000  →  NO DEAL, there is no beachfront in the mountains
+```
+
 ## Does negotiation actually earn anything?
 
 The simulator runs the **same synthetic demand twice**. Once where merchants may negotiate,
@@ -250,6 +277,14 @@ once where they may not. Against identical catalogs and the same ranking functio
 
 137 offers blocked by the guard; **22 sales recovered** that the static shelf lost outright.
 Margin holds within ~1.4 points. Merchants sold *more*, not cheaper.
+
+Holds across all three destinations, at 120 synthetic travellers each:
+
+```
+Goa      conv 75% -> 83%   revenue +28.5%   margin 48.1% -> 45.9%   102 guard blocks
+Manali   conv 73% -> 75%   revenue +27.1%   margin 47.9% -> 46.3%    44 guard blocks
+Udaipur  conv 71% -> 72%   revenue +43.4%   margin 48.5% -> 48.6%    43 guard blocks
+```
 
 > ⚠️ **These are synthetic evaluation results.** Synthetic travellers, synthetic catalogs.
 > This is not a measurement of real merchant performance and the UI says so above the numbers,
