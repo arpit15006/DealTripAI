@@ -17,7 +17,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import Stepper from '@/views/dealtrip/shared/checkout-stepper'
 import EventFeed from '@/views/dealtrip/shared/event-feed'
-import OfferCard from '@/views/dealtrip/shared/offer-card'
+import StatusTiles from './status-tiles'
+import Tape from './tape'
 
 // Hook Imports
 import { useNegotiationStream } from '@/hooks/use-negotiation-stream'
@@ -76,6 +77,11 @@ const DealDesk = ({ negotiationId }: { negotiationId: string }) => {
     }
   }, [negotiationId])
 
+  const settled = desk.ranked.length > 0
+  const eligible = desk.ranked.filter(r => r.score.eligible)
+
+
+  /** The traveller's must-haves, shown in the header as the standing brief. */
   const required = useMemo(
     () =>
       intent
@@ -86,8 +92,6 @@ const DealDesk = ({ negotiationId }: { negotiationId: string }) => {
     [intent]
   )
 
-  const settled = desk.ranked.length > 0
-  const eligible = desk.ranked.filter(r => r.score.eligible)
   const working = desk.merchants.some(m => m.pending) && !settled
 
   return (
@@ -175,7 +179,7 @@ const DealDesk = ({ negotiationId }: { negotiationId: string }) => {
         <div className='flex flex-col gap-3'>
           <div className='flex items-center gap-2'>
             <h2 id='merchants-heading' className='text-sm font-semibold'>
-              Merchants contacted
+              The negotiation
               {desk.merchants.length > 0 && (
                 <span className='text-muted-foreground ml-1.5 font-normal'>({desk.merchants.length})</span>
               )}
@@ -191,24 +195,28 @@ const DealDesk = ({ negotiationId }: { negotiationId: string }) => {
               </CardContent>
             </Card>
           ) : (
-            <ul aria-labelledby='merchants-heading' className='grid list-none gap-3 sm:grid-cols-2'>
-              {desk.merchants.map(merchant => (
-                <li key={merchant.id}>
-                  <OfferCard
-                    merchant={merchant}
-                    required={required}
-                    image={images[merchant.id]}
-                    originEvent={
-                      desk.audit.findLast(
-                        e =>
-                          (e.action === 'opening_offer' || e.action === 'revised_offer') &&
-                          (e.detail as { offer_id?: string }).offer_id === merchant.offer?.id
-                      ) ?? null
+            <>
+              {/* Where every merchant stands right now. */}
+              <StatusTiles merchants={desk.merchants} images={images} />
+
+              {/* What happened, in the order it happened, across all of them. */}
+              <Card className='gap-0 py-0'>
+                <CardContent className='px-4 py-1'>
+                  <Tape
+                    audit={desk.audit}
+                    merchants={desk.merchants}
+                    working={working}
+                    verdictFor={offerId =>
+                      desk.merchants.find(m => m.offer?.id === offerId)?.verdict ??
+                      (desk.merchants.find(m => m.offer?.id === offerId)?.history.find(h => h.offer.id === offerId)
+                        ?.verdict ??
+                        desk.merchants.flatMap(m => m.history).find(h => h.offer.id === offerId)?.verdict ??
+                        null)
                     }
                   />
-                </li>
-              ))}
-            </ul>
+                </CardContent>
+              </Card>
+            </>
           )}
         </div>
 
