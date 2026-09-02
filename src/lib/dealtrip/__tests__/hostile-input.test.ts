@@ -17,7 +17,8 @@ import { CatalogError, computeQuote } from '../pricing'
 import { SEED_MERCHANTS } from '../seed'
 import { BundleSchema } from '../types'
 
-import type { Merchant, MerchantProposal, TravelIntent } from '../types'
+import type { MerchantProposal } from '../merchant-agent'
+import type { Merchant, TravelIntent } from '../types'
 
 const oceanvista = SEED_MERCHANTS.find(m => m.slug === 'oceanvista') as Merchant
 const CHECK_IN = '2026-10-05'
