@@ -4,6 +4,7 @@ import { IntentExtractionSchema } from '@/lib/dealtrip/types'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
+export const maxDuration = 30
 
 /** Natural language in, a structured intent out for the traveller to confirm. */
 export const POST = async (request: Request) => {

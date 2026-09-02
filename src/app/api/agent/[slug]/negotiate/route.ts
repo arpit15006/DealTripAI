@@ -11,6 +11,7 @@ import type { Offer } from '@/lib/dealtrip/types'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
+export const maxDuration = 60
 
 const RequestSchema = z.object({
   intent: TravelIntentSchema,

@@ -28,8 +28,32 @@ import type { Merchant } from './types'
  * carried across untouched. Those numbers are the operator's, edited in the
  * Policy Studio, and re-seeding is not a reason to silently discard them.
  */
-export const ensureSeeded = async (): Promise<DealTripStore> => {
+declare global {
+  // eslint-disable-next-line no-var
+  var __dealtripSeeded: Promise<DealTripStore> | undefined
+}
+
+/**
+ * Runs once per process, not once per request.
+ *
+ * The drift check reads every merchant and compares it against the catalog.
+ * That is cheap but not free, and it was happening on every single call to
+ * allMerchants() — which is most requests. On a serverless platform that is a
+ * database round trip per invocation for an answer that cannot change while the
+ * instance lives.
+ */
+export const ensureSeeded = (): Promise<DealTripStore> => (globalThis.__dealtripSeeded ??= seedOnce())
+
+const seedOnce = async (): Promise<DealTripStore> => {
   const store = await getStore()
+
+  if (store.kind === 'memory' && process.env.VERCEL)
+    console.error(
+      '[dealtrip] Running on Vercel without a reachable database. Each invocation gets its own ' +
+        'in-memory store, so a negotiation created by one request will not exist for the next. ' +
+        'Set DATABASE_URL.'
+    )
+
   const existing = await store.listMerchants()
 
   if (existing.length === 0) {

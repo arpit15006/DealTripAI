@@ -6,6 +6,10 @@ import type { DeskEvent } from '@/lib/dealtrip/orchestrator'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
+// A full negotiation is five merchants and up to two rounds each, measured at
+// around 60s against Groq's free tier. Vercel clamps this to whatever the plan
+// allows, so declaring the real requirement is better than guessing low.
+export const maxDuration = 300
 
 /**
  * Server-sent events for the Live Deal Desk.

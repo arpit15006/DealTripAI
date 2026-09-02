@@ -11,6 +11,8 @@ import type { Offer } from '@/lib/dealtrip/types'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
+// One merchant agent turn, which is a model call with a retry behind it.
+export const maxDuration = 60
 
 const RequestSchema = z.object({
   intent: TravelIntentSchema,

@@ -234,6 +234,37 @@ leads with it, so a demo can't quietly fall back and let you believe otherwise.
 
 ---
 
+## Deploying to Vercel
+
+```bash
+vercel            # link the project
+vercel --prod
+```
+
+Set these in **Project Settings → Environment Variables** before the first deploy:
+
+| Variable | Notes |
+|---|---|
+| `DATABASE_URL` | **Required.** Serverless invocations do not share memory, so the in-memory fallback cannot carry a negotiation between requests |
+| `GROQ_API_KEY`, `GROQ_MODEL` | Without these the agents run on the deterministic planner |
+| `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET` | Test mode |
+| `NEXT_PUBLIC_RAZORPAY_KEY_ID` | Needed in the browser, so it must be `NEXT_PUBLIC_` |
+| `RAZORPAY_WEBHOOK_SECRET` | Point the webhook at `https://<your-domain>/api/payments/webhook` |
+
+Everything renders on demand, so nothing is baked in at build time and no
+database is needed to build. Agent-facing URLs come from the incoming request,
+so preview deployments advertise their own domain without configuration.
+
+**One thing to check before demoing on Hobby.** A full negotiation is five
+merchants over two rounds and takes roughly 60 seconds against Groq's free tier.
+The stream route declares `maxDuration = 300`, but Vercel clamps that to the
+plan limit, and Hobby caps function execution at 60 seconds. If the stream is
+cut off mid-negotiation, the fix is a faster inference tier rather than a
+smaller marketplace.
+
+To point an MCP client at the deployed marketplace rather than localhost, set
+`DEALTRIP_BASE_URL=https://<your-domain>` in the client config.
+
 ## The screens
 
 | Route | What it is |

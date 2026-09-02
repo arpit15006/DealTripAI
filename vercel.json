@@ -1,5 +1,15 @@
 {
-  "git": {
-    "deploymentEnabled": false
-  }
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "regions": ["bom1"],
+  "headers": [
+    {
+      "source": "/.well-known/agent-commerce.json",
+      "headers": [{ "key": "cache-control", "value": "public, max-age=0, must-revalidate" }]
+    },
+    {
+      "source": "/api/agent/(.*)",
+      "headers": [{ "key": "access-control-allow-origin", "value": "*" }]
+    }
+  ]
 }
