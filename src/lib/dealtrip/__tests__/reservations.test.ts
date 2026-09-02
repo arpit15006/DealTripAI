@@ -3,7 +3,7 @@ import { describe, it } from 'node:test'
 
 import { createMemoryStore } from '../store'
 
-import type { Reservation } from '../store'
+import type { PaymentRecord, Reservation } from '../store'
 
 const hold = (overrides: Partial<Reservation> = {}): Reservation => ({
   id: `res_${Math.random().toString(36).slice(2, 8)}`,
@@ -78,5 +78,97 @@ describe('inventory reservations, the last room cannot be sold twice', () => {
     await store.reserveRoom(hold({ room_id: 'ov-premium-beach' }), 1)
 
     assert.ok(await store.reserveRoom(hold({ room_id: 'ov-garden' }), 1), 'a different room is unaffected')
+  })
+})
+
+describe('payment slots — one live order per offer', () => {
+  const slot = (offerId: string, overrides: Partial<PaymentRecord> = {}): PaymentRecord => ({
+    id: `pay_${Math.random().toString(36).slice(2, 8)}`,
+    negotiation_id: 'neg',
+    offer_id: offerId,
+    razorpay_order_id: null,
+    razorpay_payment_id: null,
+    amount: 50_000,
+    currency: 'INR',
+    status: 'created',
+    failure_reason: null,
+    created_at: new Date().toISOString(),
+    settled_at: null,
+    ...overrides
+  })
+
+  it('lets exactly one caller claim an offer', async () => {
+    const store = await createMemoryStore()
+
+    assert.ok(await store.claimPaymentSlot(slot('off_a')), 'first claim should win')
+    assert.equal(await store.claimPaymentSlot(slot('off_a')), null, 'second claim must lose')
+  })
+
+  it('keeps different offers independent', async () => {
+    const store = await createMemoryStore()
+
+    assert.ok(await store.claimPaymentSlot(slot('off_a')))
+    assert.ok(await store.claimPaymentSlot(slot('off_b')), 'a different offer is unaffected')
+  })
+
+  it('releases a claim abandoned before an order was raised', async () => {
+    const store = await createMemoryStore()
+
+    // A request that won the slot and then died: no order id, and stale.
+    await store.claimPaymentSlot(
+      slot('off_a', { created_at: new Date(Date.now() - 5 * 60_000).toISOString() })
+    )
+
+    assert.ok(
+      await store.claimPaymentSlot(slot('off_a')),
+      'an abandoned claim must not block the offer forever'
+    )
+  })
+
+  it('does not release a claim that already has an order', async () => {
+    const store = await createMemoryStore()
+
+    await store.claimPaymentSlot(
+      slot('off_a', {
+        razorpay_order_id: 'order_live',
+        created_at: new Date(Date.now() - 5 * 60_000).toISOString()
+      })
+    )
+
+    assert.equal(
+      await store.claimPaymentSlot(slot('off_a')),
+      null,
+      'a live order must keep the slot however old it is'
+    )
+  })
+})
+
+describe('payment updates persist every field they are given', () => {
+  it('attaches an order id, so the payment can be found at verification', async () => {
+    const store = await createMemoryStore()
+
+    const claimed = await store.claimPaymentSlot({
+      id: 'pay_1',
+      negotiation_id: 'neg',
+      offer_id: 'off_a',
+      razorpay_order_id: null,
+      razorpay_payment_id: null,
+      amount: 50_000,
+      currency: 'INR',
+      status: 'created',
+      failure_reason: null,
+      created_at: new Date().toISOString(),
+      settled_at: null
+    })
+
+    assert.ok(claimed)
+    await store.updatePayment(claimed.id, { razorpay_order_id: 'order_xyz' })
+
+    // The whole verification path looks a payment up by its order id. If the
+    // update drops the field, a real payment can never be confirmed.
+    const found = await store.getPaymentByOrderId('order_xyz')
+
+    assert.ok(found, 'payment must be findable by the order it was given')
+    assert.equal(found.offer_id, 'off_a')
   })
 })

@@ -95,6 +95,18 @@ export interface DealTripStore {
 
   savePayment(p: PaymentRecord): Promise<void>
   getPaymentByOrderId(orderId: string): Promise<PaymentRecord | null>
+
+  /** An order already raised for this offer and not yet resolved, if any. */
+  getOpenPaymentForOffer(offerId: string): Promise<PaymentRecord | null>
+
+  /**
+   * Claim the single open-payment slot for an offer.
+   *
+   * Returns the row on success, or null if another request already holds it.
+   * The check and the write are one statement, so concurrent approvals cannot
+   * both believe they are first.
+   */
+  claimPaymentSlot(payment: PaymentRecord): Promise<PaymentRecord | null>
   updatePayment(id: string, patch: Partial<PaymentRecord>): Promise<void>
   listPayments(negotiationId: string): Promise<PaymentRecord[]>
 
@@ -200,6 +212,12 @@ const SCHEMA: string[] = [
      settled_at         TIMESTAMPTZ
    )`,
   `CREATE INDEX IF NOT EXISTS payments_order_idx ON payments (razorpay_order_id)`,
+
+  // One order awaiting payment per offer. Approving twice concurrently was
+  // raising two payable Razorpay orders for one booking; a read-then-write
+  // check cannot prevent that, because both reads happen before either write.
+  `CREATE UNIQUE INDEX IF NOT EXISTS payments_open_offer_idx
+     ON payments (offer_id) WHERE status = 'created'`,
 
   `CREATE TABLE IF NOT EXISTS reservations (
      id              TEXT PRIMARY KEY,
@@ -403,8 +421,48 @@ class PostgresStore implements DealTripStore {
     return rows.length ? rowToPayment(rows[0]) : null
   }
 
+  async getOpenPaymentForOffer(offerId: string) {
+    const rows = await this.q`
+      SELECT * FROM payments
+      WHERE offer_id = ${offerId} AND status = 'created'
+      ORDER BY created_at DESC LIMIT 1`
+
+    return rows.length ? rowToPayment(rows[0]) : null
+  }
+
+  async claimPaymentSlot(p: PaymentRecord) {
+    /*
+     * Release an abandoned claim first.
+     *
+     * A request that won the slot and then died before attaching an order id
+     * would hold it forever, and the offer could never be approved again. Any
+     * slot with no order after the grace period was never going to get one.
+     */
+    await this.q`
+      UPDATE payments
+      SET status = 'failed', failure_reason = 'Abandoned before an order was raised'
+      WHERE offer_id = ${p.offer_id}
+        AND status = 'created'
+        AND razorpay_order_id IS NULL
+        AND created_at < now() - interval '2 minutes'`
+
+    const rows = await this.q`
+      INSERT INTO payments (id, negotiation_id, offer_id, razorpay_order_id, razorpay_payment_id, amount, currency, status, failure_reason, created_at, settled_at)
+      VALUES (${p.id}, ${p.negotiation_id}, ${p.offer_id}, NULL, NULL, ${p.amount}, ${p.currency}, 'created', NULL, ${p.created_at}, NULL)
+      ON CONFLICT (offer_id) WHERE status = 'created' DO NOTHING
+      RETURNING *`
+
+    return rows.length ? rowToPayment(rows[0]) : null
+  }
+
   async updatePayment(id: string, patch: Partial<PaymentRecord>) {
     if (patch.status !== undefined) await this.q`UPDATE payments SET status = ${patch.status} WHERE id = ${id}`
+
+    // Without this the order id never reached the row, so the payment could not
+    // be found by order at verification time and a paid booking could never be
+    // confirmed. Field-by-field updates fail silently when a field is missed.
+    if (patch.razorpay_order_id !== undefined)
+      await this.q`UPDATE payments SET razorpay_order_id = ${patch.razorpay_order_id} WHERE id = ${id}`
     if (patch.razorpay_payment_id !== undefined)
       await this.q`UPDATE payments SET razorpay_payment_id = ${patch.razorpay_payment_id} WHERE id = ${id}`
     if (patch.failure_reason !== undefined)
@@ -674,6 +732,26 @@ class MemoryStore implements DealTripStore {
 
   async getPaymentByOrderId(orderId: string) {
     return [...this.payments.values()].find(p => p.razorpay_order_id === orderId) ?? null
+  }
+
+  async getOpenPaymentForOffer(offerId: string) {
+    return [...this.payments.values()].find(p => p.offer_id === offerId && p.status === 'created') ?? null
+  }
+
+  async claimPaymentSlot(p: PaymentRecord) {
+    const open = await this.getOpenPaymentForOffer(p.offer_id)
+
+    // Same rule as Postgres: an abandoned claim must not hold the slot forever.
+    const abandoned =
+      open !== null && !open.razorpay_order_id && Date.parse(open.created_at) < Date.now() - 120_000
+
+    if (open && abandoned)
+      this.payments.set(open.id, { ...open, status: 'failed', failure_reason: 'Abandoned before an order was raised' })
+    else if (open) return null
+
+    this.payments.set(p.id, p)
+
+    return p
   }
 
   async updatePayment(id: string, patch: Partial<PaymentRecord>) {

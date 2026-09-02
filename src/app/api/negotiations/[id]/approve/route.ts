@@ -109,10 +109,12 @@ export const POST = async (request: Request, { params }: { params: Promise<{ id:
    * The hold is taken atomically, and released again if the payment fails.  */
   const room = merchant.rooms.find(r => r.id === offer.bundle.room_id)
 
+  const reservationId = `res_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`
+
   const reservation = room
     ? await store.reserveRoom(
         {
-          id: `res_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
+          id: reservationId,
           negotiation_id: id,
           offer_id: offer.id,
           merchant_id: merchant.id,
@@ -142,7 +144,12 @@ export const POST = async (request: Request, { params }: { params: Promise<{ id:
     )
   }
 
-  if (reservation)
+  // reserveRoom returns the pre-existing hold when this offer already had one,
+  // so comparing ids is how we tell "took a unit" from "already had a unit".
+  // Without it, three concurrent approvals logged three holds against one row.
+  const tookNewHold = reservation !== null && reservation.id === reservationId
+
+  if (tookNewHold)
     await audit(
       'inventory_held',
       `One ${room?.name} held at ${merchant.name} until ${new Date(reservation.expires_at).toLocaleTimeString('en-IN')}.`,
@@ -150,8 +157,73 @@ export const POST = async (request: Request, { params }: { params: Promise<{ id:
       { reservation_id: reservation.id, room_id: reservation.room_id, expires_at: reservation.expires_at }
     )
 
-  /* ---- Amount is derived here, from the catalog, at this moment. ---- */
+  /*
+   * Claim the single open-order slot for this offer before talking to Razorpay.
+   *
+   * Approving twice concurrently, by a double click or two tabs, previously
+   * raised a second payable order against the same offer: both were live, so a
+   * traveller could be charged twice for one booking. Checking for an existing
+   * order first does not help, because concurrent requests all read before any
+   * of them writes. The claim is a single statement, so exactly one wins.
+   *
+   * A retry after a FAILED payment still gets a fresh order; only an order
+   * still awaiting payment is reused.
+   *
+   * The amount is derived here, from the catalog, at this moment: never read
+   * from the request and never from the stored quote.
+   */
   const authoritative = computeQuote(merchant, offer.bundle, offer.quote.nights, offer.quote.travelers)
+
+  const claimed = await store.claimPaymentSlot({
+    id: `pay_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
+    negotiation_id: id,
+    offer_id: offer.id,
+    razorpay_order_id: null,
+    razorpay_payment_id: null,
+    amount: authoritative.total_price,
+    currency: 'INR',
+    status: 'created',
+    failure_reason: null,
+    created_at: new Date().toISOString(),
+    settled_at: null
+  })
+
+  if (!claimed) {
+    // Someone else is mid-flight. Wait briefly for them to attach an order id
+    // rather than racing them to create a second one.
+    let existing = await store.getOpenPaymentForOffer(offer.id)
+
+    for (let attempt = 0; attempt < 10 && !existing?.razorpay_order_id; attempt++) {
+      await new Promise(resolve => setTimeout(resolve, 250))
+      existing = await store.getOpenPaymentForOffer(offer.id)
+    }
+
+    if (!existing?.razorpay_order_id)
+      return fail(409, 'An approval for this offer is already in progress. Try again in a moment.')
+
+    await audit(
+      'razorpay_order_reused',
+      `Approval repeated; returned the order already awaiting payment (${existing.razorpay_order_id}).`,
+      'info',
+      { order_id: existing.razorpay_order_id, offer_id: offer.id }
+    )
+
+    return json({
+      order: {
+        id: existing.razorpay_order_id,
+        amount: existing.amount * 100,
+        currency: existing.currency,
+        simulated: !razorpayConfigured()
+      },
+      key_id: publicKeyId(),
+      razorpay_configured: razorpayConfigured(),
+      verdict,
+      offer_id: offer.id,
+      merchant_name: merchant.name,
+      amount_inr: existing.amount,
+      reused: true
+    })
+  }
 
   const order = await createOrder({
     amount_inr: authoritative.total_price,
@@ -165,19 +237,7 @@ export const POST = async (request: Request, { params }: { params: Promise<{ id:
     }
   })
 
-  await store.savePayment({
-    id: `pay_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
-    negotiation_id: id,
-    offer_id: offer.id,
-    razorpay_order_id: order.id,
-    razorpay_payment_id: null,
-    amount: authoritative.total_price,
-    currency: 'INR',
-    status: 'created',
-    failure_reason: null,
-    created_at: new Date().toISOString(),
-    settled_at: null
-  })
+  await store.updatePayment(claimed.id, { razorpay_order_id: order.id })
 
   await store.updateNegotiation(id, { status: 'payment_pending', selected_offer_id: offer.id })
 
