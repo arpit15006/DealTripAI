@@ -59,19 +59,20 @@ export const POST = async (request: Request) => {
   })
 
   if (!signatureOk) {
-    await store.updatePayment(payment.id, {
-      status: 'verification_failed',
-      failure_reason: 'Signature did not verify'
-    })
-
+    /*
+     * A signature that does not verify says something about the caller, not
+     * about the payment. Marking the payment failed here let anyone holding an
+     * order id post one junk signature and kill a booking that was at that
+     * moment being paid for. The attempt is recorded, because an unsigned
+     * caller reaching this endpoint is worth seeing in the audit trail, and
+     * nothing about the booking moves.
+     */
     await audit(
-      'payment_verification_failed',
-      'Payment signature did not verify, the booking was NOT confirmed.',
+      'payment_verification_rejected',
+      'A payment confirmation arrived with a signature that did not verify. It was rejected and the booking is untouched.',
       'fail',
-      { order_id: orderId, payment_id: paymentId }
+      { order_id: orderId, payment_id: paymentId, state_changed: false }
     )
-
-    await store.updateNegotiation(payment.negotiation_id, { status: 'payment_failed' })
 
     return fail(400, 'Payment signature verification failed. Nothing has been booked.')
   }
