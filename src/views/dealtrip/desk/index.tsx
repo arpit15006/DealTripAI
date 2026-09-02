@@ -81,6 +81,9 @@ const DealDesk = ({ negotiationId }: { negotiationId: string }) => {
   const eligible = desk.ranked.filter(r => r.score.eligible)
 
 
+  /** Narrow the tape to one merchant's thread, or null for the whole market. */
+  const [focusedMerchant, setFocusedMerchant] = useState<string | null>(null)
+
   /** The traveller's must-haves, shown in the header as the standing brief. */
   const required = useMemo(
     () =>
@@ -197,12 +200,28 @@ const DealDesk = ({ negotiationId }: { negotiationId: string }) => {
           ) : (
             <>
               {/* Where every merchant stands right now. */}
-              <StatusTiles merchants={desk.merchants} images={images} />
+              <StatusTiles merchants={desk.merchants} images={images} selected={focusedMerchant} onSelect={setFocusedMerchant} />
 
               {/* What happened, in the order it happened, across all of them. */}
               <Card className='gap-0 py-0'>
-                <CardContent className='px-4 py-1'>
+                {focusedMerchant && (
+                  <div className='flex items-center justify-between gap-2 border-b px-4 py-2'>
+                    <p className='text-xs'>
+                      Showing only{' '}
+                      <span className='font-medium'>
+                        {desk.merchants.find(m => m.id === focusedMerchant)?.name}
+                      </span>
+                    </p>
+                    <Button variant='ghost' size='xs' onClick={() => setFocusedMerchant(null)}>
+                      Show all merchants
+                    </Button>
+                  </div>
+                )}
+                {/* The tape scrolls inside its own box; the page does not move
+                    under the reader while new turns are still arriving. */}
+                <CardContent className='max-h-[34rem] overflow-y-auto px-4 py-1'>
                   <Tape
+                    selected={focusedMerchant}
                     audit={desk.audit}
                     merchants={desk.merchants}
                     working={working}

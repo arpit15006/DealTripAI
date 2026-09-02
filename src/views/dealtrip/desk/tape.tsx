@@ -56,25 +56,40 @@ const Tape = ({
   audit,
   merchants,
   verdictFor,
-  working
+  working,
+  selected
 }: {
   audit: AuditEvent[]
   merchants: DeskMerchant[]
   verdictFor: (offerId: string) => GuardVerdict | null
   working: boolean
+
+  /** When set, show only this merchant's side of the negotiation. */
+  selected: string | null
 }) => {
   const end = useRef<HTMLDivElement>(null)
-  const rows = audit.filter(e => NEGOTIATION_ACTIONS.has(e.action))
+
+  const rows = audit
+    .filter(e => NEGOTIATION_ACTIONS.has(e.action))
+
+    // Counters and guard rulings both carry the merchant they concern, so one
+    // filter isolates a complete thread rather than only that merchant's turns.
+    .filter(e => !selected || e.merchant_id === selected)
 
   const nameOf = (id: string | null) => merchants.find(m => m.id === id)?.name ?? 'Merchant'
 
   // Follow the tape while it is still running, but leave the reader alone once
   // it has finished so they can scroll back without being yanked forward.
   useEffect(() => {
-    if (working) end.current?.scrollIntoView({ block: 'nearest' })
-  }, [rows.length, working])
+    if (working && !selected) end.current?.scrollIntoView({ block: 'nearest' })
+  }, [rows.length, working, selected])
 
-  if (rows.length === 0) return null
+  if (rows.length === 0)
+    return (
+      <p className='text-muted-foreground px-1 py-8 text-center text-sm'>
+        Nothing from this merchant yet.
+      </p>
+    )
 
   return (
     <ol className='divide-border/60 divide-y'>
