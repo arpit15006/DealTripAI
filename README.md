@@ -81,6 +81,7 @@ Deal Orchestrator ◄────────────────► Merchan
    │  structured COUNTER_REQUESTs         │  choose room + add-ons + dates + discount
    ▼                                       ▼
 Commerce Guard  ◄── 13 deterministic checks, recomputes every price from the catalog
+                    (14 at payment: the offer must also be the one approved)
    │  authorised offers only
    ▼
 Deal scoring ──► ranked shortlist, hard constraints as a gate
@@ -202,7 +203,7 @@ src/lib/dealtrip/     the engine
   scoring.ts          deterministic deal scoring
   store.ts            Postgres + in-memory, incl. atomic inventory holds
   seed.ts             15 merchants across 3 destinations
-  __tests__/          44 tests
+  __tests__/          45 tests
 
 src/mcp/server.ts     MCP server, lets any external agent transact
 src/app/api/          REST + SSE, the public agent endpoints, the Razorpay webhook
@@ -216,7 +217,7 @@ src/components/ui/    shadcn/ui + Base UI primitives (from the Tourix template)
 pnpm install
 cp .env.example .env.local   # add your keys
 pnpm dev                     # http://localhost:3000
-pnpm test                    # 33 tests, ~100ms
+pnpm test                    # 45 tests, ~150ms
 ```
 
 Everything is optional. With no `DATABASE_URL` it runs in memory; with no `GROQ_API_KEY`
@@ -347,7 +348,7 @@ Udaipur  conv 71% -> 72%   revenue +43.4%   margin 48.5% -> 48.6%    43 guard bl
 ## Tests
 
 ```
-43 tests · 14 suites · 0 failures · ~110ms
+45 tests · 12 suites · 0 failures · ~150ms
 ```
 
 Concentrated where correctness is load-bearing. Pricing, the guard, scoring, inventory

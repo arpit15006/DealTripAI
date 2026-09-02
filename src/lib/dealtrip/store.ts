@@ -232,7 +232,8 @@ const SCHEMA: string[] = [
  * true would keep rendering em dashes forever. Applied only to fields a model
  * wrote: the traveller's own request is echoed back exactly as they typed it.
  */
-const plainProse = (v: string) => v.replace(/\s+[—–]\s+/g, ', ').replace(/[—–]/g, '-')
+const plainProse = (v: string) =>
+  v.replace(/\s+[\u2010-\u2015\u2212]\s+/g, ', ').replace(/[\u2010-\u2015\u2212]/g, '-')
 
 const iso = (v: unknown): string =>
   v instanceof Date ? v.toISOString() : typeof v === 'string' ? new Date(v).toISOString() : new Date().toISOString()

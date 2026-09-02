@@ -126,8 +126,8 @@ interface StructuredArgs<T> {
 const deDash = <T,>(value: T): T => {
   if (typeof value === 'string')
     return value
-      .replace(/\s+[—–]\s+/g, ', ')
-      .replace(/[—–]/g, '-') as unknown as T
+      .replace(/\s+[\u2010-\u2015\u2212]\s+/g, ', ')
+      .replace(/[\u2010-\u2015\u2212]/g, '-') as unknown as T
 
   if (Array.isArray(value)) return value.map(deDash) as unknown as T
 
@@ -300,7 +300,7 @@ export const structured = async <T>({
           console.info(`[dealtrip:llm] ${label} prompt=${lastUsage.prompt} completion=${lastUsage.completion}`)
 
         return {
-          data: parsed.data,
+          data: deDash(parsed.data),
           source: 'model',
           model: DEFAULT_MODEL,
           latency_ms: Date.now() - started,

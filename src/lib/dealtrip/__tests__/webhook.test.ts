@@ -52,6 +52,41 @@ describe('webhook signatures, the browser is not the source of truth', () => {
 })
 
 describe('model prose is normalised before it reaches the interface', () => {
+  it('normalises the MODEL path, not only the fallback', async () => {
+    const { structured } = await import('../llm')
+    const { z } = await import('zod')
+
+    // Stand in for the provider so the success path is genuinely exercised.
+    const realFetch = globalThis.fetch
+    const prevKey = process.env.GROQ_API_KEY
+
+    process.env.GROQ_API_KEY = 'test-key'
+    globalThis.fetch = (async () =>
+      new Response(
+        JSON.stringify({
+          choices: [{ message: { content: JSON.stringify({ note: 'Sea\u2011View Room \u2014 with breakfast' }) } }]
+        }),
+        { status: 200, headers: { 'content-type': 'application/json' } }
+      )) as typeof fetch
+
+    try {
+      const result = await structured({
+        label: 'test.model-path',
+        schema: z.object({ note: z.string() }),
+        system: '',
+        user: '',
+        fallback: () => ({ note: 'unused' })
+      })
+
+      assert.equal(result.source, 'model', 'the model path must be the one under test')
+      assert.equal(result.data.note, 'Sea-View Room, with breakfast')
+    } finally {
+      globalThis.fetch = realFetch
+      if (prevKey === undefined) delete process.env.GROQ_API_KEY
+      else process.env.GROQ_API_KEY = prevKey
+    }
+  })
+
   it('replaces dashes a model wrote, however deeply nested', async () => {
     const { structured } = await import('../llm')
     const { z } = await import('zod')
@@ -70,18 +105,19 @@ describe('model prose is normalised before it reaches the interface', () => {
       user: '',
       enabled: false,
       fallback: () => ({
-        rationale: 'Beachfront suite — with breakfast — and a transfer.',
-        changes: ['Swapped the transfer — a cheaper tier'],
-        nested: { note: 'Held until 5pm – retry any time' }
+        rationale: 'Beachfront suite \u2014 with breakfast \u2014 and a transfer.',
+        changes: ['Swapped the transfer \u2014 a cheaper tier', 'Sea\u2011View Room kept'],
+        nested: { note: 'Held until 5pm \u2013 retry any time' }
       })
     })
 
     const flat = JSON.stringify(result.data)
 
-    assert.ok(!flat.includes('—'), 'no em dashes should survive')
-    assert.ok(!flat.includes('–'), 'no en dashes should survive')
+    // Every unicode dash, not just the two seen so far.
+    assert.ok(!/[\u2010-\u2015\u2212]/.test(flat), 'no unicode dashes should survive')
     assert.match(result.data.rationale, /Beachfront suite, with breakfast, and a transfer\./)
     assert.match(result.data.changes[0], /Swapped the transfer, a cheaper tier/)
+    assert.match(result.data.changes[1], /Sea-View Room kept/)
     assert.match(result.data.nested.note, /Held until 5pm, retry any time/)
   })
 })
