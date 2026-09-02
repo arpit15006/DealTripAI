@@ -33,13 +33,14 @@ export const loadNegotiationState = async (id: string): Promise<NegotiationView 
 
   if (!negotiation) return null
 
-  const [offers, audit, verdicts, payments, merchants] = await Promise.all([
-    store.listOffers(id),
-    store.listAudit(id),
-    store.listVerdicts(id),
-    store.listPayments(id),
-    allMerchants()
-  ])
+    // Stored verdicts are not read here: ranking re-adjudicates, and the
+    // historical record lives in the audit trail. One fewer query per request.
+    const [offers, audit, payments, merchants] = await Promise.all([
+      store.listOffers(id),
+      store.listAudit(id),
+      store.listPayments(id),
+      allMerchants()
+    ])
 
   const byMerchant = new Map(merchants.map(m => [m.id, m]))
 
@@ -69,18 +70,25 @@ export const loadNegotiationState = async (id: string): Promise<NegotiationView 
   const openingOf = (merchantId: string) =>
     offers.filter(o => o.merchant_id === merchantId).sort((a, b) => a.round - b.round)[0] ?? null
 
-  const verdictFor = (offerId: string) =>
-    verdicts.find(v => v.offer_id === offerId && v.stage === 'authorization')?.verdict ?? null
-
   const candidates = [...current.values()]
     .map(offer => {
       const merchant = byMerchant.get(offer.merchant_id)
 
       if (!merchant) return null
 
-      const verdict =
-        verdictFor(offer.id) ??
-        guardOffer({ merchant, offer, intent: negotiation.intent, rounds_used: offer.round })
+      /*
+       * Ranking is always re-adjudicated, never read back from the stored
+       * verdict.
+       *
+       * The stored verdict is a historical record: it says what the guard ruled
+       * when the offer was made, which is what the Trust Timeline should show.
+       * It is the wrong thing to rank on, because two of its checks are
+       * time-sensitive. An offer whose held price has lapsed was authorized
+       * when it was written and is not purchasable now, and reusing that
+       * verdict presented expired offers as buyable right up until the
+       * traveller clicked pay.
+       */
+      const verdict = guardOffer({ merchant, offer, intent: negotiation.intent, rounds_used: offer.round })
 
       return { merchant, offer, verdict }
     })

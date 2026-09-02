@@ -227,7 +227,13 @@ const NegotiationReplay = ({ state, negotiationId }: { state: NegotiationView; n
               <CardTitle className='text-sm'>{merchantName.get(merchantId) ?? merchantId}</CardTitle>
             </CardHeader>
             <CardContent className='flex flex-col gap-2 border-t px-4 py-3'>
-              {position.withdrawn ? (
+              {/*
+                A merchant that declines to revise has not left the table: its
+                previous offer still stands and still competes. Only a merchant
+                with nothing on the table has actually gone, so a withdrawal is
+                shown alongside the offer, never instead of it.
+              */}
+              {position.withdrawn && !position.offer ? (
                 <p className='meta'>{position.withdrawn}</p>
               ) : position.offer ? (
                 <>
@@ -250,6 +256,11 @@ const NegotiationReplay = ({ state, negotiationId }: { state: NegotiationView; n
                   </p>
                   {verdictById.get(position.offer.id) && step >= audit.length && (
                     <GuardChecklist verdict={verdictById.get(position.offer.id)!} />
+                  )}
+                  {position.withdrawn && (
+                    <p className='meta'>
+                      <span className='text-foreground font-medium'>Stood firm.</span> {position.withdrawn}
+                    </p>
                   )}
                 </>
               ) : (

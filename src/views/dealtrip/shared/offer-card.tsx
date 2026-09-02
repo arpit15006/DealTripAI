@@ -140,6 +140,15 @@ const OfferCard = ({ merchant, required, image, originEvent, className }: Props)
               </div>
             )}
 
+            {merchant.withdrawn && (
+              <p className='meta flex items-start gap-1.5'>
+                <BanIcon className='mt-0.5 size-3 shrink-0' aria-hidden />
+                <span>
+                  <span className='text-foreground font-medium'>Stood firm.</span> {merchant.withdrawn}
+                </span>
+              </p>
+            )}
+
             {(merchant.history.length > 1 || merchant.counters.length > 0) && (
               <div className='inset'>
                 <p className='eyebrow mb-2'>The exchange</p>

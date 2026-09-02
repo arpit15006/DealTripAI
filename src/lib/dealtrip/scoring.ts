@@ -86,7 +86,15 @@ export const scoreOffer = ({ merchant, offer, intent, opening_offer, verdict, pr
   let ineligibleReason: string | null = null
 
   if (!verdict.authorized) {
-    ineligibleReason = `Blocked by the Commerce Guard: ${verdict.violations.map(v => v.label.toLowerCase()).join(', ')}.`
+    /*
+     * The violation's DETAIL, not its label.
+     *
+     * A check's label names the property being tested ("Offer still valid"),
+     * so quoting it on failure states the opposite of what happened: an expired
+     * offer was reported as "Blocked by the Commerce Guard: offer still valid".
+     * The detail is the sentence that explains the refusal.
+     */
+    ineligibleReason = `Blocked by the Commerce Guard. ${verdict.violations.map(v => v.detail).join(' ')}`
   } else if (missingRequired.length) {
     ineligibleReason = `Missing must-have${missingRequired.length === 1 ? '' : 's'}: ${missingRequired.map(a => ATTRIBUTE_LABELS[a]).join(', ')}.`
   } else if (presentAvoided.length) {
