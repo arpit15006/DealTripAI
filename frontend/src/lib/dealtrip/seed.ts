@@ -406,7 +406,7 @@ export const SEED_MERCHANTS: Merchant[] = [
     description:
       'A plain eleven-room inn a few minutes from Hadimba temple and the Old Manali cafes. No pool, no spa, no transfers worth speaking of. The cheapest bed in the set, and honest about it.',
     rating: 3.9,
-    image: '',
+    image: '/images/countries/chile/chile-2.webp',
     attributes: ['wifi', 'city_center', 'nightlife_nearby', 'free_cancellation'],
     rooms: [
       { id: 'hi-standard', name: 'Standard Double', tier: 1, base_price_per_night: 3200, cost_per_night: 2050, max_occupancy: 2, attributes: [], inventory_available: 9 },
@@ -442,7 +442,7 @@ export const SEED_MERCHANTS: Merchant[] = [
     description:
       'Six standalone cedar chalets on the Naggar ridge, each with a wood stove, a private deck and a kitchenette. Adults only, deliberately hard to reach, and priced for people who want nobody else nearby.',
     rating: 4.8,
-    image: '/images/countries/switzerland/switzerland-1.webp',
+    image: '/images/countries/switzerland/switzerland-4.webp',
     attributes: ['quiet', 'romantic', 'wifi', 'free_cancellation'],
     rooms: [
       { id: 'cv-cedar', name: 'Cedar Chalet', tier: 4, base_price_per_night: 14800, cost_per_night: 7900, max_occupancy: 2, attributes: ['balcony', 'kitchenette', 'romantic'], inventory_available: 4 },
@@ -477,7 +477,7 @@ export const SEED_MERCHANTS: Merchant[] = [
     description:
       'Fourteen serviced studios built for people working a full week from the mountains: a real desk, a fibre line with a backup, a kitchenette in every room and laundry down the hall. Weekly rates, not nightly ones, in spirit.',
     rating: 4.5,
-    image: '',
+    image: '/images/countries/canada/canada-3.webp',
     attributes: ['workspace', 'wifi', 'quiet', 'air_conditioning', 'pet_friendly', 'free_cancellation'],
     rooms: [
       { id: 'bw-studio', name: 'Work Studio', tier: 3, base_price_per_night: 6800, cost_per_night: 3600, max_occupancy: 2, attributes: ['kitchenette', 'workspace'], inventory_available: 10 },
@@ -590,7 +590,7 @@ export const SEED_MERCHANTS: Merchant[] = [
     description:
       'A thirty-room hotel near Saheliyon ki Bari built around a shallow pool, with interconnecting rooms, cots on request and an early dinner service. Designed around families and priced to fill.',
     rating: 4.4,
-    image: '',
+    image: '/images/countries/india/india-4.webp',
     attributes: ['pool', 'wifi', 'air_conditioning', 'family_friendly', 'free_cancellation'],
     rooms: [
       { id: 'sc-garden', name: 'Garden Room', tier: 2, base_price_per_night: 7600, cost_per_night: 4200, max_occupancy: 3, attributes: ['quiet'], inventory_available: 14 },
@@ -626,7 +626,7 @@ export const SEED_MERCHANTS: Merchant[] = [
     description:
       'Bunks and small private rooms a minute from Ambrai ghat, above a busy cafe. Loud, central and the cheapest way to sleep in Udaipur. No pool, no spa, no quiet.',
     rating: 4.1,
-    image: '',
+    image: '/images/countries/greece/greece-4.webp',
     attributes: ['wifi', 'city_center', 'nightlife_nearby', 'free_cancellation'],
     rooms: [
       { id: 'ah-private', name: 'Small Private Room', tier: 1, base_price_per_night: 2900, cost_per_night: 1750, max_occupancy: 2, attributes: [], inventory_available: 11 },
@@ -660,7 +660,7 @@ export const SEED_MERCHANTS: Merchant[] = [
     description:
       'Four two-bedroom villas above Fateh Sagar with full kitchens, walled gardens and no restaurant at all. Dogs stay free. Nothing here is in the old city, and it does not pretend to be.',
     rating: 4.6,
-    image: '',
+    image: '/images/countries/greece/greece-3.webp',
     attributes: ['wifi', 'air_conditioning', 'pet_friendly', 'quiet', 'free_cancellation'],
     rooms: [
       { id: 'fv-garden', name: 'Garden Villa', tier: 3, base_price_per_night: 12600, cost_per_night: 7100, max_occupancy: 4, attributes: ['kitchenette', 'balcony'], inventory_available: 3 },
