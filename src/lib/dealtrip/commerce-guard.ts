@@ -10,7 +10,7 @@
  * layer re-runs it immediately before creating a Razorpay order, so a stale or
  * tampered offer cannot reach checkout.
  */
-import { computeQuote, CatalogError, findAddOn, findRoom, minimumAllowedPrice, formatINR } from './pricing'
+import { computeQuote, CatalogError, findAddOn, findRoom, minimumAllowedPrice, formatINR, roomsNeeded } from './pricing'
 import { ATTRIBUTE_LABELS } from './types'
 
 import type { Attribute, GuardCheck, GuardVerdict, Merchant, Offer, TravelIntent } from './types'
@@ -70,33 +70,73 @@ export const guardOffer = ({ merchant, offer, intent, rounds_used, allowed_check
   // Every later check reads the catalog, so bail out coherently if it is broken.
   if (!room || !catalogOk) return finalize(checks, now)
 
-  /* 2. Inventory ---------------------------------------------------------- */
+  const roomCount = Math.max(1, Math.trunc(bundle.room_count ?? 1))
+  const unit = (n: number) => `${n} unit${n === 1 ? '' : 's'}`
+
+  /* 2. Inventory -----------------------------------------------------------
+   * Against the units this offer actually sells, not against one. An offer of
+   * three rooms from a property holding two is not "in stock".               */
+  const inventoryOk = room.inventory_available >= roomCount
+
   checks.push(
     check(
       'inventory_available',
       'Inventory available',
-      room.inventory_available > 0,
-      room.inventory_available > 0
-        ? `${room.inventory_available} unit${room.inventory_available === 1 ? '' : 's'} of ${room.name} remaining.`
-        : `${room.name} is sold out.`,
-      { expected: '≥ 1 unit', actual: `${room.inventory_available} units` }
+      inventoryOk,
+      inventoryOk
+        ? `${unit(room.inventory_available)} of ${room.name} remaining, this offer takes ${roomCount}.`
+        : room.inventory_available === 0
+          ? `${room.name} is sold out.`
+          : `This offer needs ${unit(roomCount)} of ${room.name} and only ${room.inventory_available} remain.`,
+      { expected: `≥ ${unit(roomCount)}`, actual: `${unit(room.inventory_available)}` }
     )
   )
 
-  /* 3. Occupancy ---------------------------------------------------------- */
+  /* 3. Occupancy -----------------------------------------------------------
+   * Across the rooms being sold, not within one of them. Requiring a single
+   * room to sleep the whole party is how four travellers used to be told a
+   * hotel full of empty doubles had nothing for them.                        */
+  const sleeps = room.max_occupancy * roomCount
+  const occupancyOk = sleeps >= quote.travelers
+
   checks.push(
     check(
       'occupancy_fits',
       'Occupancy fits party',
-      room.max_occupancy >= quote.travelers,
-      room.max_occupancy >= quote.travelers
-        ? `${room.name} sleeps ${room.max_occupancy}; party of ${quote.travelers}.`
-        : `${room.name} sleeps ${room.max_occupancy} but the party is ${quote.travelers}.`,
-      { expected: `≥ ${quote.travelers}`, actual: `${room.max_occupancy}` }
+      occupancyOk,
+      occupancyOk
+        ? `${roomCount} × ${room.name} sleeps ${sleeps}; party of ${quote.travelers}.`
+        : `${roomCount} × ${room.name} sleeps ${sleeps} but the party is ${quote.travelers}.`,
+      { expected: `≥ ${quote.travelers}`, actual: `${sleeps}` }
     )
   )
 
-  /* 4. Price integrity ----------------------------------------------------
+  /* 4. Room count ----------------------------------------------------------
+   * Recomputed from the traveller's request the same way the planner derives
+   * it, then compared. This is the room-count twin of price_integrity: an
+   * agent that quietly sells one suite where two rooms were asked for is
+   * making a substitution the traveller never agreed to, and it would
+   * otherwise be invisible because the arithmetic still balances.            */
+  const expectedRooms = roomsNeeded(room, quote.travelers, intent.rooms)
+  const roomCountOk = roomCount === expectedRooms
+
+  checks.push(
+    check(
+      'room_count_matches_request',
+      'Room count matches the request',
+      roomCountOk,
+      roomCountOk
+        ? intent.rooms === null
+          ? `${unit(roomCount)}, the fewest that hold ${quote.travelers}.`
+          : `${unit(roomCount)}, as requested.`
+        : roomCount < expectedRooms
+          ? `Offers ${unit(roomCount)} where ${expectedRooms} were asked for.`
+          : `Offers ${unit(roomCount)} where ${expectedRooms} would do.`,
+      { expected: `${expectedRooms}`, actual: `${roomCount}` }
+    )
+  )
+
+  /* 5. Price integrity ----------------------------------------------------
    * Re-derive the entire quote from the catalog and compare it, line by line,
    * against what arrived with the offer. This is what makes "the AI cannot
    * invent a price" a checked property rather than a claim.                */
@@ -135,7 +175,7 @@ export const guardOffer = ({ merchant, offer, intent, rounds_used, allowed_check
     })
   )
 
-  /* 5. Discount ceiling --------------------------------------------------- */
+  /* 6. Discount ceiling --------------------------------------------------- */
   const discountOk = quote.discount_pct <= policy.max_discount_pct + 1e-9
 
   checks.push(
@@ -150,7 +190,7 @@ export const guardOffer = ({ merchant, offer, intent, rounds_used, allowed_check
     )
   )
 
-  /* 6. Margin floor ------------------------------------------------------- */
+  /* 7. Margin floor ------------------------------------------------------- */
   const marginOk = quote.margin_pct >= policy.min_margin_pct - 1e-9
   const floors = safeFloor(merchant, offer)
 
@@ -167,7 +207,7 @@ export const guardOffer = ({ merchant, offer, intent, rounds_used, allowed_check
     )
   )
 
-  /* 7. Locked add-ons ----------------------------------------------------- */
+  /* 8. Locked add-ons ----------------------------------------------------- */
   const missingLocked = policy.locked_addons.filter(id => !bundle.addon_ids.includes(id))
 
   checks.push(
@@ -185,7 +225,7 @@ export const guardOffer = ({ merchant, offer, intent, rounds_used, allowed_check
     )
   )
 
-  /* 8. Negotiation round limit -------------------------------------------- */
+  /* 9. Negotiation round limit -------------------------------------------- */
   const roundsOk = offer.round <= policy.max_counter_rounds
 
   checks.push(
@@ -200,7 +240,7 @@ export const guardOffer = ({ merchant, offer, intent, rounds_used, allowed_check
     )
   )
 
-  /* 9. Expiry ------------------------------------------------------------- */
+  /* 10. Expiry ------------------------------------------------------------- */
   const notExpired = new Date(offer.expires_at).getTime() > now.getTime()
 
   checks.push(
@@ -214,12 +254,12 @@ export const guardOffer = ({ merchant, offer, intent, rounds_used, allowed_check
     )
   )
 
-  /* 10. Currency ---------------------------------------------------------- */
+  /* 11. Currency ---------------------------------------------------------- */
   checks.push(
     check('currency', 'Currency matches intent', intent.budget.currency === 'INR', 'Quoted and budgeted in INR.')
   )
 
-  /* 11. Hard budget ------------------------------------------------------- */
+  /* 12. Hard budget ------------------------------------------------------- */
   const budgetIsHard = intent.budget.type === 'hard_constraint'
   const withinBudget = quote.total_price <= intent.budget.max
 
@@ -239,7 +279,7 @@ export const guardOffer = ({ merchant, offer, intent, rounds_used, allowed_check
     )
   )
 
-  /* 12. Check-in inside the window the traveller agreed to ----------------- */
+  /* 13. Check-in inside the window the traveller agreed to ----------------- */
   // A merchant may move a flexible traveller to a cheaper weekday, but only
   // within the dates they actually said they would accept. Shifting a stay
   // outside that window is a different trip, not a better deal.
@@ -259,7 +299,7 @@ export const guardOffer = ({ merchant, offer, intent, rounds_used, allowed_check
     )
   )
 
-  /* 13. Hard requirements ------------------------------------------------- */
+  /* 14. Hard requirements ------------------------------------------------- */
   const required = (Object.entries(intent.requirements) as [Attribute, string][])
     .filter(([, strength]) => strength === 'required')
     .map(([attr]) => attr)

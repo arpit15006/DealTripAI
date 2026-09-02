@@ -256,6 +256,7 @@ export const runNegotiation = async ({
         round,
         nights,
         travelers,
+        requested_rooms: negotiation.intent.rooms,
         default_check_in: defaultCheckIn
       })
     } catch (error) {
@@ -578,7 +579,8 @@ export const runNegotiation = async ({
               room_id: turn.proposal.room_id,
               addon_ids: turn.proposal.addon_ids,
               discount_pct: turn.proposal.discount_pct,
-              check_in: turn.proposal.check_in ?? current.bundle.check_in
+              check_in: turn.proposal.check_in ?? current.bundle.check_in,
+              room_count: current.bundle.room_count
             })
           }
 

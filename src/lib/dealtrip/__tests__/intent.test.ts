@@ -36,6 +36,7 @@ const withModelReply = async <T>(payload: unknown, run: () => Promise<T>): Promi
 const reply = (over: Record<string, unknown>) => ({
   destination: 'Manali',
   travelers: 4,
+  rooms: null,
   duration_nights: 3,
   budget: { max: 50_000, currency: 'INR', type: 'soft_target' },
   requirements: {},

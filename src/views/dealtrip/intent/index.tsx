@@ -167,7 +167,7 @@ const IntentComposer = () => {
             )}
 
             {/* Trip basics */}
-            <div className='grid gap-4 sm:grid-cols-3'>
+            <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
               <div className='flex flex-col gap-1.5'>
                 <Label htmlFor='destination'>Destination</Label>
                 <Select value={intent.destination} onValueChange={value => value && patch({ destination: value })}>
@@ -206,6 +206,34 @@ const IntentComposer = () => {
                   value={intent.duration_nights}
                   onChange={event => patch({ duration_nights: Math.max(1, Number(event.target.value) || 1) })}
                 />
+              </div>
+
+              {/*
+                Blank is a real answer here, not a missing one: it means the
+                property fits the party into the fewest rooms that hold them.
+                Forcing a number would make every traveller guess at something
+                the merchant is better placed to decide.
+              */}
+              <div className='flex flex-col gap-1.5'>
+                <Label htmlFor='rooms'>Rooms</Label>
+                <Input
+                  id='rooms'
+                  type='number'
+                  min={1}
+                  max={10}
+                  placeholder='Any'
+                  value={intent.rooms ?? ''}
+                  onChange={event => {
+                    const raw = event.target.value.trim()
+
+                    patch({ rooms: raw === '' ? null : Math.min(10, Math.max(1, Number(raw) || 1)) })
+                  }}
+                />
+                <span className='text-muted-foreground text-xs'>
+                  {intent.rooms
+                    ? `${intent.rooms} room${intent.rooms === 1 ? '' : 's'} for ${intent.travelers}`
+                    : 'Leave blank and the property decides'}
+                </span>
               </div>
             </div>
 

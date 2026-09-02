@@ -20,7 +20,7 @@ import { z } from 'zod'
 import { structured } from './llm'
 import { enumerateCandidates, explainNoCandidate, planBundle } from './merchant-planner'
 import { formatStay, weekdayName } from './dates'
-import { CatalogError, computeQuote, formatINR, minimumAllowedPrice, nightlyRate } from './pricing'
+import { CatalogError, computeQuote, findRoom, formatINR, minimumAllowedPrice, nightlyRate, roomsNeeded } from './pricing'
 import { ATTRIBUTE_LABELS } from './types'
 
 import type { LlmResult } from './llm'
@@ -91,12 +91,21 @@ Friday and Saturday nights carry a ${merchant.weekend_uplift_pct}% uplift. Movin
 traveller onto weekdays costs you less than discounting and may still win the booking.`
 }
 
-const catalogBrief = (merchant: Merchant, nights: number, travelers: number) => {
+const catalogBrief = (merchant: Merchant, nights: number, travelers: number, requestedRooms: number | null) => {
+  // The stay price shown is for the number of units this party actually needs.
+  // A model told a double costs 8,000 for a party of four would compare it
+  // against a suite at 14,000 and pick the suite, when two doubles at 16,000
+  // is what it would in fact be selling.
   const rooms = merchant.rooms
-    .map(
-      r =>
-        `  ${r.id} | ${r.name} | t${r.tier} | ${r.base_price_per_night * nights} for ${nights}n | sleeps ${r.max_occupancy} | ${r.inventory_available} left | ${r.attributes.join(',') || '-'}`
-    )
+    .map(r => {
+      const units = roomsNeeded(r, travelers, requestedRooms)
+
+      return (
+        `  ${r.id} | ${r.name} | t${r.tier} | ${units} room${units === 1 ? '' : 's'} = ` +
+        `${r.base_price_per_night * nights * units} for ${nights}n | sleeps ${r.max_occupancy} each | ` +
+        `${r.inventory_available} left | ${r.attributes.join(',') || '-'}`
+      )
+    })
     .join('\n')
 
   const addons = merchant.addons
@@ -114,8 +123,9 @@ ${merchant.description}
 Included with every room: ${merchant.attributes.join(', ') || '-'}
 All figures are rupees for the WHOLE stay (${nights} nights, ${travelers} guests).
 
-ROOMS. Pick exactly one room_id:
-id | name | tier | stay price | sleeps | units left | delivers
+ROOMS. Pick exactly one room_id. How MANY of it the party needs is worked out
+for you and shown below, you do not choose that:
+id | name | tier | rooms needed = stay price | sleeps each | units left | delivers
 ${rooms}
 
 ADD-ONS. Pick any number of addon_ids:
@@ -146,7 +156,7 @@ const intentBrief = (intent: TravelIntent, nights: number, travelers: number) =>
       .map(([a]) => ATTRIBUTE_LABELS[a])
 
   return `THE TRAVELLER:
-  - ${travelers} guest(s), ${nights} night(s) in ${intent.destination}
+  - ${travelers} guest(s), ${nights} night(s) in ${intent.destination}${intent.rooms ? `, and they asked for ${intent.rooms} room(s)` : ''}
   - Budget: ${formatINR(intent.budget.max)} ${intent.budget.type === 'hard_constraint' ? '- a HARD limit they will not exceed' : '(a target, some flex)'}
   - Must have: ${byStrength('required').join(', ') || 'nothing specified'}
   - Would like: ${byStrength('preferred').join(', ') || 'nothing specified'}
@@ -265,7 +275,7 @@ export const openingOffer = async (args: {
     label: `merchant.${merchant.slug}.opening`,
     schema: MerchantProposalSchema,
     system: `${SYSTEM_BASE}\n\nYour house voice: ${merchant.voice}`,
-    user: `${catalogBrief(merchant, nights, travelers)}
+    user: `${catalogBrief(merchant, nights, travelers, intent.rooms)}
 
 ${dateBrief(merchant, allowed_check_ins, nights)}
 
@@ -345,7 +355,7 @@ itself, or withdraw honestly.\n`
     label: `merchant.${merchant.slug}.revise.r${round}`,
     schema: MerchantProposalSchema,
     system: `${SYSTEM_BASE}\n\nYour house voice: ${merchant.voice}`,
-    user: `${catalogBrief(merchant, nights, travelers)}
+    user: `${catalogBrief(merchant, nights, travelers, intent.rooms)}
 
 ${dateBrief(merchant, allowed_check_ins, nights)}
 
@@ -467,19 +477,31 @@ export const materializeOffer = (args: {
   nights: number
   travelers: number
 
+  /** Rooms the traveller asked for, null if they did not say. */
+  requested_rooms?: number | null
+
   /** Used when the agent does not name a date of its own. */
   default_check_in: string
   now?: Date
 }): Offer => {
-  const { merchant, proposal, negotiationId, round, nights, travelers, now = new Date() } = args
+  const { merchant, proposal, negotiationId, round, nights, travelers, requested_rooms = null, now = new Date() } = args
 
   if (!proposal.room_id) throw new CatalogError('Proposal named no room.')
+
+  const room = findRoom(merchant, proposal.room_id)
+
+  if (!room) throw new CatalogError(`Unknown room "${proposal.room_id}" for merchant ${merchant.id}`)
 
   const bundle: Bundle = {
     room_id: proposal.room_id,
     addon_ids: [...new Set(proposal.addon_ids)],
     discount_pct: proposal.discount_pct,
-    check_in: proposal.check_in ?? args.default_check_in
+    check_in: proposal.check_in ?? args.default_check_in,
+
+    // Derived, not proposed. The agent picks a room type; how many of them the
+    // party needs is arithmetic, and letting a model answer it would put a
+    // multiplier on the price into model output.
+    room_count: roomsNeeded(room, travelers, requested_rooms)
   }
 
   const quote = computeQuote(merchant, bundle, nights, travelers)

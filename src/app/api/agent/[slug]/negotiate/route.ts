@@ -116,6 +116,7 @@ export const POST = async (request: Request, { params }: { params: Promise<{ slu
       round,
       nights,
       travelers,
+      requested_rooms: intent.rooms,
       default_check_in: defaultCheckIn
     })
   } catch (error) {

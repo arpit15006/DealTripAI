@@ -56,6 +56,13 @@ export interface Reservation {
   offer_id: string
   merchant_id: string
   room_id: string
+
+  /**
+   * How many units of `room_id` this hold takes. A party of four in two doubles
+   * holds two, and a capacity test that counted rows would let a second party
+   * book the same second room.
+   */
+  units: number
   status: 'held' | 'confirmed' | 'released'
   created_at: string
   expires_at: string
@@ -225,10 +232,16 @@ const SCHEMA: string[] = [
      offer_id        TEXT NOT NULL,
      merchant_id     TEXT NOT NULL,
      room_id         TEXT NOT NULL,
+     units           INTEGER NOT NULL DEFAULT 1,
      status          TEXT NOT NULL,
      created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
      expires_at      TIMESTAMPTZ NOT NULL
    )`,
+
+  // Added after the table shipped, so it has to be applied to existing rows too.
+  // Defaulting to 1 makes every hold written before multi-room existed mean
+  // exactly what it meant then.
+  `ALTER TABLE reservations ADD COLUMN IF NOT EXISTS units INTEGER NOT NULL DEFAULT 1`,
 
   // One live hold per offer: re-approving the same offer must not take a second unit.
   `CREATE UNIQUE INDEX IF NOT EXISTS reservations_offer_live_idx
@@ -506,15 +519,17 @@ class PostgresStore implements DealTripStore {
    * hold frees its unit without a sweeper.
    */
   async reserveRoom(r: Reservation, capacity: number) {
+    const units = Math.max(1, Math.trunc(r.units ?? 1))
+
     const rows = await this.q`
-      INSERT INTO reservations (id, negotiation_id, offer_id, merchant_id, room_id, status, created_at, expires_at)
-      SELECT ${r.id}, ${r.negotiation_id}, ${r.offer_id}, ${r.merchant_id}, ${r.room_id}, ${r.status}, ${r.created_at}, ${r.expires_at}
+      INSERT INTO reservations (id, negotiation_id, offer_id, merchant_id, room_id, units, status, created_at, expires_at)
+      SELECT ${r.id}, ${r.negotiation_id}, ${r.offer_id}, ${r.merchant_id}, ${r.room_id}, ${units}, ${r.status}, ${r.created_at}, ${r.expires_at}
       WHERE (
-        SELECT count(*) FROM reservations
+        SELECT coalesce(sum(units), 0) FROM reservations
         WHERE merchant_id = ${r.merchant_id}
           AND room_id = ${r.room_id}
           AND (status = 'confirmed' OR (status = 'held' AND expires_at > now()))
-      ) < ${capacity}
+      ) + ${units} <= ${capacity}
       ON CONFLICT (offer_id) WHERE status IN ('held', 'confirmed') DO NOTHING
       RETURNING *`
 
@@ -536,7 +551,7 @@ class PostgresStore implements DealTripStore {
 
   async countActiveReservations(merchantId: string, roomId: string) {
     const rows = await this.q`
-      SELECT count(*)::int AS n FROM reservations
+      SELECT coalesce(sum(units), 0)::int AS n FROM reservations
       WHERE merchant_id = ${merchantId} AND room_id = ${roomId}
         AND (status = 'confirmed' OR (status = 'held' AND expires_at > now()))`
 
@@ -604,6 +619,7 @@ const rowToReservation = (r: any): Reservation => ({
   offer_id: r.offer_id,
   merchant_id: r.merchant_id,
   room_id: r.room_id,
+  units: Number(r.units ?? 1),
   status: r.status,
   created_at: iso(r.created_at),
   expires_at: iso(r.expires_at)
@@ -781,7 +797,7 @@ class MemoryStore implements DealTripStore {
 
     // Single-threaded, so read-then-write is atomic enough here in a way it
     // would never be against a shared database.
-    if (this.countLive(r.merchant_id, r.room_id) >= capacity) return null
+    if (this.countLive(r.merchant_id, r.room_id) + Math.max(1, r.units ?? 1) > capacity) return null
 
     this.reservations.push(r)
 
@@ -803,12 +819,14 @@ class MemoryStore implements DealTripStore {
   private countLive(merchantId: string, roomId: string) {
     const now = Date.now()
 
-    return this.reservations.filter(
-      r =>
-        r.merchant_id === merchantId &&
-        r.room_id === roomId &&
-        (r.status === 'confirmed' || (r.status === 'held' && Date.parse(r.expires_at) > now))
-    ).length
+    return this.reservations
+      .filter(
+        r =>
+          r.merchant_id === merchantId &&
+          r.room_id === roomId &&
+          (r.status === 'confirmed' || (r.status === 'held' && Date.parse(r.expires_at) > now))
+      )
+      .reduce((sum, r) => sum + Math.max(1, r.units ?? 1), 0)
   }
 }
 

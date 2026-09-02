@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-const INTENT = `{"destination":"Goa","travelers":2,"duration_nights":3,
+const INTENT = `{"destination":"Goa","travelers":4,"rooms":2,"duration_nights":3,
  "budget":{"max":60000,"currency":"INR","type":"hard_constraint"},
  "requirements":{"beachfront":"required","breakfast":"preferred"},
  "date_flexibility_days":2,"check_in":null,"priority":"best_value","notes":""}`

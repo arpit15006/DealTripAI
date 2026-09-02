@@ -26,7 +26,7 @@ const WEEKEND = '2026-01-09'
 describe('pricing. Money is derived, never asserted', () => {
   it('prices a room night by night, not as a flat multiple', () => {
     const room = oceanvista.rooms.find(r => r.id === 'ov-premium-beach')!
-    const bundle = { room_id: room.id, addon_ids: [], discount_pct: 0, check_in: WEEKDAY }
+    const bundle = { room_id: room.id, addon_ids: [], discount_pct: 0, check_in: WEEKDAY, room_count: 1 }
 
     const quote = computeQuote(oceanvista, bundle, NIGHTS, PAX)
 
@@ -41,14 +41,14 @@ describe('pricing. Money is derived, never asserted', () => {
 
     const weekday = computeQuote(
       oceanvista,
-      { room_id: room.id, addon_ids: [], discount_pct: 0, check_in: WEEKDAY },
+      { room_id: room.id, addon_ids: [], discount_pct: 0, check_in: WEEKDAY, room_count: 1 },
       NIGHTS,
       PAX
     )
 
     const weekend = computeQuote(
       oceanvista,
-      { room_id: room.id, addon_ids: [], discount_pct: 0, check_in: WEEKEND },
+      { room_id: room.id, addon_ids: [], discount_pct: 0, check_in: WEEKEND, room_count: 1 },
       NIGHTS,
       PAX
     )
@@ -63,7 +63,7 @@ describe('pricing. Money is derived, never asserted', () => {
     const room = oceanvista.rooms.find(r => r.id === 'ov-premium-beach')!
 
     const of = (checkIn: string) =>
-      computeQuote(oceanvista, { room_id: room.id, addon_ids: [], discount_pct: 0, check_in: checkIn }, NIGHTS, PAX)
+      computeQuote(oceanvista, { room_id: room.id, addon_ids: [], discount_pct: 0, check_in: checkIn, room_count: 1 }, NIGHTS, PAX)
 
     assert.equal(of(WEEKDAY).total_cost, of(WEEKEND).total_cost)
     assert.ok(of(WEEKEND).margin_pct > of(WEEKDAY).margin_pct)
@@ -79,7 +79,7 @@ describe('pricing. Money is derived, never asserted', () => {
 
     const quote = computeQuote(
       sunsetbay,
-      { room_id: 'sb-sea', addon_ids: [breakfast.id], discount_pct: 0, check_in: WEEKDAY },
+      { room_id: 'sb-sea', addon_ids: [breakfast.id], discount_pct: 0, check_in: WEEKDAY, room_count: 1 },
       NIGHTS,
       PAX
     )
@@ -92,14 +92,14 @@ describe('pricing. Money is derived, never asserted', () => {
   it('never double-bills an add-on listed twice', () => {
     const once = computeQuote(
       oceanvista,
-      { room_id: 'ov-premium-beach', addon_ids: ['ov-breakfast'], discount_pct: 0, check_in: WEEKDAY },
+      { room_id: 'ov-premium-beach', addon_ids: ['ov-breakfast'], discount_pct: 0, check_in: WEEKDAY, room_count: 1 },
       NIGHTS,
       PAX
     )
 
     const twice = computeQuote(
       oceanvista,
-      { room_id: 'ov-premium-beach', addon_ids: ['ov-breakfast', 'ov-breakfast'], discount_pct: 0, check_in: WEEKDAY },
+      { room_id: 'ov-premium-beach', addon_ids: ['ov-breakfast', 'ov-breakfast'], discount_pct: 0, check_in: WEEKDAY, room_count: 1 },
       NIGHTS,
       PAX
     )
@@ -112,7 +112,7 @@ describe('pricing. Money is derived, never asserted', () => {
       () =>
         computeQuote(
           oceanvista,
-          { room_id: 'ov-presidential-penthouse', addon_ids: [], discount_pct: 0, check_in: WEEKDAY },
+          { room_id: 'ov-presidential-penthouse', addon_ids: [], discount_pct: 0, check_in: WEEKDAY, room_count: 1 },
           NIGHTS,
           PAX
         ),
@@ -123,7 +123,7 @@ describe('pricing. Money is derived, never asserted', () => {
       () =>
         computeQuote(
           oceanvista,
-          { room_id: 'ov-premium-beach', addon_ids: ['ov-helicopter'], discount_pct: 0, check_in: WEEKDAY },
+          { room_id: 'ov-premium-beach', addon_ids: ['ov-helicopter'], discount_pct: 0, check_in: WEEKDAY, room_count: 1 },
           NIGHTS,
           PAX
         ),
@@ -133,7 +133,7 @@ describe('pricing. Money is derived, never asserted', () => {
 })
 
 describe('policy floors, two independent limits, the higher one binds', () => {
-  const bundle = { room_id: 'ov-premium-beach', addon_ids: ['ov-breakfast'], discount_pct: 0, check_in: WEEKDAY }
+  const bundle = { room_id: 'ov-premium-beach', addon_ids: ['ov-breakfast'], discount_pct: 0, check_in: WEEKDAY, room_count: 1 }
 
   it('reports which of the two floors is binding', () => {
     const floors = minimumAllowedPrice(oceanvista, bundle, NIGHTS, PAX)
@@ -167,8 +167,7 @@ describe('policy floors, two independent limits, the higher one binds', () => {
       room_id: 'ps-villa',
       addon_ids: palmstay.addons.map(a => a.id),
       discount_pct: 0,
-      check_in: WEEKDAY
-    }
+      check_in: WEEKDAY, room_count: 1 }
 
     const floors = minimumAllowedPrice(palmstay, full, NIGHTS, PAX)
 

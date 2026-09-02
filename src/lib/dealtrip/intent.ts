@@ -25,6 +25,7 @@ Return ONLY a JSON object with exactly these keys:
 {
   "destination": string,              // city or region, Title Case, e.g. "Goa"
   "travelers": integer | null,        // number of people, null if not stated
+  "rooms": integer | null,            // rooms they asked for, null if they did not say
   "duration_nights": integer | null,  // null if the traveller never said how long
   "budget": { "max": integer | null, "currency": "INR", "type": "hard_constraint" | "soft_target" },
   "requirements": { "<attribute>": "required" | "preferred" | "avoid" },
@@ -41,6 +42,9 @@ Rules that matter:
 - Use "required" only for things the traveller stated as essential, non-negotiable,
   a must, or a deal-breaker. Use "preferred" for things framed as nice, ideally,
   hopefully, would like. Use "avoid" for things they ruled out.
+- "rooms" is how many rooms they asked for, not how many people. "2 rooms for 4
+  people" is rooms 2 and travelers 4. "a room for 4" is rooms null and travelers 4.
+  Leave rooms null unless they actually named a number of rooms.
 - budget.type is "hard_constraint" when they say hard limit, max, no more than,
   cannot go over, strictly. Otherwise "soft_target".
 - budget.max is the TOTAL trip budget in whole rupees. "60k" means 60000.
@@ -187,6 +191,16 @@ export const heuristicIntent = (raw: string, knownDestinations: string[]): Inten
   if (!/\b(people|persons?|adults?|travell?ers?|guests?|pax|couple|for (two|2))\b/i.test(text))
     ambiguities.push('Party size was not stated; assumed 2 travellers.')
 
+  /*
+   * Rooms, and the trap that comes with them.
+   *
+   * "2 rooms" is a count. "a room for 2" is a party size that happens to sit
+   * next to the word room, and reading it as two rooms would double the bill.
+   * Only a number that PRECEDES the noun is a count, which is what parseCount
+   * matches, so "room for 4 people" yields nothing here and 4 above.
+   */
+  const rooms = parseCount(text, 'rooms?')
+
   const nights = parseCount(text, 'nights?') ?? (parseCount(text, 'days?') ?? 4) - 1
 
   if (!/night|day/i.test(text)) ambiguities.push('Trip length was not stated; assumed 3 nights.')
@@ -231,6 +245,7 @@ export const heuristicIntent = (raw: string, knownDestinations: string[]): Inten
   return {
     destination: destination || 'Goa',
     travelers: Math.max(1, travelers),
+    rooms: rooms === null ? null : Math.min(10, Math.max(1, rooms)),
     duration_nights: Math.max(1, nights),
     budget: {
       max: budgetMax ?? 60_000,
@@ -244,7 +259,8 @@ export const heuristicIntent = (raw: string, knownDestinations: string[]): Inten
     notes: '',
     ambiguities: ambiguities.slice(0, 6),
     restatement:
-      `${Math.max(1, nights)} night${nights === 1 ? '' : 's'} in ${destination || 'Goa'} for ${travelers}, ` +
+      `${Math.max(1, nights)} night${nights === 1 ? '' : 's'} in ${destination || 'Goa'} for ${travelers}` +
+      `${rooms ? ` in ${rooms} room${rooms === 1 ? '' : 's'}` : ''}, ` +
       `up to ${(budgetMax ?? 60_000).toLocaleString('en-IN')} rupees` +
       (requiredList.length ? `, with ${requiredList.join(' and ')} as must-have${requiredList.length === 1 ? '' : 's'}.` : '.')
   }

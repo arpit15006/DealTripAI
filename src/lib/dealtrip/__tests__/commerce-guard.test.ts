@@ -14,6 +14,7 @@ const WINDOW = ['2026-01-04', '2026-01-05', '2026-01-06']
 const intent: TravelIntent = {
   destination: 'Goa',
   travelers: 2,
+  rooms: null,
   duration_nights: 3,
   budget: { max: 60_000, currency: 'INR', type: 'hard_constraint' },
   requirements: { beachfront: 'required', breakfast: 'preferred' },
@@ -47,8 +48,7 @@ const legal: Bundle = {
   room_id: 'ov-standard-beach',
   addon_ids: ['ov-breakfast'],
   discount_pct: 0,
-  check_in: CHECK_IN
-}
+  check_in: CHECK_IN, room_count: 1 }
 
 const check = (offer: Offer, id: string) =>
   guardOffer({ merchant: oceanvista, offer, intent, rounds_used: 0, allowed_check_ins: WINDOW }).checks.find(
@@ -170,8 +170,7 @@ describe('Commerce Guard. Hard versus soft budget', () => {
     room_id: 'ov-premium-beach',
     addon_ids: ['ov-half-board', 'ov-private-transfer', 'ov-spa'],
     discount_pct: 0,
-    check_in: CHECK_IN
-  }
+    check_in: CHECK_IN, room_count: 1 }
 
   it('blocks an over-budget offer when the budget is hard', () => {
     const offer = offerFor(dear)

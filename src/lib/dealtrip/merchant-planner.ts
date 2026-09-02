@@ -16,7 +16,7 @@
  *      should not, that judgement is not in the attribute vocabulary, and it is
  *      the part the model is actually for.
  */
-import { computeQuote, discountToReach, maxAllowedDiscountPct, minimumAllowedPrice } from './pricing'
+import { computeQuote, discountToReach, maxAllowedDiscountPct, minimumAllowedPrice, roomsNeeded } from './pricing'
 
 import type { AddOn, Attribute, Bundle, Merchant, Quote, RequirementStrength, Room, TravelIntent } from './types'
 
@@ -205,11 +205,19 @@ export const enumerateCandidates = ({
   const roomLocked =
     previous && substitution_allowed !== null && !substitution_allowed.includes('room_category')
 
-  const rooms = merchant.rooms.filter(room => {
-    if (roomLocked && room.id !== previous?.room_id) return false
-
-    return room.inventory_available > 0 && room.max_occupancy >= travelers
-  })
+  /*
+   * Which rooms can hold this party, and in how many units.
+   *
+   * The previous filter was `max_occupancy >= travelers`, which required ONE
+   * room to sleep everybody. A party of four then eliminated every property
+   * whose largest room sleeps two, so four travellers asking for two rooms got
+   * a withdrawal from a hotel with forty free doubles. Occupancy is a per-room
+   * limit; the party is fitted across rooms, not into one.
+   */
+  const rooms = merchant.rooms
+    .filter(room => !roomLocked || room.id === previous?.room_id)
+    .map(room => ({ room, count: roomsNeeded(room, travelers, intent.rooms) }))
+    .filter(({ room, count }) => room.inventory_available >= count)
 
   const subsets = addOnSubsets(merchant, avoid)
   const candidates: PlanCandidate[] = []
@@ -217,14 +225,20 @@ export const enumerateCandidates = ({
   const dates = allowed_check_ins.length > 0 ? allowed_check_ins : [previous?.check_in ?? ''].filter(Boolean)
 
   for (const checkIn of dates) {
-    for (const room of rooms) {
+    for (const { room, count } of rooms) {
       for (const addonIds of subsets) {
       // Honour substitution limits: groups the buyer did not open up must match
       // whatever the previous round already contained.
       if (previous && substitution_allowed !== null && !sameOutsideAllowedGroups(merchant, previous.addon_ids, addonIds, substitution_allowed))
         continue
 
-      const bundle: Bundle = { room_id: room.id, addon_ids: addonIds, discount_pct: 0, check_in: checkIn }
+      const bundle: Bundle = {
+        room_id: room.id,
+        addon_ids: addonIds,
+        discount_pct: 0,
+        check_in: checkIn,
+        room_count: count
+      }
 
       let quote: Quote
 
@@ -318,12 +332,34 @@ export const explainNoCandidate = (input: PlanInput): string => {
   const { merchant, intent, nights, travelers, target_price, allowed_check_ins } = input
   const required = requirementsOf(intent, 'required')
 
-  const fitting = merchant.rooms.filter(r => r.inventory_available > 0 && r.max_occupancy >= travelers)
+  const fitting = merchant.rooms
+    .map(room => ({ room, count: roomsNeeded(room, travelers, intent.rooms) }))
+    .filter(({ room, count }) => room.inventory_available >= count)
 
-  if (fitting.length === 0)
-    return `No room at ${merchant.name} both sleeps ${travelers} and has availability.`
+  // Naming the shortfall matters: "we cannot sleep four" and "we have one of
+  // those left and you need two" are different problems, and only the second
+  // one is worth the traveller asking about a different date.
+  if (fitting.length === 0) {
+    const wanted = intent.rooms === null ? null : intent.rooms
 
-  const canDeliver = fitting.filter(room => {
+    const short = merchant.rooms
+      .map(room => ({ room, count: roomsNeeded(room, travelers, intent.rooms) }))
+      .filter(({ room }) => room.inventory_available > 0)
+
+    if (short.length > 0) {
+      const best = short.sort((a, b) => b.room.inventory_available - a.room.inventory_available)[0]
+
+      return (
+        `${merchant.name} would need ${best.count} × ${best.room.name} for ${travelers} ` +
+        `guest${travelers === 1 ? '' : 's'}${wanted === null ? '' : ` at ${wanted} room${wanted === 1 ? '' : 's'}`}, ` +
+        `and has ${best.room.inventory_available} available.`
+      )
+    }
+
+    return `No room at ${merchant.name} has availability for ${travelers} guest${travelers === 1 ? '' : 's'}.`
+  }
+
+  const canDeliver = fitting.map(f => f.room).filter(room => {
     const delivered = new Set<Attribute>([...merchant.attributes, ...room.attributes])
     const reachable = merchant.addons.flatMap(a => a.attributes)
 
@@ -345,7 +381,8 @@ export const explainNoCandidate = (input: PlanInput): string => {
           room_id: room.id,
           addon_ids: merchant.policy.locked_addons,
           discount_pct: 0,
-          check_in: checkIn
+          check_in: checkIn,
+          room_count: roomsNeeded(room, travelers, intent.rooms)
         }
 
         try {

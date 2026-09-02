@@ -88,6 +88,7 @@ export const POST = async (request: Request, { params }: { params: Promise<{ slu
         round: 0,
         nights,
         travelers,
+        requested_rooms: intent.rooms,
         default_check_in: defaultCheckIn,
         now
       })
@@ -110,6 +111,7 @@ export const POST = async (request: Request, { params }: { params: Promise<{ slu
         round: 0,
         nights,
         travelers,
+        requested_rooms: intent.rooms,
         default_check_in: defaultCheckIn,
         now
       })

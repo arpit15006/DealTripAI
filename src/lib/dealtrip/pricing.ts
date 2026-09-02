@@ -40,6 +40,34 @@ export const findRoom = (merchant: Merchant, roomId: string): Room | undefined =
 export const findAddOn = (merchant: Merchant, addonId: string): AddOn | undefined =>
   merchant.addons.find(a => a.id === addonId)
 
+/**
+ * How many units of a room type this party needs.
+ *
+ * Three rules, in order, and the order is the whole point:
+ *
+ *  1. Occupancy is a floor, not a preference. A party of four cannot be sold
+ *     one room that sleeps two however politely they ask, so a stated room
+ *     count is raised to what legally holds them rather than honoured blindly.
+ *  2. A stated count above that floor is honoured. "Two rooms for four" is a
+ *     request for privacy, not a rounding of "one room for four", and quietly
+ *     substituting the cheaper arrangement is the kind of silent downgrade this
+ *     system exists to prevent.
+ *  3. Nobody needs more rooms than there are people, which caps the absurd end
+ *     ("nine rooms for two") without needing to argue with the traveller.
+ *
+ * Inventory is deliberately NOT considered here. Whether the property has the
+ * units is a separate question with a separate answer, and the honest one is a
+ * withdrawal rather than a smaller booking the traveller never agreed to.
+ */
+export const roomsNeeded = (room: Room, travelers: number, requested: number | null): number => {
+  const occupancy = Math.max(1, room.max_occupancy)
+  const party = Math.max(1, travelers)
+  const minimum = Math.ceil(party / occupancy)
+  const wanted = requested === null ? minimum : Math.max(Math.trunc(requested), minimum)
+
+  return Math.min(wanted, party)
+}
+
 /** Add-on price for a whole stay, honouring per-night / per-person flags. */
 export const addOnAmount = (addon: AddOn, nights: number, travelers: number, field: 'price' | 'cost') => {
   const unit = addon[field]
@@ -70,20 +98,26 @@ export const computeQuote = (
   const stayNights = nightsOf(bundle.check_in, nights)
   const weekendNights = countWeekendNights(bundle.check_in, nights)
 
-  const roomAmount = stayNights.reduce(
+  // A bundle written before room_count existed has no field here, and one unit
+  // is the only reading of such a bundle that prices it as it was priced then.
+  const roomCount = Math.max(1, Math.trunc(bundle.room_count ?? 1))
+
+  const perRoomAmount = stayNights.reduce(
     (sum, night) => sum + nightlyRate(room, merchant.weekend_uplift_pct, night),
     0
   )
 
   const lines: QuoteLine[] = [
     {
-      label: `${room.name} × ${nights} night${nights === 1 ? '' : 's'}${weekendNights > 0 ? ` (${weekendNights} weekend)` : ''}`,
+      label:
+        `${room.name}${roomCount > 1 ? ` × ${roomCount} rooms` : ''} × ${nights} night${nights === 1 ? '' : 's'}` +
+        `${weekendNights > 0 ? ` (${weekendNights} weekend)` : ''}`,
       kind: 'room',
       ref_id: room.id,
       unit_price: room.base_price_per_night,
-      quantity: nights,
-      amount: roomAmount,
-      cost: room.cost_per_night * nights
+      quantity: nights * roomCount,
+      amount: perRoomAmount * roomCount,
+      cost: room.cost_per_night * nights * roomCount
     }
   ]
 

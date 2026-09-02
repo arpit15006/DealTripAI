@@ -75,7 +75,7 @@ const PolicyStudio = ({ merchant: initial }: { merchant: Merchant }) => {
 
     // Preview a representative mid-week stay three weeks out.
     const checkIn = resolveCheckIns(null, 0)[0] ?? new Date().toISOString().slice(0, 10)
-    const bundle = { room_id: room.id, addon_ids: policy.locked_addons, discount_pct: 0, check_in: checkIn }
+    const bundle = { room_id: room.id, addon_ids: policy.locked_addons, discount_pct: 0, check_in: checkIn, room_count: 1 }
     const merchant = { ...initial, policy }
 
     try {

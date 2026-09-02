@@ -11,6 +11,7 @@ const hold = (overrides: Partial<Reservation> = {}): Reservation => ({
   offer_id: `off_${Math.random().toString(36).slice(2, 8)}`,
   merchant_id: 'mch_oceanvista',
   room_id: 'ov-premium-beach',
+  units: 1,
   status: 'held',
   created_at: new Date().toISOString(),
   expires_at: new Date(Date.now() + 20 * 60_000).toISOString(),
@@ -24,6 +25,22 @@ describe('inventory reservations, the last room cannot be sold twice', () => {
     assert.ok(await store.reserveRoom(hold(), 2), 'first hold should be granted')
     assert.ok(await store.reserveRoom(hold(), 2), 'second hold should be granted')
     assert.equal(await store.reserveRoom(hold(), 2), null, 'a third must be refused at capacity 2')
+  })
+
+  it('counts units, not rows, so a two-room hold takes two', async () => {
+    const store = await createMemoryStore()
+
+    assert.ok(await store.reserveRoom(hold({ units: 2 }), 3), 'a party needing two rooms fits in three')
+    assert.equal(
+      await store.countActiveReservations('mch_oceanvista', 'ov-premium-beach'),
+      2,
+      'one row holding two rooms must count as two units'
+    )
+
+    // One unit is left, so a second two-room party cannot be squeezed in even
+    // though only a single row exists. Counting rows would have allowed it.
+    assert.equal(await store.reserveRoom(hold({ units: 2 }), 3), null, 'two more must not fit in one')
+    assert.ok(await store.reserveRoom(hold({ units: 1 }), 3), 'the remaining single unit is still sellable')
   })
 
   it('is idempotent for the same offer', async () => {

@@ -14,6 +14,7 @@ const CHECK_IN = '2026-01-05'
 const intent: TravelIntent = {
   destination: 'Goa',
   travelers: 2,
+  rooms: null,
   duration_nights: 3,
   budget: { max: 60_000, currency: 'INR', type: 'hard_constraint' },
   requirements: { beachfront: 'required', breakfast: 'preferred' },
@@ -47,8 +48,8 @@ const scoreOf = (offer: Offer, band = priceBandOf([offer.quote.total_price])) =>
     price_band: band
   })
 
-const withBreakfast: Bundle = { room_id: 'ov-standard-beach', addon_ids: ['ov-breakfast'], discount_pct: 0, check_in: CHECK_IN }
-const withoutBreakfast: Bundle = { room_id: 'ov-standard-beach', addon_ids: [], discount_pct: 0, check_in: CHECK_IN }
+const withBreakfast: Bundle = { room_id: 'ov-standard-beach', addon_ids: ['ov-breakfast'], discount_pct: 0, check_in: CHECK_IN, room_count: 1 }
+const withoutBreakfast: Bundle = { room_id: 'ov-standard-beach', addon_ids: [], discount_pct: 0, check_in: CHECK_IN, room_count: 1 }
 
 describe('deal scoring. Hard constraints gate, they do not merely subtract', () => {
   it('marks an offer ineligible when a must-have is missing, at any price', () => {

@@ -47,6 +47,16 @@ const call = async (path: string, init?: RequestInit) => {
 const IntentShape = {
   destination: z.string().describe('City or region, e.g. "Goa". Must match a destination the marketplace serves.'),
   travelers: z.number().int().min(1).max(20),
+  rooms: z
+    .number()
+    .int()
+    .min(1)
+    .max(10)
+    .nullable()
+    .default(null)
+    .describe(
+      'How many rooms the traveller asked for, or null to let the property decide. This is not party size: 2 rooms for 4 people is rooms 2, travelers 4. A stated count is binding, and is raised only if it cannot legally hold the party.'
+    ),
   duration_nights: z.number().int().min(1).max(30),
   budget_max: z.number().int().positive().describe('Total trip budget in whole rupees.'),
   budget_is_hard: z
@@ -71,6 +81,7 @@ type IntentArgs = { [K in keyof typeof IntentShape]: z.infer<(typeof IntentShape
 const toIntent = (args: IntentArgs) => ({
   destination: args.destination,
   travelers: args.travelers,
+  rooms: args.rooms,
   duration_nights: args.duration_nights,
   budget: { max: args.budget_max, currency: 'INR' as const, type: args.budget_is_hard ? 'hard_constraint' : 'soft_target' },
   requirements: args.requirements,

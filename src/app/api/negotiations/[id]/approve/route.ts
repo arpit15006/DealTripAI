@@ -119,6 +119,7 @@ export const POST = async (request: Request, { params }: { params: Promise<{ id:
           offer_id: offer.id,
           merchant_id: merchant.id,
           room_id: room.id,
+          units: offer.bundle.room_count,
           status: 'held',
           created_at: new Date().toISOString(),
           expires_at: offer.expires_at
@@ -132,12 +133,15 @@ export const POST = async (request: Request, { params }: { params: Promise<{ id:
       'inventory_unavailable',
       `${room.name} at ${merchant.name} was taken while this offer was being considered. Nothing was charged.`,
       'fail',
-      { offer_id: offer.id, room_id: room.id, capacity: room.inventory_available }
+      { offer_id: offer.id, room_id: room.id, units: offer.bundle.room_count, capacity: room.inventory_available }
     )
 
     return json(
       {
-        error: `The last ${room.name} at ${merchant.name} has just been taken.`,
+        error:
+          offer.bundle.room_count > 1
+            ? `${merchant.name} no longer has ${offer.bundle.room_count} × ${room.name} free.`
+            : `The last ${room.name} at ${merchant.name} has just been taken.`,
         remediation: 'Re-run the negotiation, the desk will find what is still available.'
       },
       { status: 409 }
@@ -152,7 +156,7 @@ export const POST = async (request: Request, { params }: { params: Promise<{ id:
   if (tookNewHold)
     await audit(
       'inventory_held',
-      `One ${room?.name} held at ${merchant.name} until ${new Date(reservation.expires_at).toLocaleTimeString('en-IN')}.`,
+      `${reservation.units} × ${room?.name} held at ${merchant.name} until ${new Date(reservation.expires_at).toLocaleTimeString('en-IN')}.`,
       'pass',
       { reservation_id: reservation.id, room_id: reservation.room_id, expires_at: reservation.expires_at }
     )

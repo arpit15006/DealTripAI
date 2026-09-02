@@ -46,6 +46,19 @@ export type Budget = z.infer<typeof BudgetSchema>
 export const TravelIntentSchema = z.object({
   destination: z.string().min(2).max(60),
   travelers: z.number().int().min(1).max(20),
+
+  /**
+   * How many rooms the traveller asked for, or null to let the merchant decide.
+   *
+   * Separate from party size because the two are genuinely different requests.
+   * Four adults who ask for two rooms are not asking for one room that sleeps
+   * four, and treating those as the same thing either books strangers into one
+   * room or throws away every offer a property could legally make. Null means
+   * the traveller did not say, and the merchant fits the party in the fewest
+   * rooms that legally hold it.
+   */
+  rooms: z.number().int().min(1).max(10).nullable().default(null),
+
   duration_nights: z.number().int().min(1).max(30),
   budget: BudgetSchema,
 
@@ -206,7 +219,17 @@ export const BundleSchema = z.object({
    * because which dates a merchant offers is a lever it can pull: a flexible
    * traveller is worth more on a weekday, and the agent gets to say so.
    */
-  check_in: z.string()
+  check_in: z.string(),
+
+  /**
+   * Units of `room_id` being sold. Defaults to 1 so every bundle written before
+   * this field existed still parses and still prices identically.
+   *
+   * Derived by the system, never proposed by a model: it falls out of party
+   * size, room occupancy and what the traveller asked for, which is arithmetic,
+   * and arithmetic that multiplies a price does not belong to a model.
+   */
+  room_count: z.number().int().min(1).max(10).default(1)
 })
 export type Bundle = z.infer<typeof BundleSchema>
 
@@ -299,6 +322,7 @@ export type CheckId =
   | 'catalog_integrity'
   | 'inventory_available'
   | 'occupancy_fits'
+  | 'room_count_matches_request'
   | 'price_integrity'
   | 'discount_ceiling'
   | 'margin_floor'

@@ -175,7 +175,7 @@ Then **try to break it**. Demand a 40% discount against a 5% ceiling:
 ```bash
 curl -sX POST localhost:3000/api/agent/oceanvista/quote \
   -H 'content-type: application/json' \
-  -d '{"intent":{"destination":"Goa","travelers":2,"duration_nights":3,
+  -d '{"intent":{"destination":"Goa","travelers":4,"rooms":2,"duration_nights":3,
        "budget":{"max":60000,"currency":"INR","type":"hard_constraint"},
        "requirements":{"beachfront":"required"},"date_flexibility_days":2,
        "check_in":null,"priority":"best_value","notes":""},

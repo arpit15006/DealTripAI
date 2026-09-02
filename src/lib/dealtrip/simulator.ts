@@ -20,7 +20,7 @@
 import { guardOffer } from './commerce-guard'
 import { resolveCheckIns } from './dates'
 import { runNegotiation } from './orchestrator'
-import { computeQuote } from './pricing'
+import { computeQuote, roomsNeeded } from './pricing'
 import { priceBandOf, scoreOffer } from './scoring'
 import { createMemoryStore } from './store'
 
@@ -74,6 +74,12 @@ export const generateIntents = (count: number, destination: string, seed: number
     intents.push({
       destination,
       travelers,
+
+      // Synthetic demand does not name a room count, so the merchant fits the
+      // party in the fewest rooms that hold it, exactly as it would for a real
+      // traveller who did not say.
+      rooms: null,
+
       duration_nights: nights,
       budget: {
         max: budget,
@@ -124,7 +130,12 @@ const staticSale = (merchants: Merchant[], intent: TravelIntent): Sale | null =>
 
   for (const merchant of merchants) {
     for (const room of merchant.rooms) {
-      if (room.inventory_available <= 0 || room.max_occupancy < travelers) continue
+      // Same room-count arithmetic as the negotiated path. If the baseline
+      // booked one room where negotiation books two, the saving this simulator
+      // reports would be the difference between two different holidays.
+      const roomCount = roomsNeeded(room, travelers, intent.rooms)
+
+      if (room.inventory_available < roomCount) continue
 
       const delivered = new Set<Attribute>([...merchant.attributes, ...room.attributes])
       const chosen = [...merchant.policy.locked_addons]
@@ -164,7 +175,8 @@ const staticSale = (merchants: Merchant[], intent: TravelIntent): Sale | null =>
         room_id: room.id,
         addon_ids: [...new Set(chosen)],
         discount_pct: 0,
-        check_in: staticCheckIn
+        check_in: staticCheckIn,
+        room_count: roomCount
       }
 
       try {
