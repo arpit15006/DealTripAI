@@ -1,6 +1,7 @@
 {
   "name": "shadcn-nextjs-tourix-admin-template",
   "version": "1.0.0",
+  "packageManager": "pnpm@10.18.3",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -77,5 +78,12 @@
     "tailwindcss": "4",
     "tsx": "^4.23.12",
     "typescript": "5.9.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp",
+      "unrs-resolver"
+    ]
   }
 }

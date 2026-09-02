@@ -161,9 +161,15 @@ export const scoreOffer = ({ merchant, offer, intent, opening_offer, verdict, pr
   const extrasRatio = clamp01(extras.length / FULL_CREDIT_EXTRAS)
   const packagePoints = pts(weights.package_value, tierRatio * 0.4 + extrasRatio * 0.6)
 
-  const packageDetail = `${room ? `${room.name} (tier ${room.tier}/5)` : 'Room'} plus ${extras.length} inclusion${extras.length === 1 ? '' : 's'} beyond what was asked for${
-    extras.length ? `: ${extras.slice(0, 4).map(a => ATTRIBUTE_LABELS[a]).join(', ')}${extras.length > 4 ? '…' : ''}` : ''
-  }.`
+  // Named in full rather than trailing off. The card lists every amenity just
+  // below this line, so an elided sentence ending in "..." next to the complete
+  // list read as a bug, and put a stop straight after an ellipsis.
+  const extraNames = extras.map(a => ATTRIBUTE_LABELS[a]).join(', ')
+
+  const packageDetail =
+    `${room ? `${room.name} (tier ${room.tier}/5)` : 'Room'} plus ${extras.length} ` +
+    `inclusion${extras.length === 1 ? '' : 's'} beyond what was asked for` +
+    `${extras.length ? `: ${extraNames}` : ''}.`
 
   /* --- 5. Negotiation gain ----------------------------------------------- */
   let negotiationRatio = CLEAN_OPENING_CREDIT
